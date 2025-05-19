@@ -1,0 +1,39 @@
+.path {
+    color: black;
+    text-decoration: none;
+}
+
+.path:hover {
+    color: #700404;
+    text-decoration: none;
+}
+
+.btn {
+    background-color: #700404;
+    color: white;
+}
+
+.create-btn {
+    background-color: #700404;
+    color: white;
+}
+
+.create-btn:hover {
+    color: gray;
+}
+
+.delete-btn {
+    background-color: #700404;
+    color: white;
+}
+
+.properties {
+    background-color: #700404;
+    color: white;
+}
+
+
+.table th,
+.table td {
+    text-align: center;
+}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>Login</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <!--Stylesheet-->
+  <style media="screen">
+    *,
+    *:before,
+    *:after {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body {}
+
+    .background {
+      width: 430px;
+      height: 520px;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      left: 50%;
+      top: 50%;
+    }
+
+    form {
+      height: 520px;
+      width: 430px;
+      position: absolute;
+      /*transform: translate(-120%,-70%);*/
+      top: 5%;
+      left: 10%;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      /*border: 2px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 40px rgba(8,7,16,0.6);
+    padding: 50px 35px;*/
+    }
+
+    form * {
+      font-family: Manrope;
+      color: black;
+      letter-spacing: 0.5px;
+      outline: none;
+      border: none;
+    }
+
+    form h3 {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 50px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-top: 30px;
+      font-size: 14px;
+      font-weight: 700;
+
+    }
+
+    input {
+      display: block;
+      height: 39px;
+      width: 100%;
+      border-radius: 3px;
+      border: 1px #700404 solid;
+      box-shadow: 0px 3px 6px rgba(18, 15, 40, 0.12);
+      padding: 0 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 300;
+    }
+
+    ::placeholder {
+      color: #a9a9a9;
+    }
+
+    a {
+      font-size: 14px;
+      font-weight: 400;
+      text-decoration: underline;
+      line-height: 22px;
+    }
+
+    .buttons {
+      flex-direction: row;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #ffffff;
+      color: #080710;
+      border: 1px #700404 solid;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      padding-left: 14.50px;
+      padding-right: 13.50px;
+      font-size: 18px;
+      font-weight: 400;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .transparent-button {
+      color: #700404;
+    }
+
+    .red-button {
+      background-color: #700404;
+      color: #FFF012;
+    }
+
+    .text-error {
+      color: red;
+    }
+
+    .text-info {
+      color: blue;
+    }
+  </style>
+
+</head>
+
+<body>
+  <form th:action="@{login}" method="post">
+    <h3>Login</h3>
+
+    <label for="username">Username</label>
+    <input type="text" placeholder="Enter username" id="username" name="username">
+
+    <label for="password">Password</label>
+    <input type="password" placeholder="Enter password" id="password" name="password">
+
+    <div th:if="${param.error != null}">
+      <p class="text-error" th:text="'Bad Credentials!'"></p>
+    </div>
+
+    <div th:if="${param.logout != null}">
+      <p class="text-info" th:text="'You have been logged out'"></p>
+    </div>
+
+    <div class="buttons">
+      <button class="transparent-button" th:attr="onclick=|window.location.href = '/'|">Cancel</button>
+      <button class="red-button" type="submit">Login</button>
+    </div>
+
+  </form>
+</body>
+
+</html>

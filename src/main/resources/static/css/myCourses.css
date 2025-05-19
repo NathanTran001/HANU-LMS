@@ -1,0 +1,47 @@
+:root {
+	--accent-yellow: #fff012;
+	--primary800: #700404;
+	--primary500: #823838;
+}
+
+.course-item-container {
+	margin-bottom: 2rem;
+}
+
+.course-title-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.buttons-container {
+	display: flex;
+	gap: 5px;
+}
+
+.course-title {
+	text-decoration: none;
+	color: var(--primary800);
+	font-size: x-large;
+	font-weight: bold;
+	margin-block: 1rem;
+}
+
+#title-container {
+	align-items: center;
+}
+
+.course-description {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	margin-top: 0;
+	text-align: justify;
+	line-height: 2rem;
+}
+
+.lecturers {
+	color: var(--primary800);
+	width: fit-content;
+}

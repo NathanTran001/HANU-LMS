@@ -1,0 +1,58 @@
+:root {
+	--accent-yellow: #fff012;
+	--primary800: #700404;
+	--primary500: #823838;
+}
+* {
+	margin: 0;
+	padding: 0;
+}
+#hanu-header {
+	background-color: var(--primary800);
+}
+
+.hanu-button {
+	background-color: var(--primary800);
+}
+a {
+	cursor: pointer;
+	text-decoration: none;
+	color: var(--accent-yellow);
+}
+a:hover {
+	color: var(--accent-yellow);
+}
+
+header a:hover {
+	border-top: 1px solid var(--accent-yellow);
+	border-bottom: 1px solid var(--accent-yellow);
+	transition: border-color 0.3s ease;
+}
+
+.done {
+	background-color: green;
+}
+.hanu-search,
+.hanu-search:hover {
+	background-color: var(--primary500);
+	color: var(--accent-yellow);
+}
+.hanu-color {
+	color: var(--accent-yellow);
+}
+.hanu-mark-as-done {
+	color: var(--accent-yellow);
+	border-color: var(--accent-yellow);
+}
+.hidden {
+	display: block;
+}
+.nested-list {
+	display: none; /* Hide the nested lists by default */
+}
+.hover-item:hover .nested-list {
+	display: block; /* Display the list when hovering */
+}
+.brown-h3 {
+	color: var(--primary800);
+}

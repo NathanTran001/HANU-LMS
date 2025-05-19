@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Courses</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+  <link rel="stylesheet" th:href="@{/css/myCourses.css}">
+  <link rel="stylesheet" th:href="@{/css/shared.css}">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <script th:src="@{/js/myCourses.js}"></script>
+  <script th:src="@{/js/script.js}"></script>
+</head>
+
+<body>
+  <div layout:fragment="content" class="container-lg">
+    <div id="path-container">
+      <a href="" class="path">Home</a> /
+      <a href="" class="path">Search Result</a>
+    </div>
+    <div id="title-container">
+      <h1 id="title">Search Result</h1>
+    </div>
+    <div th:text="${numberOfFoundCourses} + ' courses found for &quot;' + ${searchPhrase} + '&quot;'"></div>
+    <div th:each="course : ${foundCourses}" class="course-item-container">
+      <div class="course-title-container">
+        <a class="course-title hyperlink" th:href="'/myCourses/course-details/' + ${course.code}" th:text="${course.code} + ' - ' + ${course.name}"></a>
+      </div>
+      <p class="course-description" th:text="${course.description}"></p>
+      <span class="lecturers" th:each="lecturer, iterStat : ${course.lecturers}">
+        <span th:text="${lecturer.name}"></span>
+        <span th:if="${!iterStat.last}" class="abc"> | </span>
+      </span>
+    </div>
+
+  </div>
+</body>
+
+</html>

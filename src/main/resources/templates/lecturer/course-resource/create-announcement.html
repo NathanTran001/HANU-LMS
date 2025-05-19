@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Create announcement</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mt-4">
+    <form id="create-announcement-form" th:object="${announcement}" th:method="post" th:action="/create-announcement">
+        <div class="mb-3">
+            <label for="announcement-name" class="col-form-label"
+            >Title:</label
+            >
+            <input
+                    type="text"
+                    class="form-control"
+                    id="announcement-name"
+                    name="assign-title"
+                    th:field="*{announcementTitle}"
+            />
+        </div>
+        <div class="mb-3">
+            <label for="announcement-message-text" class="col-form-label"
+            >Description:</label
+            >
+            <textarea
+                    class="form-control"
+                    id="announcement-message-text"
+                    name="assign-description"
+                    th:field="*{announcementDescription}"
+            ></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="attchment" class="col-form-label"
+            >Attachment:</label
+            >
+            <input
+                    type="text"
+                    class="form-control"
+                    id="attchment"
+                    name="attachment"
+                    th:field="*{attachment}"
+            />
+        </div>
+        <div class="mb-3">
+            <button
+                    type="button"
+                    class="btn btn-secondary"
+            >
+                Back
+            </button>
+            <button type="submit" class="btn btn-danger">Submit</button>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>

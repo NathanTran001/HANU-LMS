@@ -1,0 +1,18 @@
+.btn {
+    background-color: #700404;
+    color: white;
+}
+
+.create-btn:hover {
+    color: #700404;
+}
+
+.path {
+    color: black;
+    text-decoration: none;
+}
+
+.path:hover {
+    color: #700404;
+    text-decoration: none;
+}

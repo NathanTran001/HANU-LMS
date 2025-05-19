@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Courses</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.css}">
+  <link rel="stylesheet" th:href="@{/css/myCourses.css}">
+  <script th:src="@{/js/jquery/jquery-3.7.0.js}"></script>
+  <script th:src="@{/js/bootstrap/bootstrap.js}"></script>
+  <script th:src="@{/js/myCourses.js}"></script>
+  <script>
+    function onEditClick(courseCode) {
+      window.location.href = "/editCourse/" + courseCode;
+    }
+
+    function onCreateClick() {
+      window.location.href = "/createCourse";
+    }
+
+    function onDeleteClick(courseCode) {
+      window.location.href = "/deleteCourse/" + courseCode;
+    }
+  </script>
+
+</head>
+
+<body>
+  <div layout:fragment="content" class="container-lg">
+    <div id="path-container">
+      <a href="" class="path">Home</a> /
+      <a href="" class="path">My Courses</a>
+    </div>
+    <div id="title-container" class="mb-3">
+      <h1 id="title">MY COURSES</h1>
+      <button class="base-button" onclick="onCreateClick()">Create</button>
+    </div>
+
+    <div class="text-success" id="messages" th:text="${message}"></div>
+
+    <div th:each="course : ${courses}" class="course-item-container">
+      <div class="course-title-container">
+
+        <a class="course-title hyperlink" th:href="'/myCourses/course-details/' + ${course.code}" th:text="${course.code} + ' - ' + ${course.name}"></a>
+
+        <div class="buttons-container">
+          <button class="base-button" id="edit-button" th:attr="onclick=|onEditClick('${course.code}')|">Edit</button>
+          <!--          Button trigger modal -->
+          <button class="base-button" data-toggle="modal" th:data-target="'#confirmModal-'+${course.code}">Delete</button>
+        </div>
+      </div>
+      <p class="course-description" th:text="${course.description}"></p>
+      <span class="lecturers" th:each="lecturer, iterStat : ${course.lecturers}">
+        <span th:text="${lecturer.name}"></span>
+        <span th:if="${!iterStat.last}" class="abc"> | </span>
+      </span>
+
+      <!-- Modal -->
+      <div class="modal fade" th:id="'confirmModal-'+${course.code}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Delete Course</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              Do you want to delete this course?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button th:attr="onclick=|onDeleteClick('${course.code}')|" class="btn btn-danger">Delete</button>
+              <!-- <a th:href="'/deleteCourse/' + ${course.code}" class="btn btn-danger">Delete</a> -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--    End Modal-->
+
+    </div>
+
+  </div>
+</body>
+
+</html>

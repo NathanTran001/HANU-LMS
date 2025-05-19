@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="_layout">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Faculty Announcements</title>
+    <script src="/js/jquery-3.7.0.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/css/faculty-announcement.css">
+    <script src="/assets/js/faculty-announcement.js"></script>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container">
+            <div class="row path-container mt-3">
+                <a href="" class="path">Home</a> /
+                <a href="" class="path">Faculty Announcements</a> /
+                <a href="" class="path">Create new Faculty Announcements</a>
+            </div>
+            <div class="row title-container my-2">
+                <h3 class="title">CREATE FACULTY ANNOUNCEMENTS</h3>
+            </div>
+            <form>
+                <div class="row mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" placeholder="Enter the title">
+                </div>
+                <div class="row mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" rows="3"></textarea>
+                </div>
+                <div class="row mb-3">
+                    <button type="submit" class="btn btn-outline-secondary mb-3 px-5 py-2">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>

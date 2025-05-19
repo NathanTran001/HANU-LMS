@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout-admin">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create new Faculty</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.min.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/account.css}">
+  <script th:src="@{/js/bootstrap/bootstrap.min.js}"></script>
+  <script th:src="@{/js/account.js}"></script>
+  <script th:src="@{/js/jquery/jquery-3.7.0.js}"></script>
+</head>
+
+<body>
+  <div layout:fragment="content">
+    <div class="list-accounts container">
+      <div class="row path-container mt-3">
+        <a href="" class="path">Home</a> /
+        <a href="" class="path">Accounts Management</a> /
+        <a href="" class="path">Create new Account</a>
+      </div>
+      <div class="row title-container my-2">
+        <h3 class="title">CREATE NEW FACULTY</h3>
+      </div>
+
+      <form th:action="'/admin/createFaculty'" th:object="${faculty}" method="post">
+        <div class="row mb-3">
+          <label for="facultyCode" class="form-label">Faculty Code</label>
+          <input th:field="*{code}" type="text" class="form-control" id="facultyCode" placeholder="Enter Faculty Code" required>
+          <div th:if="${#fields.hasErrors('code')}"
+                 th:errorclass="error" th:errors="*{code}"/>
+        </div>
+        <div class="row mb-3">
+          <label for="facultyName" class="form-label">Faculty Name</label>
+          <input th:field="*{name}" type="text" class="form-control" id="facultyName" placeholder="Enter Faculty Name" required>
+          <div th:if="${#fields.hasErrors('name')}"
+                 th:errorclass="error" th:errors="*{name}"/>
+        </div>
+        <div class="row mb-3">
+          <button type="submit" class="btn btn-outline-secondary mb-3 px-5 py-2">Create</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</body>
+
+</html>

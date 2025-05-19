@@ -1,0 +1,75 @@
+:root {
+	--accent-yellow: #fff012;
+	--primary500: #823838;
+	--primary800: #700404;
+	--primary1000: #570303;
+}
+
+.base-button {
+	background-color: var(--primary800);
+	color: var(--accent-yellow);
+	border: 0px;
+	padding-block: 0.4rem;
+	padding-inline: 1rem;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	border-radius: 5px;
+	font-size: clamp(0.1rem, 1rem, 1.5rem);
+	cursor: pointer;
+}
+
+.base-button:hover {
+	background-color: var(--primary1000);
+	transition: background-color 0.3s ease;
+}
+
+.base-button:active {
+	background-color: var(--primary800);
+	transition: background-color 0.05s ease;
+}
+
+.hyperlink:hover {
+	text-decoration: none;
+	color: var(--primary1000);
+}
+
+#path-container {
+	align-items: center;
+	padding-top: 5vh;
+}
+
+.path {
+	text-decoration: none;
+	color: black;
+}
+
+#title-container {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.cancel-button {
+	border: 1px solid var(--primary800);
+	color: var(--primary800);
+	border-width: 1px;
+	padding-block: 0.4rem;
+	padding-inline: 1rem;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	border-radius: 5px;
+	font-size: clamp(0.1rem, 1rem, 1.5rem);
+	cursor: pointer;
+	background-color: transparent;
+}
+
+.cancel-button:hover {
+	border: 1px solid var(--primary1000);
+	color: var(--primary1000);
+	transition: border color 0.3s ease;
+}
+
+.cancel-button:active {
+	border: 1px solid var(--primary800);
+	color: var(--primary800);
+	transition: border color 0.05s ease;
+}

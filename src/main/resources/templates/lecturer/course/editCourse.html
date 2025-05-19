@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="_layout">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Courses</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+  <link rel="stylesheet" th:href="@{/css/editCourse.css}">
+  <link rel="stylesheet" th:href="@{/css/shared.css}">
+  <script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+      const customSelects = document.querySelectorAll(".custom-select");
+      customSelects.forEach((customSelect) => {
+        const selectedOptions = Array.from(
+            customSelect.querySelectorAll(".option.active")
+          )
+          .filter(
+            (option) => option !== customSelect.querySelector(".option.all-tags")
+          )
+          .map(function(option) {
+            return {
+              value: option.getAttribute("data-value"),
+              text: option.textContent.trim(),
+            };
+          });
+
+        const selectedValues = selectedOptions.map(function(option) {
+          return parseInt(option.value);
+        });
+      })
+
+      function updateSelectedOptions(customSelect) {
+        const selectedOptions = Array.from(
+            customSelect.querySelectorAll(".option.active")
+          )
+          .filter(
+            (option) => option !== customSelect.querySelector(".option.all-tags")
+          )
+          .map(function(option) {
+            return {
+              value: option.getAttribute("data-value"),
+              text: option.textContent.trim(),
+            };
+          });
+
+        const selectedValues = selectedOptions.map(function(option) {
+          return option.value;
+        });
+
+        customSelect.querySelector(".tags_input").value = selectedValues.join(", ");
+
+        let tagsHTML = "";
+
+        if (selectedOptions.length === 0) {
+          tagsHTML = '<span class="placeholder">Select lecturers</span>';
+        } else {
+          const maxTagsToShow = 3;
+          let additionalTagsCount = 0;
+
+          selectedOptions.forEach(function(option, index) {
+            if (index
+
+              <
+              maxTagsToShow) {
+              tagsHTML += '<span class="tag">' + option.text + '<span class="remove-tag" data-value="' + option.value + '">&times;</span></span>';
+            } else {
+              additionalTagsCount++;
+            }
+          });
+          if (additionalTagsCount > 0) {
+            tagsHTML += '<span class="tag">+' + additionalTagsCount + "</span>";
+          }
+        }
+
+        customSelect.querySelector(".selected-options").innerHTML = tagsHTML;
+      }
+
+      customSelects.forEach(function(customSelect) {
+        const searchInput = customSelect.querySelector(".search-tags");
+        const optionsContainer = customSelect.querySelector(".options");
+        const noResultMessage = customSelect.querySelector(".no-result-message");
+        const options = customSelect.querySelectorAll(".option");
+        const allTagsOption = customSelect.querySelector(".option.all-tags");
+        const clearButton = customSelect.querySelector(".clear");
+
+        allTagsOption.addEventListener("click", function() {
+          const isActive = allTagsOption.classList.contains("active");
+
+          options.forEach(function(option) {
+            if (option !== allTagsOption) {
+              option.classList.toggle("active", !isActive);
+            }
+          });
+
+          updateSelectedOptions(customSelect);
+        });
+
+        clearButton.addEventListener("click", function() {
+          searchInput.value = "";
+          options.forEach(function(option) {
+            option.style.display = "block";
+          });
+          noResultMessage.style.display = "none";
+        });
+
+        searchInput.addEventListener("input", function() {
+          const searchTerm = searchInput.value.toLowerCase();
+
+          options.forEach(function(option) {
+            const optionText = option.textContent.trim().toLocaleLowerCase();
+            const shouldShow = optionText.includes(searchTerm);
+            option.style.display = shouldShow ? "block" : "none";
+          });
+
+          const anyOptionsMatch = Array.from(options).some(
+            (option) => option.style.display === "block"
+          );
+          noResultMessage.style.display = anyOptionsMatch ? "none" : "block";
+
+          if (searchTerm) {
+            optionsContainer.classList.add("option-search-active");
+          } else {
+            optionsContainer.classList.remove("option-search-active");
+          }
+        });
+      });
+
+      customSelects.forEach(function(customSelect) {
+        const options = customSelect.querySelectorAll(".option");
+        options.forEach(function(option) {
+          let lecturerIds = /*[[${lecturerIds}]]*/ "default";
+          let faculty = /*[[${lecturerIds}]]*/ "default";
+          const optionValue = parseInt(option.getAttribute("data-value"));
+          if (lecturerIds.includes(optionValue)) {
+            option.classList.add("active");
+            updateSelectedOptions(customSelect);
+          }
+
+          option.addEventListener("click", function() {
+            option.classList.toggle("active");
+            updateSelectedOptions(customSelect);
+          });
+        });
+      });
+
+      document.addEventListener("click", function(event) {
+        const removeTag = event.target.closest(".remove-tag");
+        if (removeTag) {
+          const customSelect = removeTag.closest(".custom-select");
+          const valueToRemove = removeTag.getAttribute("data-value");
+          const optionToRemove = customSelect.querySelector(
+            ".option[data-value='" + valueToRemove + "']"
+          );
+          optionToRemove.classList.remove("active");
+
+          const otherSelectedOptions = customSelect.querySelectorAll(
+            ".option.active:not(.all-tags)"
+          );
+          const allTagsOption = customSelect.querySelector(".option.all-tags");
+
+          if (otherSelectedOptions.length === 0) {
+            allTagsOption.classList.remove("active");
+          }
+          updateSelectedOptions(customSelect);
+        }
+      });
+
+      const selectBoxed = document.querySelectorAll(".select-box");
+      selectBoxed.forEach(function(selectBox) {
+        selectBox.addEventListener("click", function(event) {
+          if (!event.target.closest(".tag")) {
+            selectBox.parentNode.classList.toggle("open");
+          }
+        });
+      });
+
+      document.addEventListener("click", function(event) {
+        if (
+          !event.target.closest(".custom-select") &&
+          !event.target.classList.contains("remove-tag")
+        ) {
+          customSelects.forEach(function(customSelect) {
+            customSelect.classList.remove("open");
+          });
+        }
+      });
+
+      function resetCustomSelects() {
+        customSelects.forEach(function(customSelect) {
+          customSelect
+            .querySelectorAll(".option.active")
+            .forEach(function(option) {
+              option.classList.remove("active");
+            });
+          customSelect.querySelector(".option.all-tags").classList.remove("active");
+          updateSelectedOptions(customSelect);
+        });
+      }
+
+      updateSelectedOptions(customSelects[0]);
+
+      customSelects.forEach(function(customSelect) {
+        customSelect.classList.remove("open");
+      });
+
+      const formEl = document.querySelector('#edit-course-form')
+      const errorMessages = document.getElementById('error-messages');
+      formEl.addEventListener('submit', event => {
+        event.preventDefault()
+
+        const formData = new FormData(formEl);
+        const data = new URLSearchParams(formData);
+
+        fetch('/confirmEditCourse', {
+            method: 'POST',
+            body: data,
+          }).then(response => {
+            return response.json();
+          }).then(data => {
+            if (data[0] === "success") {
+              window.location.href = '/editCourse/' + data[0] + '/' + data[1];
+            } else {
+              // Clear existing error messages
+              errorMessages.innerHTML = '';
+
+              data.forEach(errorMessage => {
+                const div = document.createElement('div');
+                div.textContent = errorMessage.trim();
+                errorMessages.appendChild(div);
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      })
+    });
+  </script>
+</head>
+
+<body>
+  <div layout:fragment="content" class="container-lg">
+    <div id="path-container">
+      <a href="" class="path">Home</a> /
+      <a href="" class="path">Edit Course</a>
+    </div>
+    <div id="title-container">
+      <h1 id="title">Edit Course</h1>
+    </div>
+
+    <div class="text-success" id="messages" th:text="${message}"></div>
+
+    <section>
+      <form method="post" class="row my-4" id="edit-course-form" th:action="'/confirmEditCourse'">
+        <div class="col-7">
+          <label for="course-code" class="form-label">Course Code</label>
+          <div class="mb-3 input-group">
+            <span class="input-group-text">
+              <i class="bi bi-hash text-secondary"></i>
+            </span>
+            <input readonly required type="text" id="course-code" class="form-control" placeholder="e.g. 61FIT3SE2" th:field="${course.code}" />
+          </div>
+          <label for="course-name" class="form-label">Course Name</label>
+          <div class="mb-3 input-group">
+            <span class="input-group-text">
+              <i class="bi bi-book-half text-secondary"></i>
+            </span>
+            <input required type="text" id="course-name" class="form-control" placeholder="e.g. Software Engineering 2" th:field="${course.name}" />
+          </div>
+          <label for="enrolment-key" class="form-label">Enrolment Key</label>
+          <div class="mb-3 input-group">
+            <span class="input-group-text">
+              <i class="bi bi-key-fill text-secondary"></i>
+            </span>
+            <input required type="text" id="enrolment-key" class="form-control" th:field="${course.enrolmentKey}" />
+          </div>
+          <label for="lecturers" class="form-label">Lecturers</label>
+
+          <div class="mb-3 input-group">
+            <span class="input-group-text">
+              <i class="bi bi-people-fill text-secondary"></i>
+            </span>
+            <div class="custom-select open">
+              <div class="select-box">
+                <input required type="text" class="tags_input" name="tags" th:field="${course.lecturers}" />
+                <div class="selected-options">
+                </div>
+                <div class="arrow">
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+              </div>
+              <div class="options">
+                <div class="option-search-tags">
+                  <input type="text" class="search-tags" placeholder="Search lecturers...">
+                  <button type="button" class="clear">
+                    <i class="fa fa-close"></i>
+                  </button>
+                </div>
+                <div class="option all-tags" data-value="All">Select All</div>
+                <div th:each="lecturer : ${allLecturers}" th:text="${lecturer.name}" class="option" th:attr="data-value=${lecturer.id}"></div>
+                <div class="no-result-message" style="display: none;">No matched results</div>
+              </div>
+              <span class="tag_error_msg error"></span>
+            </div>
+          </div>
+
+          <label for="description">Course Description</label>
+          <div class="mb-3 form-floating">
+            <textarea required class="form-control" id="description" style="height: 140px" placeholder="e.g. Software Engineering 2 is..." th:field="${course.description}"></textarea>
+          </div>
+          <label for="course-image-input" class="form-label">Course Image</label>
+          <div class="mb-4 input-group">
+            <span class="input-group-text">
+              <i class="bi bi-card-image text-secondary"></i>
+            </span>
+            <input type="file" class="form-control" id="course-image-input" accept="image/*">
+          </div>
+          <div class="mb-4 text-danger" id="error-messages"></div>
+          <div class="mb-3">
+            <button class="cancel-button" th:attr="onclick=|window.location.href = '/myCourses'|">Cancel</button>
+            <button type="submit" class="base-button">Save</button>
+          </div>
+        </div>
+        <div class="col-3 mx-3">
+          <label for="faculty-code-input" class="form-label">Faculty Code</label>
+          <div class="mb-3 input-group">
+            <span class="input-group-text">
+              <i class="bi bi-alphabet-uppercase text-secondary"></i>
+            </span>
+            <select required class="form-select col" id="faculty-code-input" th:field="${course.faculty}">
+              <option value="" selected disabled>Select Faculty Code</option>
+              <option th:each="faculty : ${faculties}" th:value="${faculty.code}" th:text="${faculty.code}" />
+            </select>
+          </div>
+        </div>
+      </form>
+    </section>
+  </div>
+</body>
+
+</html>

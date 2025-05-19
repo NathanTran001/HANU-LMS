@@ -1,0 +1,42 @@
+:root {
+	--accent-yellow: #fff012;
+	--primary800: #700404;
+	--primary500: #823838;
+}
+#path-container {
+	align-items: center;
+	padding-top: 5vh;
+}
+
+.path {
+	text-decoration: none;
+	color: black;
+}
+#carouselExampleControls{
+    max-width: 100%;
+    margin: 0 auto;
+    margin-top: 20px;
+    width: 100%;
+}
+#title-container{
+    margin-top: 20px;
+}
+#overview-img{
+    max-width: 100%;
+    width: 80%;
+}
+#block{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    height: 30px;
+    background-color: var(--primary800);
+}
+#admin-name{
+    font-weight: 700; 
+    line-height: 28px;
+    margin-left: 10px;
+}
+.timestamp{
+    display: flex;
+    background-color: gainsboro;
+}

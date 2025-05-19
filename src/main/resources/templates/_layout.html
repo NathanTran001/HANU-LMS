@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HANU LMS Layout</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.css}">
+  <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.min.css}">
+  <link rel="stylesheet" th:href="@{/css/_layout.css}">
+  <link rel="stylesheet" th:href="@{/css/shared.css}">
+  <link rel="stylesheet" th:href="@{/svgs/bootstrap-icons-1.11.3/font/bootstrap-icons.css}">
+  <script>
+    // Function to toggle the dropdown menu
+    function toggleDropdown(event) {
+      var dropdownContent = document.getElementById("dropdownContent");
+      dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
+
+      // Stop propagation if the event originated from the chevron icon
+      if (event.target.id === "chevron-icon") {
+        event.stopPropagation();
+      }
+    }
+
+    // Function to hide the dropdown menu if clicked outside
+    document.addEventListener("click", function(event) {
+      var dropdownContent = document.getElementById("dropdownContent");
+      var target = event.target;
+
+      // Check if the clicked element is not inside the dropdown content and if the dropdown is open
+      if (dropdownContent.style.display === "block" && !dropdownContent.contains(target)) {
+        dropdownContent.style.display = "none";
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row align-items-center justify-content-between" id="body-container">
+      <div class="col-9 col-md-7">
+        <div class="row align-items-center">
+          <div class="col-3">
+            <div class="row align-items-center flex-nowrap">
+              <img src="/images/HANU.png" id="logo">
+              <span id="logo-title">HANU LMS</span>
+            </div>
+          </div>
+          <div class="col-7">
+            <div class="row align-items-center justify-content-around flex-nowrap">
+
+              <div class="col align-items-center text-center">
+                <a href="/" class="navbar-item mx-2 my-1">Home</a>
+              </div>
+              <div class="col align-items-center text-center">
+                <a href="/myCourses" class="navbar-item mx-2 my-1">My Courses</a>
+              </div>
+              <div class="col align-items-center text-center">
+
+                <a href="" class="navbar-item mx-2 my-1">Faculty Announcements</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3 col-md-4">
+        <div class="row align-items-center justify-content-end flex-nowrap">
+
+          <div class="col-sm-4 col-md-6">
+            <div class="row align-items-center justify-content-end">
+              <div id="searchbar-container" class="d-none d-md-flex py-2">
+                <i class="bi bi-search" aria-hidden="true" id="search-icon"></i>
+                <input type="text" value="Search..." id="searchbar" onkeydown="searchKeyPress(event)">
+              </div>
+            </div>
+          </div>
+
+          <div th:if="${#authentication != null}" class="col">
+            <div class="row align-items-center justify-content-end flex-nowrap">
+              <button class="button">
+                <i class="bi bi-bell-fill"></i>
+              </button>
+
+              <a th:text="${#authentication.principal.name}" id="username"></a>
+              <div id="avatar-container">
+                <img src="/images/HANU.png">
+              </div>
+
+              <button class="button" onclick="toggleDropdown(event)">
+                <i class="bi bi-chevron-down" id="chevron-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- <div th:if="${#authentication != null}" class="col">
+            <div class="row align-items-center justify-content-center flex-nowrap">
+              <button class="base-button px-5" th:attr="onclick=|window.location.href = '/logout'|">
+                Logout
+              </button>
+            </div>
+          </div> -->
+
+          <div class="dropdown-content justify-content-center" id="dropdownContent">
+            <a class="hyperlink" href="/logout"><i class="bi bi-box-arrow-right"></i>  Logout</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div layout:fragment="content">
+    <!-- content page will override this -->
+  </div>
+
+  <div id="footer-container">
+    &copy; 2024 SE204 Group 2, Inc
+  </div>
+  <script>
+    // Get the search input element
+    var searchInput = document.getElementById('searchbar');
+
+    // Add event listener for focus event
+    searchInput.addEventListener('focus', function(event) {
+      // Check if the current value is "Search..."
+      if (event.target.value === 'Search...') {
+        // Clear the input value
+        event.target.value = '';
+      }
+    });
+    searchInput.addEventListener('blur', function(event) {
+      // Check if the current value is "Search..."
+      if (event.target.value === '') {
+        // Clear the input value
+        event.target.value = 'Search...';
+      }
+    });
+
+    function searchKeyPress(event) {
+      if (event.keyCode === 13) { // Check if Enter key is pressed
+        const searchPhrase = document.getElementById("searchbar").value;
+        if (searchPhrase.trim() === "") {
+          window.location.href = "/searchCourseEmpty";
+        } else {
+          window.location.href = "/searchCourse/" + searchPhrase;
+
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>
