@@ -6,19 +6,11 @@ import styles from "./styles/FacultyListPage.module.css";
 import api from "../services/apiService";
 import { createFacultyPage } from "../App";
 
-const PAGE_SIZE = 10;
-
 const FacultyListPage = () => {
-	const [facultyData, setFacultyData] = useState({
-		content: [],
-		totalPages: 0,
-		totalElements: 0,
-		number: 0,
-	});
+	const [faculties, setFaculties] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 	const [searchTerm, setSearchTerm] = useState("");
-	const [currentPage, setCurrentPage] = useState(0);
 	const [deleteModal, setDeleteModal] = useState({
 		isOpen: false,
 		faculty: null,
@@ -27,17 +19,16 @@ const FacultyListPage = () => {
 
 	useEffect(() => {
 		fetchFaculties();
-	}, [currentPage]);
+	}, []);
 
 	const fetchFaculties = async () => {
 		try {
 			setLoading(true);
-			const response = await api.getFaculties(currentPage, PAGE_SIZE);
-			console.log("Fetched faculties:", response);
-
-			setFacultyData(response);
+			const fetchedFaculties = await api.getFaculties();
+			setFaculties(Array.isArray(fetchedFaculties) ? fetchedFaculties : []);
 		} catch (error) {
 			console.error("Error fetching faculties:", error);
+
 			if (error.response && error.response.status === 403) {
 				setError("You are not authorized to access this resource (403)");
 				navigate("/");
@@ -49,12 +40,7 @@ const FacultyListPage = () => {
 		}
 	};
 
-	const handleSearch = async (e) => {
-		e.preventDefault();
-		// Reset to first page when searching
-		setCurrentPage(0);
-		await fetchFaculties();
-	};
+	const handleSearch = async (e) => {};
 
 	const handleCreateFaculty = () => {
 		navigate(createFacultyPage);
@@ -71,49 +57,19 @@ const FacultyListPage = () => {
 		});
 	};
 
-	const handleDeleteConfirm = async () => {
-		// Add your delete logic here
-	};
+	const handleDeleteConfirm = async () => {};
 
 	const handleDeleteCancel = () => {
 		setDeleteModal({ isOpen: false, faculty: null });
 	};
 
-	const handlePageChange = (newPage) => {
-		setCurrentPage(newPage);
-	};
-
-	const renderPagination = () => {
+	if (loading) {
 		return (
-			<div className={styles.pagination}>
-				<button
-					onClick={() => handlePageChange(currentPage - 1)}
-					disabled={currentPage === 0}
-					className={styles.paginationButton}
-				>
-					Previous
-				</button>
-				{[...Array(facultyData?.totalPages)].map((_, index) => (
-					<button
-						key={index}
-						onClick={() => handlePageChange(index)}
-						className={`${styles.paginationButton} ${
-							currentPage === index ? styles.activePage : ""
-						}`}
-					>
-						{index + 1}
-					</button>
-				))}
-				<button
-					onClick={() => handlePageChange(currentPage + 1)}
-					disabled={currentPage === facultyData?.totalPages - 1}
-					className={styles.paginationButton}
-				>
-					Next
-				</button>
-			</div>
+			<Layout>
+				<div className={styles.loading}>Loading faculties...</div>
+			</Layout>
 		);
-	};
+	}
 
 	return (
 		<div className={styles.listAccounts}>
@@ -202,7 +158,7 @@ const FacultyListPage = () => {
 									Loading faculties...
 								</td>
 							</tr>
-						) : facultyData?.content.length === 0 ? (
+						) : faculties.length === 0 ? (
 							<tr>
 								<td
 									colSpan="7"
@@ -212,7 +168,7 @@ const FacultyListPage = () => {
 								</td>
 							</tr>
 						) : (
-							facultyData?.content.map((faculty) => (
+							faculties.map((faculty) => (
 								<tr
 									key={faculty.code}
 									className={styles.tableRow}
@@ -256,9 +212,6 @@ const FacultyListPage = () => {
 					</tbody>
 				</table>
 			</div>
-
-			{/* Pagination Controls */}
-			{!loading && facultyData?.content.length > 0 && renderPagination()}
 
 			{/* Delete Confirmation Modal */}
 			<ConfirmModal
