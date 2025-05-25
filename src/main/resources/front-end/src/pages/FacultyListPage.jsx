@@ -1,0 +1,278 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
+import ConfirmModal from "../components/ConfirmModal";
+import styles from "./styles/FacultyListPage.module.css";
+import api from "../services/apiService";
+import { createFacultyPage } from "../App";
+
+const PAGE_SIZE = 10;
+
+const FacultyListPage = () => {
+	const [facultyData, setFacultyData] = useState({
+		content: [],
+		totalPages: 0,
+		totalElements: 0,
+		number: 0,
+	});
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState("");
+	const [searchTerm, setSearchTerm] = useState("");
+	const [currentPage, setCurrentPage] = useState(0);
+	const [deleteModal, setDeleteModal] = useState({
+		isOpen: false,
+		faculty: null,
+	});
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		fetchFaculties();
+	}, [currentPage]);
+
+	const fetchFaculties = async () => {
+		try {
+			setLoading(true);
+			const response = await api.getFaculties(currentPage, PAGE_SIZE);
+			console.log("Fetched faculties:", response);
+
+			setFacultyData(response);
+		} catch (error) {
+			console.error("Error fetching faculties:", error);
+			if (error.response && error.response.status === 403) {
+				setError("You are not authorized to access this resource (403)");
+				navigate("/");
+			} else {
+				setError("Network error occurred");
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleSearch = async (e) => {
+		e.preventDefault();
+		// Reset to first page when searching
+		setCurrentPage(0);
+		await fetchFaculties();
+	};
+
+	const handleCreateFaculty = () => {
+		navigate(createFacultyPage);
+	};
+
+	const handleEditFaculty = (facultyCode) => {
+		navigate(`/admin/editFaculty/${facultyCode}`);
+	};
+
+	const handleDeleteClick = (faculty) => {
+		setDeleteModal({
+			isOpen: true,
+			faculty: faculty,
+		});
+	};
+
+	const handleDeleteConfirm = async () => {
+		// Add your delete logic here
+	};
+
+	const handleDeleteCancel = () => {
+		setDeleteModal({ isOpen: false, faculty: null });
+	};
+
+	const handlePageChange = (newPage) => {
+		setCurrentPage(newPage);
+	};
+
+	const renderPagination = () => {
+		return (
+			<div className={styles.pagination}>
+				<button
+					onClick={() => handlePageChange(currentPage - 1)}
+					disabled={currentPage === 0}
+					className={styles.paginationButton}
+				>
+					Previous
+				</button>
+				{[...Array(facultyData?.totalPages)].map((_, index) => (
+					<button
+						key={index}
+						onClick={() => handlePageChange(index)}
+						className={`${styles.paginationButton} ${
+							currentPage === index ? styles.activePage : ""
+						}`}
+					>
+						{index + 1}
+					</button>
+				))}
+				<button
+					onClick={() => handlePageChange(currentPage + 1)}
+					disabled={currentPage === facultyData?.totalPages - 1}
+					className={styles.paginationButton}
+				>
+					Next
+				</button>
+			</div>
+		);
+	};
+
+	return (
+		<div className={styles.listAccounts}>
+			{/* Breadcrumb */}
+			<div className={styles.pathContainer}>
+				<a
+					href="#"
+					className={styles.path}
+					onClick={(e) => {
+						e.preventDefault();
+						navigate("/");
+					}}
+				>
+					Home
+				</a>
+				<span> / </span>
+				<a
+					href="#"
+					className={styles.path}
+					onClick={(e) => e.preventDefault()}
+				>
+					Faculty List
+				</a>
+			</div>
+
+			{/* Title */}
+			<div className={styles.titleContainer}>
+				<h3 className={styles.title}>FACULTY LIST</h3>
+			</div>
+
+			{/* Search and Create Section */}
+			<div className={styles.actionsRow}>
+				<form
+					onSubmit={handleSearch}
+					className={styles.searchForm}
+				>
+					<button
+						type="submit"
+						className={styles.searchBtn}
+					>
+						<i className="bi bi-search"></i>
+					</button>
+					<input
+						type="text"
+						className={styles.searchInput}
+						placeholder="Search..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+					/>
+				</form>
+				<div className={styles.createBtnContainer}>
+					<button
+						onClick={handleCreateFaculty}
+						className={styles.createBtn}
+						type="button"
+					>
+						Create
+					</button>
+				</div>
+			</div>
+
+			{/* Error Display */}
+			{error && <div className={styles.error}>{error}</div>}
+
+			{/* Faculty Table */}
+			<div className={styles.tableContainer}>
+				<table className={styles.table}>
+					<thead>
+						<tr className={styles.tableHeader}>
+							<th>Code</th>
+							<th>Name</th>
+							<th>Lecturers</th>
+							<th>Students</th>
+							<th>Courses</th>
+							<th>Update</th>
+							<th>Delete</th>
+						</tr>
+					</thead>
+					<tbody>
+						{loading ? (
+							<tr>
+								<td
+									colSpan="7"
+									className={styles.loadingRow}
+								>
+									Loading faculties...
+								</td>
+							</tr>
+						) : facultyData?.content.length === 0 ? (
+							<tr>
+								<td
+									colSpan="7"
+									className={styles.noData}
+								>
+									No faculties found
+								</td>
+							</tr>
+						) : (
+							facultyData?.content.map((faculty) => (
+								<tr
+									key={faculty.code}
+									className={styles.tableRow}
+								>
+									<td>
+										<p>{faculty.code}</p>
+									</td>
+									<td>
+										<p>{faculty.name}</p>
+									</td>
+									<td>
+										<p>{faculty.lecturers?.length || 0}</p>
+									</td>
+									<td>
+										<p>{faculty.students?.length || 0}</p>
+									</td>
+									<td>
+										<p>{faculty.courses?.length || 0}</p>
+									</td>
+									<td>
+										<button
+											onClick={() => handleEditFaculty(faculty.code)}
+											className={styles.actionBtn}
+											title="Edit Faculty"
+										>
+											<i className="bi bi-pencil-square"></i>
+										</button>
+									</td>
+									<td>
+										<button
+											onClick={() => handleDeleteClick(faculty)}
+											className={`${styles.actionBtn} ${styles.deleteBtn}`}
+											title="Delete Faculty"
+										>
+											<i className="bi bi-trash3-fill"></i>
+										</button>
+									</td>
+								</tr>
+							))
+						)}
+					</tbody>
+				</table>
+			</div>
+
+			{/* Pagination Controls */}
+			{!loading && facultyData?.content.length > 0 && renderPagination()}
+
+			{/* Delete Confirmation Modal */}
+			<ConfirmModal
+				isOpen={deleteModal.isOpen}
+				title="Confirm Faculty Deletion"
+				message="Are you sure you want to delete this faculty along with all associated lecturers, students, and courses?"
+				onConfirm={handleDeleteConfirm}
+				onCancel={handleDeleteCancel}
+				confirmText="Delete Faculty"
+				cancelText="Cancel"
+				confirmButtonClass={styles.modalDeleteBtn}
+			/>
+		</div>
+	);
+};
+
+export default FacultyListPage;

@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import LoginPage from "./pages/LoginPage.jsx";
+import FacultyListPage from "./pages/FacultyListPage.jsx";
+import CreateFacultyPage from "./pages/CreateFacultyPage.jsx";
+import MyCoursesPage from "./pages/MyCoursesPage.jsx";
+import Layout from "./components/Layout.jsx";
 
-function App() {
-  const [count, setCount] = useState(0)
+export const loginPage = "/";
+export const facultyListPage = "/admin/listFaculty";
+export const createFacultyPage = "/admin/createFaculty";
+export const myCoursesPage = "/myCourses";
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+const router = createBrowserRouter([
+	{
+		path: loginPage,
+		element: <LoginPage />,
+		errorElement: <div>404 Not Found Ight?</div>,
+	},
+	{
+		path: facultyListPage,
+		element: (
+			<Layout>
+				<FacultyListPage />
+			</Layout>
+		),
+	},
+	{
+		path: createFacultyPage,
+		element: <CreateFacultyPage />,
+	},
+	{
+		path: myCoursesPage,
+		element: (
+			<Layout>
+				<MyCoursesPage />
+			</Layout>
+		),
+	},
+]);
+
+export default function App() {
+	return <RouterProvider router={router} />;
 }
-
-export default App

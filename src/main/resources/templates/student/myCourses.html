@@ -9,21 +9,6 @@
   <link rel="stylesheet" th:href="@{/css/myCourses.css}">
   <script th:src="@{/js/jquery/jquery-3.7.0.js}"></script>
   <script th:src="@{/js/bootstrap/bootstrap.js}"></script>
-  <script th:src="@{/js/myCourses.js}"></script>
-  <script>
-    // function onEditClick(courseCode) {
-    //   window.location.href = "/editCourse/" + courseCode;
-    // }
-
-    // function onCreateClick() {
-    //   window.location.href = "/createCourse";
-    // }
-
-    // function onDeleteClick(courseCode) {
-    //   window.location.href = "/deleteCourse/" + courseCode;
-    // }
-  </script>
-
 </head>
 
 <body>
@@ -43,10 +28,6 @@
 
         <a class="course-title hyperlink" th:href="'/myCourses/course-details/' + ${course.code}" th:text="${course.code} + ' - ' + ${course.name}"></a>
 
-        <!-- <div class="buttons-container">
-          <button class="base-button" id="edit-button" th:attr="onclick=|onEditClick('${course.code}')|">Edit</button>
-          <button class="base-button" data-toggle="modal" data-target="#confirmModal">Delete</button>
-        </div> -->
       </div>
       <p class="course-description" th:text="${course.description}"></p>
       <span class="lecturers" th:each="lecturer, iterStat : ${course.lecturers}">

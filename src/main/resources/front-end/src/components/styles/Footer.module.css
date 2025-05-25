@@ -1,0 +1,38 @@
+.footerContainer {
+	background-color: #f8f9fa;
+	height: 8vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	color: #6c757d;
+	font-size: 14px;
+}
+
+/* Global body styles to match original layout */
+html {
+	height: 100%;
+	box-sizing: border-box;
+}
+
+body {
+	position: relative;
+	margin: 0;
+	min-height: 100%;
+	box-sizing: inherit;
+	padding-bottom: 6.74rem;
+}
+
+/* Ensure footer sticks to bottom when content is short */
+.pageContainer {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.mainContent {
+	flex: 1;
+}

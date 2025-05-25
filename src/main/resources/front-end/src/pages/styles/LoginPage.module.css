@@ -1,0 +1,140 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap");
+
+*,
+*:before,
+*:after {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.background {
+	width: 430px;
+	height: 520px;
+	position: absolute;
+	transform: translate(-50%, -50%);
+	left: 50%;
+	top: 50%;
+}
+
+.form {
+	height: 520px;
+	width: 430px;
+	position: absolute;
+	top: 5%;
+	left: 10%;
+	border-radius: 10px;
+	backdrop-filter: blur(10px);
+}
+
+.form * {
+	font-family: Manrope, "Poppins", sans-serif;
+	color: black;
+	letter-spacing: 0.5px;
+	outline: none;
+	border: none;
+}
+
+.title {
+	font-size: 48px;
+	font-weight: 700;
+	line-height: 50px;
+	text-align: left;
+}
+
+.label {
+	display: block;
+	margin-top: 30px;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.input {
+	display: block;
+	height: 39px;
+	width: 100%;
+	border-radius: 3px;
+	border: 1px #700404 solid;
+	box-shadow: 0px 3px 6px rgba(18, 15, 40, 0.12);
+	padding: 0 10px;
+	margin-bottom: 8px;
+	font-size: 14px;
+	font-weight: 300;
+}
+
+.input::placeholder {
+	color: #a9a9a9;
+}
+
+.input:focus {
+	border-color: #700404;
+	box-shadow: 0px 3px 6px rgba(112, 4, 4, 0.2);
+}
+
+.link {
+	font-size: 14px;
+	font-weight: 400;
+	text-decoration: underline;
+	line-height: 22px;
+	color: #700404;
+	cursor: pointer;
+}
+
+.link:hover {
+	color: #500303;
+}
+
+.buttons {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.button {
+	background-color: #ffffff;
+	color: #080710;
+	border: 1px #700404 solid;
+	padding: 10px 14px;
+	font-size: 18px;
+	font-weight: 400;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	flex: 1;
+}
+
+.button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.transparentButton {
+	color: #700404;
+	background-color: transparent;
+}
+
+.transparentButton:hover:not(:disabled) {
+	background-color: rgba(112, 4, 4, 0.1);
+}
+
+.redButton {
+	background-color: #700404;
+	color: #fff012;
+}
+
+.redButton:hover:not(:disabled) {
+	background-color: #500303;
+}
+
+.textError {
+	color: red;
+	font-size: 14px;
+	margin-top: 8px;
+}
+
+.textInfo {
+	color: blue;
+	font-size: 14px;
+	margin-top: 8px;
+}

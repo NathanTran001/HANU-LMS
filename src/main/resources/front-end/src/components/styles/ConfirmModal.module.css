@@ -1,0 +1,149 @@
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1050;
+	padding: 20px;
+}
+
+.modalDialog {
+	max-width: 500px;
+	width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+}
+
+.modalContent {
+	background-color: white;
+	border-radius: 8px;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+	animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-50px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.modalHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-bottom: 1px solid #dee2e6;
+}
+
+.modalTitle {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #333;
+}
+
+.closeButton {
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: #6c757d;
+	padding: 0;
+	width: 30px;
+	height: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+	background-color: #f8f9fa;
+	color: #333;
+}
+
+.modalBody {
+	padding: 20px;
+}
+
+.modalBody p {
+	margin: 0;
+	color: #555;
+	line-height: 1.5;
+}
+
+.modalFooter {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+	padding: 16px 20px;
+	border-top: 1px solid #dee2e6;
+	background-color: #f8f9fa;
+	border-radius: 0 0 8px 8px;
+}
+
+.btn {
+	padding: 8px 16px;
+	border: none;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	text-decoration: none;
+	display: inline-block;
+	text-align: center;
+	min-width: 80px;
+}
+
+.btnSecondary {
+	background-color: #6c757d;
+	color: white;
+}
+
+.btnSecondary:hover {
+	background-color: #5a6268;
+}
+
+.btnPrimary {
+	background-color: var(--primary800);
+	color: white;
+}
+
+.btnPrimary:hover {
+	background-color: var(--primary500);
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+	.modalOverlay {
+		padding: 10px;
+	}
+
+	.modalHeader,
+	.modalBody,
+	.modalFooter {
+		padding: 12px 16px;
+	}
+
+	.modalFooter {
+		flex-direction: column-reverse;
+		gap: 8px;
+	}
+
+	.btn {
+		width: 100%;
+	}
+}

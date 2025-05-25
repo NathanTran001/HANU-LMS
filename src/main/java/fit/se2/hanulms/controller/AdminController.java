@@ -2,348 +2,158 @@ package fit.se2.hanulms.controller;
 
 import fit.se2.hanulms.Repository.*;
 import fit.se2.hanulms.model.*;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-@Controller
-@RequestMapping("/admin")
+@RestController
+@RequestMapping("/admin/api")
 public class AdminController {
-    @Autowired
-    LecturerRepository lecturerRepository;
-    @Autowired
-    StudentRepository studentRepository;
-    @Autowired
-    FacultyRepository facultyRepository;
-    @Autowired
-    CourseRepository courseRepository;
-    @Autowired
-    TopicRepository topicRepository;
-    @Autowired
-    AnnouncementRepository announcementRepository;
-    @Autowired
-    FileRepository fileRepository;
-    @Autowired
-    AssignmentRepository assignmentRepository;
-    @Autowired
-    PasswordEncoder p;
 
+    @Autowired private LecturerRepository lecturerRepository;
+    @Autowired private StudentRepository studentRepository;
+    @Autowired private FacultyRepository facultyRepository;
+    @Autowired private CourseRepository courseRepository;
+    @Autowired private PasswordEncoder p;
+
+    // ==================== LECTURERS ====================
     @GetMapping("/listLecturer")
-    public String listLecturer(Model model) {
-        List<Lecturer> allLecturers = lecturerRepository.findAll();
-        model.addAttribute("allLecturers", allLecturers);
-        return "/admin/lecturer-list";
+    public ResponseEntity<List<Lecturer>> listLecturer() {
+        return ResponseEntity.ok(lecturerRepository.findAll());
     }
-    @GetMapping("/listStudent")
-    public String listStudent(Model model) {
-        List<Student> allStudents = studentRepository.findAll();
-        model.addAttribute("allStudents", allStudents);
-        return "/admin/student-list";
-    }
-    @GetMapping("/listFaculty")
-    public String listFaculty(Model model) {
-        List<Faculty> allFaculties = facultyRepository.findAll();
-        model.addAttribute("allFaculties", allFaculties);
-        return "/admin/faculty-list";
-    }
-    @GetMapping("/searchLecturer")
-    public String searchLecturer(HttpServletRequest request, Model model) {
-        String searchPhrase = request.getParameter("searchPhrase");
-        List<Lecturer> allLecturers = lecturerRepository.findAll();
-        List<Lecturer> lecturersToShow = new ArrayList<>();
 
-        model.addAttribute("allLecturers", allLecturers);
-        return "/admin/lecturer-list";
-    }
-    @GetMapping("/searchStudent")
-    public String searchStudent(HttpServletRequest request, Model model) {
-        model.addAttribute("lecturer", new UserTemplate());
-        List<Faculty> allFaculties = facultyRepository.findAll();
-        model.addAttribute("allFaculties", allFaculties);
-        return "/admin/create-lecturer";
-    }
-    @GetMapping("/searchFaculty")
-    public String searchFaculty(HttpServletRequest request, Model model) {
-        model.addAttribute("lecturer", new UserTemplate());
-        List<Faculty> allFaculties = facultyRepository.findAll();
-        model.addAttribute("allFaculties", allFaculties);
-        return "/admin/create-lecturer";
-    }
-    @GetMapping("/createLecturer")
-    public String createLecturer(Model model) {
-        model.addAttribute("lecturer", new UserTemplate());
-        List<Faculty> allFaculties = facultyRepository.findAll();
-        model.addAttribute("allFaculties", allFaculties);
-        return "/admin/create-lecturer";
-    }
     @PostMapping("/createLecturer")
-    public String createLecturer(@Valid UserTemplate userTemplate,
-                                 BindingResult result,
-                                 Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("lecturer", userTemplate);
-            List<Faculty> allFaculties = facultyRepository.findAll();
-            model.addAttribute("allFaculties", allFaculties);
-            return "/admin/create-lecturer";
-        } else {
-            if (lecturerRepository.findByUsername(userTemplate.getUsername()).isPresent()) {
-                model.addAttribute("lecturer", userTemplate);
-                List<Faculty> allFaculties = facultyRepository.findAll();
-                model.addAttribute("allFaculties", allFaculties);
-                return "/admin/create-lecturer";
-            }
-            lecturerRepository.save(new Lecturer(userTemplate, p));
-            return "redirect:/admin/listLecturer";
+    public ResponseEntity<?> createLecturer(@Valid @RequestBody UserTemplate userTemplate) {
+        if (lecturerRepository.findByUsername(userTemplate.getUsername()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Username already exists"));
         }
+        Lecturer newLecturer = new Lecturer(userTemplate, p);
+        return ResponseEntity.status(HttpStatus.CREATED).body(lecturerRepository.save(newLecturer));
     }
-    @GetMapping("/editLecturer/{id}")
-    public String editLecturer(Model model, @PathVariable(value = "id") Long id) {
-        model.addAttribute("lecturer", lecturerRepository.getReferenceById(id));
-        List<Faculty> allFaculties = facultyRepository.findAll();
-        model.addAttribute("allFaculties", allFaculties);
-        return "/admin/edit-lecturer";
+
+    @PutMapping("/editLecturer")
+    public ResponseEntity<?> editLecturer(@Valid @RequestBody UserTemplate userTemplate) {
+        Optional<Lecturer> optLecturer = lecturerRepository.findByUsername(userTemplate.getUsername());
+        if (optLecturer.isEmpty()) return ResponseEntity.notFound().build();
+
+        Lecturer lecturer = optLecturer.get();
+        lecturer.setName(userTemplate.getName());
+        lecturer.setEmail(userTemplate.getEmail());
+        lecturer.setPassword(p.encode(userTemplate.getPassword()));
+        lecturer.setFaculty(userTemplate.getFaculty());
+        return ResponseEntity.ok(lecturerRepository.save(lecturer));
     }
-    @PostMapping("/editLecturer")
-    public String editLecturer(@Valid UserTemplate userTemplate,
-                                 BindingResult result,
-                                 Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("lecturer", userTemplate);
-            List<Faculty> allFaculties = facultyRepository.findAll();
-            model.addAttribute("allFaculties", allFaculties);
-            return "/admin/edit-lecturer";
-        } else {
-            Lecturer lecturerToBeEdited = lecturerRepository.findByUsername(userTemplate.getUsername()).get();
-            lecturerToBeEdited.setName(userTemplate.getName());
-            lecturerToBeEdited.setEmail(userTemplate.getEmail());
-            lecturerToBeEdited.setPassword(p.encode(userTemplate.getPassword()));
-            lecturerToBeEdited.setFaculty(userTemplate.getFaculty());
-            lecturerRepository.save(lecturerToBeEdited);
-            return "redirect:/admin/listLecturer";
-        }
-    }
-    @GetMapping(value = "/deleteLecturer/{id}")
-    public String deleteLecturer(@PathVariable(value = "id") Long id) {
-        Lecturer thisLecturer = lecturerRepository.getReferenceById(id);
-        List<Course> teachingCourses = thisLecturer.getCourses();
-        for (Course c : teachingCourses) {
-            c.getLecturers().remove(thisLecturer);
+
+    @DeleteMapping("/deleteLecturer/{id}")
+    public ResponseEntity<?> deleteLecturer(@PathVariable Long id) {
+        Lecturer lecturer = lecturerRepository.getReferenceById(id);
+        for (Course c : lecturer.getCourses()) {
+            c.getLecturers().remove(lecturer);
             courseRepository.save(c);
         }
-        thisLecturer.getCourses().clear();
-        lecturerRepository.save(thisLecturer);
-        lecturerRepository.delete(thisLecturer);
-        return "redirect:/admin/listLecturer";
+        lecturer.getCourses().clear();
+        lecturerRepository.delete(lecturer);
+        return ResponseEntity.ok().build();
     }
-    @GetMapping("/createStudent")
-    public String createStudent(Model model) {
-        model.addAttribute("student", new UserTemplate());
-        List<Faculty> allFaculties = facultyRepository.findAll();
-        model.addAttribute("allFaculties", allFaculties);
-        return "/admin/create-student";
+
+    // ==================== STUDENTS ====================
+    @GetMapping("/listStudent")
+    public ResponseEntity<List<Student>> listStudent() {
+        return ResponseEntity.ok(studentRepository.findAll());
     }
+
     @PostMapping("/createStudent")
-    public String createStudent(@Valid UserTemplate userTemplate,
-                                 BindingResult result,
-                                 Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("student", userTemplate);
-            List<Faculty> allFaculties = facultyRepository.findAll();
-            model.addAttribute("allFaculties", allFaculties);
-            return "/admin/create-student";
-        } else {
-            if (studentRepository.findByUsername(userTemplate.getUsername()).isPresent()) {
-                model.addAttribute("student", userTemplate);
-                List<Faculty> allFaculties = facultyRepository.findAll();
-                model.addAttribute("allFaculties", allFaculties);
-                return "/admin/create-student";
-            }
-            studentRepository.save(new Student(userTemplate, p));
-            return "redirect:/admin/listStudent";
+    public ResponseEntity<?> createStudent(@Valid @RequestBody UserTemplate userTemplate) {
+        if (studentRepository.findByUsername(userTemplate.getUsername()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Username already exists"));
         }
+        Student newStudent = new Student(userTemplate, p);
+        return ResponseEntity.status(HttpStatus.CREATED).body(studentRepository.save(newStudent));
     }
-    @GetMapping("/editStudent/{id}")
-    public String editStudent(Model model, @PathVariable(value = "id") Long id) {
-        model.addAttribute("student", studentRepository.getReferenceById(id));
-        List<Faculty> allFaculties = facultyRepository.findAll();
-        model.addAttribute("allFaculties", allFaculties);
-        return "/admin/edit-student";
+
+    @PutMapping("/editStudent")
+    public ResponseEntity<?> editStudent(@Valid @RequestBody UserTemplate userTemplate) {
+        Optional<Student> optStudent = studentRepository.findByUsername(userTemplate.getUsername());
+        if (optStudent.isEmpty()) return ResponseEntity.notFound().build();
+
+        Student student = optStudent.get();
+        student.setName(userTemplate.getName());
+        student.setEmail(userTemplate.getEmail());
+        student.setPassword(p.encode(userTemplate.getPassword()));
+        student.setFaculty(userTemplate.getFaculty());
+        return ResponseEntity.ok(studentRepository.save(student));
     }
-    @PostMapping("/editStudent")
-    public String editStudent(@Valid UserTemplate userTemplate,
-                               BindingResult result,
-                               Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("student", userTemplate);
-            List<Faculty> allFaculties = facultyRepository.findAll();
-            model.addAttribute("allFaculties", allFaculties);
-            return "/admin/edit-student";
-        } else {
-            Student studentToBeEdited = studentRepository.findByUsername(userTemplate.getUsername()).get();
-            studentToBeEdited.setName(userTemplate.getName());
-            studentToBeEdited.setEmail(userTemplate.getEmail());
-            studentToBeEdited.setPassword(p.encode(userTemplate.getPassword()));
-            studentToBeEdited.setFaculty(userTemplate.getFaculty());
-            studentRepository.save(studentToBeEdited);
-            return "redirect:/admin/listStudent";
-        }
-    }
-    @GetMapping(value = "/deleteStudent/{id}")
-    public String deleteStudent(@PathVariable(value = "id") Long id) {
-        Student thisStudent = studentRepository.getReferenceById(id);
-        List<Course> studyingCourses = thisStudent.getCourses();
-        for (Course c : studyingCourses) {
-            c.getStudents().remove(thisStudent);
+
+    @DeleteMapping("/deleteStudent/{id}")
+    public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
+        Student student = studentRepository.getReferenceById(id);
+        for (Course c : student.getCourses()) {
+            c.getStudents().remove(student);
             courseRepository.save(c);
         }
-        thisStudent.getCourses().clear();
-        studentRepository.save(thisStudent);
-        studentRepository.delete(thisStudent);
-        return "redirect:/admin/listStudent";
+        student.getCourses().clear();
+        studentRepository.delete(student);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/createFaculty")
-    public String createFaculty(Model model) {
-        model.addAttribute("faculty", new Faculty());
-        return "/admin/create-faculty";
+    // ==================== FACULTIES ====================
+    @GetMapping("/faculties")
+    public ResponseEntity<List<Faculty>> listFaculty() {
+        return ResponseEntity.ok(facultyRepository.findAll());
     }
-    @PostMapping("/createFaculty")
-    public String createFaculty(@Valid Faculty faculty,
-                                 BindingResult result,
-                                 Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("faculty", faculty);
-            return "/admin/create-faculty";
-        } else {
-            // Check for duplicate code before saving
-            List<Faculty> allFaculties = facultyRepository.findAll();
-            boolean isFacultyCodeDuplicate = false;
-            for (Faculty f : allFaculties) {
-                if (f.getCode().equals(faculty.getCode())) {
-                    isFacultyCodeDuplicate = true;
-                    break;
-                }
-            }
-            if (isFacultyCodeDuplicate) {
-                result.addError(new FieldError("faculty", "code", "Faculty code already exists"));
-                model.addAttribute("faculty", faculty);
-                return "/admin/create-faculty";
-            } else {
-                facultyRepository.save(faculty);
-                return "redirect:/admin/listFaculty";
-            }
+
+    @PostMapping("/faculties")
+    public ResponseEntity<?> createFaculty(@Valid @RequestBody Faculty faculty) {
+        boolean exists = facultyRepository.findAll().stream()
+                .anyMatch(f -> f.getCode().equals(faculty.getCode()));
+        if (exists) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "error", "Faculty code already exists"));
         }
-    }
-    @GetMapping("/editFaculty/{code}")
-    public String editFaculty(Model model, @PathVariable(value = "code") String code) {
-        model.addAttribute("faculty", facultyRepository.getReferenceById(code));
-        return "/admin/edit-faculty";
-    }
-    @PostMapping("/editFaculty")
-    public String editFaculty(@Valid Faculty faculty,
-                              BindingResult result,
-                              Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("faculty", faculty);
-            return "/admin/edit-faculty";
-        } else {
-            // Check for duplicate code before saving
-            List<Faculty> allFaculties = facultyRepository.findAll();
-            boolean isFacultyCodeDuplicate = false;
-            for (Faculty f : allFaculties) {
-                if (f.getCode().equals(faculty.getCode())) {
-                    isFacultyCodeDuplicate = true;
-                    break;
-                }
-            }
-            if (isFacultyCodeDuplicate) {
-                result.addError(new FieldError("faculty", "code", "Faculty code already exists"));
-                model.addAttribute("faculty", faculty);
-                return "/admin/edit-faculty";
-            } else {
-                facultyRepository.save(faculty);
-                return "redirect:/admin/listFaculty";
-            }
-        }
-    }
-    @GetMapping(value = "/deleteFaculty/{code}")
-    public String deleteFaculty(@PathVariable(value = "code") String code) {
-        Faculty thisFaculty = facultyRepository.getReferenceById(code);
-        List<Course> associatedCourses = thisFaculty.getCourses();
-        for (Course course : associatedCourses) {
-            List<Lecturer> allLecturers = lecturerRepository.findAll();
-            // Clear existing associations for each lecturer
-            for (Lecturer lecturer : allLecturers) {
-                lecturer.getCourses().remove(course);
-                lecturerRepository.save(lecturer); // Save to ensure changes are persisted
-            }
-            List<Topic> allTopics = topicRepository.findAll();
-            for (Topic topic : allTopics) {
-                List<File> allFiles = fileRepository.findAll();
-                for (File f : allFiles) {
-                    if (f.getTopic().equals(topic)) {
-                        fileRepository.delete(f);
-                    }
-                }
-                List<Assignment> allAssignments = assignmentRepository.findAll();
-                for (Assignment a : allAssignments) {
-                    if (a.getTopic().equals(topic)) {
-                        assignmentRepository.delete(a);
-                    }
-                }
-                if (topic.getCourse().equals(course)) {
-                    topic.getFile().clear();
-                    topic.getAssignments().clear();
-                    topicRepository.save(topic);
-                    topicRepository.delete(topic);
-                }
-            }
-            List<Announcement> allAnnouncements = announcementRepository.findAll();
-            for (Announcement announcement : allAnnouncements) {
-                if (announcement.getCourse().equals(course)) {
-                    announcementRepository.delete(announcement);
-                }
-            }
-            // Clear existing associations for current course
-            course.getLecturers().clear();
-            course.getTopics().clear();
-            course.getAnnouncements().clear();
-            courseRepository.save(course);
-
-            courseRepository.delete(course);
-        }
-        thisFaculty.getCourses().clear();
-        facultyRepository.save(thisFaculty);
-
-        List<Lecturer> associatedLecturers = thisFaculty.getLecturers();
-        for (Lecturer l : associatedLecturers) {
-            lecturerRepository.delete(l);
-        }
-        thisFaculty.getLecturers().clear();
-        facultyRepository.save(thisFaculty);
-
-        List<Student> associatedStudent = thisFaculty.getStudents();
-        for (Student s : associatedStudent) {
-            studentRepository.delete(s);
-        }
-        thisFaculty.getStudents().clear();
-        facultyRepository.save(thisFaculty);
-
-        facultyRepository.delete(thisFaculty);
-        return "redirect:/admin/listFaculty";
+        Faculty saved = facultyRepository.save(faculty);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("success", true, "faculty", saved, "message", "Faculty created successfully"));
     }
 
+    @PutMapping("/faculties")
+    public ResponseEntity<?> editFaculty(@Valid @RequestBody Faculty faculty) {
+        boolean exists = facultyRepository.findAll().stream()
+                .anyMatch(f -> f.getCode().equals(faculty.getCode()));
+        if (!exists) return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "Faculty code not found"));
+
+        facultyRepository.save(faculty);
+        return ResponseEntity.ok(faculty);
+    }
+
+    @DeleteMapping("/faculties/{code}")
+    public ResponseEntity<?> deleteFaculty(@PathVariable String code) {
+        Faculty faculty = facultyRepository.getReferenceById(code);
+        facultyRepository.delete(faculty);
+        return ResponseEntity.ok().build();
+    }
+
+    // ==================== STUBS FOR SEARCH ====================
+    @GetMapping("/searchLecturer")
+    public ResponseEntity<List<Lecturer>> searchLecturer(@RequestParam String searchPhrase) {
+        // Implement filtering if needed
+        return ResponseEntity.ok(lecturerRepository.findAll());
+    }
+
+    @GetMapping("/searchStudent")
+    public ResponseEntity<List<Student>> searchStudent(@RequestParam String searchPhrase) {
+        return ResponseEntity.ok(studentRepository.findAll());
+    }
+
+    @GetMapping("/searchFaculty")
+    public ResponseEntity<List<Faculty>> searchFaculty(@RequestParam String searchPhrase) {
+        return ResponseEntity.ok(facultyRepository.findAll());
+    }
 }

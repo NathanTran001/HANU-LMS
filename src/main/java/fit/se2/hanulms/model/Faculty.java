@@ -1,5 +1,6 @@
 package fit.se2.hanulms.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -11,11 +12,11 @@ public class Faculty {
     @Id
     private String code;
     private String name;
-    @OneToMany(mappedBy = "faculty")
+    @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
     private List<Lecturer> lecturers;
-    @OneToMany(mappedBy = "faculty")
+    @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
     private List<Student> students;
-    @OneToMany(mappedBy = "faculty")
+    @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
     private List<Course> courses;
     public List<Student> getStudents() {
         return students;
