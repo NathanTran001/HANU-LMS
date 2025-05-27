@@ -1,35 +1,29 @@
 package fit.se2.hanulms.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Length;
 
 @Entity
-public class Announcement {
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
+public class FacultyAnnouncement{
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotEmpty(message = "Please enter the title of announcement")
-    @Length(max = 20, message = "The title should be less than 20")
+    @Length(max = 40, message = "The title should be less than 40 characters")
     private String title;
 
     @NotEmpty(message = "Please enter the description of topic")
-    @Length(max = 40, message = "The description should be less than 40")
+    @Length(max = 255, message = "The description should be less than 255 characters")
     private String description;
-
     @ManyToOne
-    private Course course;
-
-    private String attachment;
-
-    public Course getCourse() {
-        return course;
-    }
-
-    public void setCourse(Course course) {
-        this.course = course;
-    }
+    private Faculty faculty;
 
     public Long getId() {
         return id;
@@ -55,13 +49,12 @@ public class Announcement {
         this.description = description;
     }
 
-    public String getAttachment() {
-        return attachment;
+    public Faculty getFaculty() {
+        return faculty;
     }
 
-    public void setAttachment(String attachment) {
-        this.attachment = attachment;
+    public void setFaculty(Faculty faculty) {
+        this.faculty = faculty;
     }
-
 
 }

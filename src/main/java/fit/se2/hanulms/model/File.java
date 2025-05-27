@@ -1,22 +1,28 @@
 package fit.se2.hanulms.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int fileId;
+    private int id;
 
-    @NotEmpty(message = "You should type the file name")
-    private String fileName;
+    @NotEmpty(message = "File name must not be empty")
+    private String name;
 
-    private String fileLink;
+    private String link;
 
     private String type;
+    @ManyToOne
+    private Topic topic;
 
     public String getType() {
         return type;
@@ -26,31 +32,28 @@ public class File {
         this.type = type;
     }
 
-    public String getFileLink() {
-        return fileLink;
+    public String getLink() {
+        return link;
     }
 
-    public void setFileLink(String fileLink) {
-        this.fileLink = fileLink;
+    public void setLink(String link) {
+        this.link = link;
     }
 
-    @ManyToOne
-    private Topic topic;
-
-    public int getFileId() {
-        return fileId;
+    public int getId() {
+        return id;
     }
 
-    public void setFileId(int fileId) {
-        this.fileId = fileId;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getName() {
+        return name;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Topic getTopic() {

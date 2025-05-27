@@ -4,6 +4,8 @@ import fit.se2.hanulms.Repository.*;
 import fit.se2.hanulms.model.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/admin/api")
+@RequestMapping("/api/admin")
 public class AdminController {
 
     @Autowired private LecturerRepository lecturerRepository;
@@ -105,8 +107,8 @@ public class AdminController {
 
     // ==================== FACULTIES ====================
     @GetMapping("/faculties")
-    public ResponseEntity<List<Faculty>> listFaculty() {
-        return ResponseEntity.ok(facultyRepository.findAll());
+    public ResponseEntity<Page<Faculty>> listFaculty(Pageable pageable) {
+        return ResponseEntity.ok(facultyRepository.findAll(pageable));
     }
 
     @PostMapping("/faculties")

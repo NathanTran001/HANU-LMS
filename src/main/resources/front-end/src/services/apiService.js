@@ -95,7 +95,28 @@ const api = {
 		api.get(`/api/courses/faculty/${facultyId}`),
 
 	// Faculty operations
-	getFaculties: (params) => api.get("admin/api/faculties", { params }),
+	getFaculties: async (page = 0, size = 10) => {
+		try {
+			const response = await api.get("/api/admin/faculties", {
+				params: {
+					page,
+					size,
+					sort: "code,asc", // Optional: add default sorting
+				},
+				withCredentials: true, // Include cookies in requests
+			});
+			return {
+				content: response.content || [],
+				totalPages: response.totalPages || 0,
+				totalElements: response.totalElements || 0,
+				number: response.number || 0,
+				size: response.size || size,
+			};
+		} catch (error) {
+			console.error("Error fetching faculties:", error);
+			throw error;
+		}
+	},
 	getFaculty: (id) => api.get(`/api/faculties/${id}`),
 	createFaculty: (data) => api.post("/api/faculties", data),
 	updateFaculty: (id, data) => api.put(`/api/faculties/${id}`, data),

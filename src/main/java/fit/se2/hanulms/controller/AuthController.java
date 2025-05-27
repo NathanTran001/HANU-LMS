@@ -92,7 +92,7 @@ public class AuthController {
             String token = extractTokenFromCookie(request);
             String username = jwtUtil.extractUsername(token);
             String role = jwtUtil.extractRole(token);
-            System.out.println("role: " + role);
+            System.out.println("Expiration Time: " + jwtUtil.extractExpiration(token));
 
             if (token != null && jwtUtil.validateToken(token, username)) {
                 // Get additional user details if needed

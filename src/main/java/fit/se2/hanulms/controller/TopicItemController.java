@@ -7,9 +7,7 @@ import fit.se2.hanulms.model.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,10 +66,10 @@ public class TopicItemController {
                 } catch (Exception e) {
                     System.out.println("Exception: " + e.getMessage());
                 }
-                file.setFileLink(storageFileName);
+                file.setLink(storageFileName);
             }
             file.setType(type);
-            file.setFileName(fileDTO.getFileTitle());
+            file.setName(fileDTO.getFileTitle());
             file.setType(fileDTO.getType());
             file.setTopic(topic);
             fileRepository.save(file);

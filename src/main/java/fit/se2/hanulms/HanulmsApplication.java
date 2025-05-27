@@ -16,15 +16,16 @@ public class HanulmsApplication {
 		SpringApplication.run(HanulmsApplication.class, args);
 	}
 
-	// Only run this the first time, from the second time, comment this out first
-//	@Bean
+	@Bean
 	CommandLineRunner commandLineRunner(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
 			UserTemplate ut = new UserTemplate();
 			ut.setUsername("Nghia");
 			ut.setPassword("123");
-			Admin admin = new Admin(ut, passwordEncoder);
-			adminRepository.save(admin);
+			if (adminRepository.findByUsername("Nghia").isEmpty()) {
+				Admin admin = new Admin(ut, passwordEncoder);
+				adminRepository.save(admin);
+			}
 		};
 	}
 

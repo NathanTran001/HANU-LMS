@@ -1,11 +1,17 @@
 package fit.se2.hanulms.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Lecturer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +20,7 @@ public class Lecturer {
     private String email;
     @ManyToOne
     private Faculty faculty;
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.REMOVE)
     private List<Course> courses;
     private String username;
 

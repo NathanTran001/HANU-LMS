@@ -7,6 +7,7 @@ import api from "../services/apiService";
 import { createFacultyPage } from "../App";
 
 const FacultyListPage = () => {
+	const navigate = useNavigate();
 	const [faculties, setFaculties] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
@@ -15,17 +16,20 @@ const FacultyListPage = () => {
 		isOpen: false,
 		faculty: null,
 	});
-	const navigate = useNavigate();
+	const [page, setPage] = useState(0);
+	const [size, setSize] = useState(3);
+	const [totalPages, setTotalPages] = useState(0);
 
 	useEffect(() => {
 		fetchFaculties();
-	}, []);
+	}, [page]);
 
 	const fetchFaculties = async () => {
 		try {
 			setLoading(true);
-			const fetchedFaculties = await api.getFaculties();
-			setFaculties(Array.isArray(fetchedFaculties) ? fetchedFaculties : []);
+			const response = await api.getFaculties(page, size);
+			setFaculties(response.content);
+			setTotalPages(response.totalPages);
 		} catch (error) {
 			console.error("Error fetching faculties:", error);
 
@@ -180,13 +184,13 @@ const FacultyListPage = () => {
 										<p>{faculty.name}</p>
 									</td>
 									<td>
-										<p>{faculty.lecturers?.length || 0}</p>
+										<p>{faculty.lecturers.length || 0}</p>
 									</td>
 									<td>
-										<p>{faculty.students?.length || 0}</p>
+										<p>{faculty.students.length || 0}</p>
 									</td>
 									<td>
-										<p>{faculty.courses?.length || 0}</p>
+										<p>{faculty.courses.length || 0}</p>
 									</td>
 									<td>
 										<button
@@ -212,7 +216,29 @@ const FacultyListPage = () => {
 					</tbody>
 				</table>
 			</div>
-
+			{!loading && faculties.length > 0 && (
+				<div className={styles.pageIndicesContainer}>
+					<button
+						onClick={() => setPage((prev) => Math.max(0, prev - 1))}
+						disabled={page === 0}
+						className={styles.paginationButton}
+					>
+						Previous
+					</button>
+					<span className={styles.pageInfo}>
+						Page {page + 1} of {totalPages}
+					</span>
+					<button
+						onClick={() =>
+							setPage((prev) => Math.min(totalPages - 1, prev + 1))
+						}
+						disabled={page >= totalPages - 1}
+						className={styles.paginationButton}
+					>
+						Next
+					</button>
+				</div>
+			)}
 			{/* Delete Confirmation Modal */}
 			<ConfirmModal
 				isOpen={deleteModal.isOpen}

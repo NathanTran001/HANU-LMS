@@ -4,12 +4,10 @@ import fit.se2.hanulms.Repository.*;
 import fit.se2.hanulms.model.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -124,8 +122,8 @@ public class TopicController {
                 }
                 announcement.setAttachment(storageFileName);
             }
-            announcement.setAnnouncementTitle(announcementDTO.getAnnouncementTitle());
-            announcement.setAnnouncementDescription(announcementDTO.getAnnouncementDescription());
+            announcement.setTitle(announcementDTO.getAnnouncementTitle());
+            announcement.setDescription(announcementDTO.getAnnouncementDescription());
             announcement.setCourse(course);
             announcementRepository.save(announcement);
             return "redirect:/myCourses/course-details/"+ code;

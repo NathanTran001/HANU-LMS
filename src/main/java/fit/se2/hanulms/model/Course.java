@@ -1,11 +1,16 @@
 package fit.se2.hanulms.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "code")
 public class Course {
     @Id
     @NotEmpty(message = "Please insert course code")
@@ -13,14 +18,17 @@ public class Course {
     private String name;
     private String description;
     private String enrolmentKey;
-
     private String courseImage;
     @ManyToOne
     private Faculty faculty;
-    @ManyToMany(mappedBy = "courses")
+    @ManyToMany(mappedBy = "courses", cascade = CascadeType.REMOVE)
     private List<Lecturer> lecturers;
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.REMOVE)
     private List<Student> students;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
+    private List<Topic> topics;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
+    private List<Announcement> announcements;
 
     public List<Student> getStudents() {
         return students;
@@ -38,61 +46,52 @@ public class Course {
         this.courseImage = courseImage;
     }
 
-    @OneToMany(mappedBy = "course")
-    private List<Topic> topics;
-
-    @OneToMany(mappedBy = "course")
-    List<Announcement> announcements;
-
- public String getCode() {
+    public String getCode() {
   return code;
  }
-
-
 
     public void setCode(String code) {
   this.code = code;
  }
+    public String getName() {
+      return name;
+     }
+    public void setName(String name) {
+      this.name = name;
+     }
 
- public String getName() {
-  return name;
- }
+    public String getDescription() {
+      return description;
+     }
 
- public void setName(String name) {
-  this.name = name;
- }
+    public void setDescription(String description) {
+      this.description = description;
+     }
 
- public String getDescription() {
-  return description;
- }
+    public String getEnrolmentKey() {
+      return enrolmentKey;
+     }
 
- public void setDescription(String description) {
-  this.description = description;
- }
+    public void setEnrolmentKey(String enrolmentKey) {
+      this.enrolmentKey = enrolmentKey;
+     }
 
- public String getEnrolmentKey() {
-  return enrolmentKey;
- }
+    public Faculty getFaculty() {
+      return faculty;
+     }
 
- public void setEnrolmentKey(String enrolmentKey) {
-  this.enrolmentKey = enrolmentKey;
- }
+    public void setFaculty(Faculty faculty) {
+      this.faculty = faculty;
+     }
 
- public Faculty getFaculty() {
-  return faculty;
- }
+    public List<Lecturer> getLecturers() {
+      return lecturers;
+     }
 
- public void setFaculty(Faculty faculty) {
-  this.faculty = faculty;
- }
+    public void setLecturers(List<Lecturer> lecturers) {
+      this.lecturers = lecturers;
+     }
 
- public List<Lecturer> getLecturers() {
-  return lecturers;
- }
-
- public void setLecturers(List<Lecturer> lecturers) {
-  this.lecturers = lecturers;
- }
     public List<Topic> getTopics() {
         return topics;
     }
@@ -100,7 +99,6 @@ public class Course {
     public void setTopics(List<Topic> topics) {
         this.topics = topics;
     }
-
     public List<Announcement> getAnnouncements() {
         return announcements;
     }
