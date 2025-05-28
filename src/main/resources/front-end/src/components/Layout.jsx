@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "./NavBar";
 import Footer from "./Footer";
 import styles from "./styles/Layout.module.css";
 import { getUserRole } from "../utils/auth";
 import NavBarAdmin from "./NavBarAdmin";
 import { useNavigate } from "react-router-dom";
-import { loginPage } from "../App";
 import NavBar from "./NavBar";
+import { LOGIN_PAGE } from "../constants/paths";
 
 const Layout = ({ children }) => {
 	const [userRole, setUserRole] = useState("");
@@ -22,10 +21,10 @@ const Layout = ({ children }) => {
 				setUserRole(role);
 			} catch (error) {
 				console.error("Error fetching user role:", error);
-				navigate(loginPage);
+				navigate(LOGIN_PAGE);
 			} finally {
 				if (userRole === undefined) {
-					navigate(loginPage);
+					navigate(LOGIN_PAGE);
 				}
 				setLoading(false);
 			}
@@ -69,7 +68,7 @@ const Layout = ({ children }) => {
 				<Footer />
 			</div>
 		);
-	} else navigate(loginPage);
+	} else navigate(LOGIN_PAGE);
 };
 
 export default Layout;

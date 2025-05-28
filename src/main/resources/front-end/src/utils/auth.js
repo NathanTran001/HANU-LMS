@@ -33,17 +33,8 @@ export const logout = async () => {
 	try {
 		await axios.post(API_BASE_URL + "/api/auth/logout");
 		// Clear any local storage if needed
-		localStorage.removeItem("user");
+		// localStorage.removeItem("user");
 	} catch (error) {
 		console.error("Error during logout:", error);
-	}
-};
-
-export const isAdmin = async () => {
-	try {
-		const role = await getUserRole();
-		return role === "ADMIN" || role === "admin";
-	} catch (error) {
-		return false;
 	}
 };

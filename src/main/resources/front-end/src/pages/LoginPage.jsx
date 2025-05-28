@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import styles from "./styles/LoginPage.module.css";
 import api from "../services/apiService";
 import { getUserRole } from "../utils/auth";
-import { facultyListPage, myCoursesPage } from "../App";
+import { FACULTY_LIST_PAGE, MY_COURSES_PAGE } from "../constants/paths";
 
 const LoginPage = () => {
 	const [credentials, setCredentials] = useState({
@@ -41,15 +40,14 @@ const LoginPage = () => {
 		e.preventDefault();
 		setIsLoading(true);
 		setError("");
-		axios.defaults.withCredentials = true;
 
 		try {
 			await api.login(credentials);
 			const role = await getUserRole();
 			console.log(`Role: ${role}`);
 
-			if (role === "ADMIN" || role === "admin") navigate(facultyListPage);
-			else navigate(myCoursesPage);
+			if (role === "ADMIN" || role === "admin") navigate(FACULTY_LIST_PAGE);
+			else navigate(MY_COURSES_PAGE);
 		} catch (err) {
 			if (err.response) {
 				setError(err.response.data.message || "Bad Credentials!");

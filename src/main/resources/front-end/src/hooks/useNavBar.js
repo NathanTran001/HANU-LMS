@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUser, logout } from "../utils/auth";
-import { loginPage } from "../App";
+import { LOGIN_PAGE } from "../constants/paths";
 
 export const useNavBar = () => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -41,7 +41,7 @@ export const useNavBar = () => {
 
 	const handleLogout = async () => {
 		await logout();
-		navigate(loginPage);
+		navigate(LOGIN_PAGE);
 	};
 
 	return {

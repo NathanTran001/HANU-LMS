@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import styles from "./styles/CreateFacultyPage.module.css";
-import Layout from "../components/Layout";
 import { useNavigate } from "react-router-dom";
 import api from "../services/apiService";
-const API_BASE_URL = "http://localhost:8081";
 
 const CreateFacultyPage = () => {
 	const [faculty, setFaculty] = useState({
@@ -53,88 +50,86 @@ const CreateFacultyPage = () => {
 	};
 
 	return (
-		<Layout>
-			<div className={`${styles.listAccounts} container`}>
-				<div className={`row ${styles.pathContainer} mt-3`}>
-					<a
-						href=""
-						className={styles.path}
-					>
-						Home
-					</a>{" "}
-					/
-					<a
-						href=""
-						className={styles.path}
-					>
-						Accounts Management
-					</a>{" "}
-					/
-					<a
-						href=""
-						className={styles.path}
-					>
-						Create new Faculty
-					</a>
-				</div>
-
-				<div className={`row ${styles.titleContainer} my-2`}>
-					<h3 className={styles.title}>CREATE NEW FACULTY</h3>
-				</div>
-
-				<form onSubmit={handleSubmit}>
-					<div className="row mb-3">
-						<label
-							htmlFor="facultyCode"
-							className="form-label"
-						>
-							Faculty Code
-						</label>
-						<input
-							name="code"
-							value={faculty.code}
-							onChange={handleInputChange}
-							type="text"
-							className="form-control"
-							id="facultyCode"
-							placeholder="Enter Faculty Code"
-							required
-						/>
-						{errors.code && <div className={styles.error}>{errors.code}</div>}
-					</div>
-
-					<div className="row mb-3">
-						<label
-							htmlFor="facultyName"
-							className="form-label"
-						>
-							Faculty Name
-						</label>
-						<input
-							name="name"
-							value={faculty.name}
-							onChange={handleInputChange}
-							type="text"
-							className="form-control"
-							id="facultyName"
-							placeholder="Enter Faculty Name"
-							required
-						/>
-						{errors.name && <div className={styles.error}>{errors.name}</div>}
-					</div>
-
-					<div className="row mb-3">
-						<button
-							type="submit"
-							className={`btn btn-outline-secondary mb-3 px-5 py-2 ${styles.btn}`}
-							disabled={isSubmitting}
-						>
-							{isSubmitting ? "Creating..." : "Create"}
-						</button>
-					</div>
-				</form>
+		<div className={`${styles.listAccounts} container`}>
+			<div className={`row ${styles.pathContainer} mt-3`}>
+				<a
+					href=""
+					className={styles.path}
+				>
+					Home
+				</a>{" "}
+				/
+				<a
+					href=""
+					className={styles.path}
+				>
+					Accounts Management
+				</a>{" "}
+				/
+				<a
+					href=""
+					className={styles.path}
+				>
+					Create new Faculty
+				</a>
 			</div>
-		</Layout>
+
+			<div className={`row ${styles.titleContainer} my-2`}>
+				<h3 className={styles.title}>CREATE NEW FACULTY</h3>
+			</div>
+
+			<form onSubmit={handleSubmit}>
+				<div className="row mb-3">
+					<label
+						htmlFor="facultyCode"
+						className="form-label"
+					>
+						Faculty Code
+					</label>
+					<input
+						name="code"
+						value={faculty.code}
+						onChange={handleInputChange}
+						type="text"
+						className="form-control"
+						id="facultyCode"
+						placeholder="Enter Faculty Code"
+						required
+					/>
+					{errors.code && <div className={styles.error}>{errors.code}</div>}
+				</div>
+
+				<div className="row mb-3">
+					<label
+						htmlFor="facultyName"
+						className="form-label"
+					>
+						Faculty Name
+					</label>
+					<input
+						name="name"
+						value={faculty.name}
+						onChange={handleInputChange}
+						type="text"
+						className="form-control"
+						id="facultyName"
+						placeholder="Enter Faculty Name"
+						required
+					/>
+					{errors.name && <div className={styles.error}>{errors.name}</div>}
+				</div>
+
+				<div className="row mb-3">
+					<button
+						type="submit"
+						className={`btn btn-outline-secondary mb-3 px-5 py-2 ${styles.btn}`}
+						disabled={isSubmitting}
+					>
+						{isSubmitting ? "Creating..." : "Create"}
+					</button>
+				</div>
+			</form>
+		</div>
 	);
 };
 

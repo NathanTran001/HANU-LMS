@@ -1,22 +1,25 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { isAuthenticated } from '../utils/auth';
+// components/ProtectedRoute.js
+import { LOGIN_PAGE } from "../constants/paths";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
-  const location = useLocation();
-  
-  if (!isAuthenticated()) {
-    // Redirect to login page with the attempted location
-    return (
-      <Navigate 
-        to="/login" 
-        state={{ from: location.pathname }} 
-        replace 
-      />
-    );
-  }
+function ProtectedRoute({ children }) {
+	const { isAuthenticated, loading } = useAuth();
 
-  return children;
-};
+	if (loading) {
+		return <div>Loading...</div>; // Or your loading spinner
+	}
+
+	if (!isAuthenticated) {
+		return (
+			<Navigate
+				to={LOGIN_PAGE}
+				replace
+			/>
+		);
+	}
+
+	return children;
+}
 
 export default ProtectedRoute;

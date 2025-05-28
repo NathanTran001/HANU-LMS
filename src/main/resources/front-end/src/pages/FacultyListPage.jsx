@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ConfirmModal from "../components/ConfirmModal";
-import styles from "./styles/FacultyListPage.module.css";
+import styles from "./styles/AdminOperationPage.module.css";
 import api from "../services/apiService";
-import { createFacultyPage } from "../App";
+import { CREATE_FACULTY_PAGE, LOGIN_PAGE } from "../constants/paths";
 
 const FacultyListPage = () => {
 	const navigate = useNavigate();
@@ -35,7 +35,7 @@ const FacultyListPage = () => {
 
 			if (error.response && error.response.status === 403) {
 				setError("You are not authorized to access this resource (403)");
-				navigate("/");
+				navigate(LOGIN_PAGE);
 			} else {
 				setError("Network error occurred");
 			}
@@ -47,7 +47,7 @@ const FacultyListPage = () => {
 	const handleSearch = async (e) => {};
 
 	const handleCreateFaculty = () => {
-		navigate(createFacultyPage);
+		navigate(CREATE_FACULTY_PAGE);
 	};
 
 	const handleEditFaculty = (facultyCode) => {
@@ -76,7 +76,7 @@ const FacultyListPage = () => {
 	}
 
 	return (
-		<div className={styles.listAccounts}>
+		<div className={styles.container}>
 			{/* Breadcrumb */}
 			<div className={styles.pathContainer}>
 				<a

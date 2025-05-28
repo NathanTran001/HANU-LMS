@@ -24,12 +24,12 @@ public class AdminController {
     @Autowired private PasswordEncoder p;
 
     // ==================== LECTURERS ====================
-    @GetMapping("/listLecturer")
-    public ResponseEntity<List<Lecturer>> listLecturer() {
-        return ResponseEntity.ok(lecturerRepository.findAll());
+    @GetMapping("/lecturers")
+    public ResponseEntity<Page<Lecturer>> listLecturer(Pageable pageable) {
+        return ResponseEntity.ok(lecturerRepository.findAll(pageable));
     }
 
-    @PostMapping("/createLecturer")
+    @PostMapping("/lecturers")
     public ResponseEntity<?> createLecturer(@Valid @RequestBody UserTemplate userTemplate) {
         if (lecturerRepository.findByUsername(userTemplate.getUsername()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -39,7 +39,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(lecturerRepository.save(newLecturer));
     }
 
-    @PutMapping("/editLecturer")
+    @PutMapping("/lecturers")
     public ResponseEntity<?> editLecturer(@Valid @RequestBody UserTemplate userTemplate) {
         Optional<Lecturer> optLecturer = lecturerRepository.findByUsername(userTemplate.getUsername());
         if (optLecturer.isEmpty()) return ResponseEntity.notFound().build();
@@ -52,7 +52,7 @@ public class AdminController {
         return ResponseEntity.ok(lecturerRepository.save(lecturer));
     }
 
-    @DeleteMapping("/deleteLecturer/{id}")
+    @DeleteMapping("/lecturers/{id}")
     public ResponseEntity<?> deleteLecturer(@PathVariable Long id) {
         Lecturer lecturer = lecturerRepository.getReferenceById(id);
         for (Course c : lecturer.getCourses()) {
@@ -65,12 +65,12 @@ public class AdminController {
     }
 
     // ==================== STUDENTS ====================
-    @GetMapping("/listStudent")
-    public ResponseEntity<List<Student>> listStudent() {
-        return ResponseEntity.ok(studentRepository.findAll());
+    @GetMapping("/students")
+    public ResponseEntity<Page<Student>> listStudent(Pageable pageable) {
+        return ResponseEntity.ok(studentRepository.findAll(pageable));
     }
 
-    @PostMapping("/createStudent")
+    @PostMapping("/students")
     public ResponseEntity<?> createStudent(@Valid @RequestBody UserTemplate userTemplate) {
         if (studentRepository.findByUsername(userTemplate.getUsername()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -80,7 +80,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentRepository.save(newStudent));
     }
 
-    @PutMapping("/editStudent")
+    @PutMapping("/students")
     public ResponseEntity<?> editStudent(@Valid @RequestBody UserTemplate userTemplate) {
         Optional<Student> optStudent = studentRepository.findByUsername(userTemplate.getUsername());
         if (optStudent.isEmpty()) return ResponseEntity.notFound().build();
@@ -93,7 +93,7 @@ public class AdminController {
         return ResponseEntity.ok(studentRepository.save(student));
     }
 
-    @DeleteMapping("/deleteStudent/{id}")
+    @DeleteMapping("/students/{id}")
     public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
         Student student = studentRepository.getReferenceById(id);
         for (Course c : student.getCourses()) {

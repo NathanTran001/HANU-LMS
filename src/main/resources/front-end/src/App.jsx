@@ -1,9 +1,26 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+	createBrowserRouter,
+	Navigate,
+	Route,
+	RouterProvider,
+	Routes,
+	useNavigate,
+} from "react-router-dom";
 import LoginPage from "./pages/LoginPage.jsx";
 import FacultyListPage from "./pages/FacultyListPage.jsx";
 import CreateFacultyPage from "./pages/CreateFacultyPage.jsx";
 import MyCoursesPage from "./pages/MyCoursesPage.jsx";
 import Layout from "./components/Layout.jsx";
+import { use, useEffect } from "react";
+import { getUser } from "./utils/auth.js";
+import {
+	CREATE_FACULTY_PAGE,
+	FACULTY_LIST_PAGE,
+	LOGIN_PAGE,
+	MY_COURSES_PAGE,
+} from "./constants/paths.js";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { AuthProvider } from "./contexts/AuthContext.jsx";
 
 export const loginPage = "/";
 export const facultyListPage = "/admin/listFaculty";
@@ -12,32 +29,58 @@ export const myCoursesPage = "/myCourses";
 
 const router = createBrowserRouter([
 	{
-		path: loginPage,
+		path: LOGIN_PAGE,
 		element: <LoginPage />,
-		errorElement: <div>404 Not Found Ight?</div>,
 	},
 	{
-		path: facultyListPage,
+		path: FACULTY_LIST_PAGE,
 		element: (
-			<Layout>
-				<FacultyListPage />
-			</Layout>
+			<ProtectedRoute>
+				<Layout>
+					<FacultyListPage />
+				</Layout>
+			</ProtectedRoute>
 		),
 	},
 	{
-		path: createFacultyPage,
-		element: <CreateFacultyPage />,
+		path: CREATE_FACULTY_PAGE,
+		element: (
+			<ProtectedRoute>
+				<Layout>
+					<CreateFacultyPage />
+				</Layout>
+			</ProtectedRoute>
+		),
 	},
 	{
-		path: myCoursesPage,
+		path: MY_COURSES_PAGE,
 		element: (
-			<Layout>
-				<MyCoursesPage />
-			</Layout>
+			<ProtectedRoute>
+				<Layout>
+					<MyCoursesPage />
+				</Layout>
+			</ProtectedRoute>
 		),
+	},
+	{
+		path: "/",
+		element: (
+			<Navigate
+				to={LOGIN_PAGE}
+				replace
+			/>
+		),
+	},
+	{
+		path: "*",
+		element: <div>404 Not Found</div>,
 	},
 ]);
 
 export default function App() {
-	return <RouterProvider router={router} />;
+	return (
+		<AuthProvider>
+			<RouterProvider router={router} />
+		</AuthProvider>
+	);
 }
