@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useNavBar } from "../hooks/useNavBar";
 import { useSearch } from "../hooks/useSearch";
 import styles from "./styles/NavBar.module.css";
-import logo from "../assets/HANU.png";
+import logo from "../assets/react.svg";
 
 const NavBar = () => {
 	const {

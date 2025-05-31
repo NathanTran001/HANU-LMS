@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ConfirmModal from "../components/ConfirmModal";
-import styles from "./styles/AdminOperationPage.module.css";
+import styles from "./styles/AdminObservationPage.module.css";
 import api from "../services/apiService";
-import { CREATE_FACULTY_PAGE, LOGIN_PAGE } from "../constants/paths";
+import {
+	CREATE_FACULTY_PAGE,
+	EDIT_FACULTY_PAGE,
+	LOGIN_PAGE,
+} from "../constants/paths";
+import SearchBarAdmin from "../components/SearchBarAdmin";
+import Pagination from "../components/Pagination";
 
 const FacultyListPage = () => {
 	const navigate = useNavigate();
 	const [faculties, setFaculties] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
-	const [searchTerm, setSearchTerm] = useState("");
+	const [searchPhrase, setSearchPhrase] = useState("");
 	const [deleteModal, setDeleteModal] = useState({
 		isOpen: false,
 		faculty: null,
@@ -19,10 +25,26 @@ const FacultyListPage = () => {
 	const [page, setPage] = useState(0);
 	const [size, setSize] = useState(3);
 	const [totalPages, setTotalPages] = useState(0);
+	const debounceTimeout = useRef();
 
 	useEffect(() => {
 		fetchFaculties();
 	}, [page]);
+
+	useEffect(() => {
+		if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+
+		debounceTimeout.current = setTimeout(() => {
+			if (searchPhrase.trim()) {
+				handleSearch();
+			} else {
+				setPage(0);
+				fetchFaculties();
+			}
+		}, 400);
+
+		return () => clearTimeout(debounceTimeout.current);
+	}, [searchPhrase]);
 
 	const fetchFaculties = async () => {
 		try {
@@ -44,14 +66,33 @@ const FacultyListPage = () => {
 		}
 	};
 
-	const handleSearch = async (e) => {};
+	const handleSearch = async (e) => {
+		if (e) e.preventDefault();
+		if (!searchPhrase.trim()) {
+			setPage(0);
+			fetchFaculties();
+			return;
+		}
+
+		try {
+			setLoading(true);
+			const response = await api.searchFaculties(searchPhrase, page, size);
+			setFaculties(response.content);
+			setTotalPages(response.totalPages);
+		} catch (error) {
+			console.error("Error searching faculties:", error);
+			setError("Failed to search faculties. Please try again.");
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const handleCreateFaculty = () => {
 		navigate(CREATE_FACULTY_PAGE);
 	};
 
 	const handleEditFaculty = (facultyCode) => {
-		navigate(`/admin/editFaculty/${facultyCode}`);
+		navigate(EDIT_FACULTY_PAGE.replace(":facultyCode", facultyCode));
 	};
 
 	const handleDeleteClick = (faculty) => {
@@ -61,19 +102,22 @@ const FacultyListPage = () => {
 		});
 	};
 
-	const handleDeleteConfirm = async () => {};
+	const handleDeleteConfirm = async () => {
+		if (!deleteModal.faculty) return;
+
+		try {
+			await api.deleteFaculty(deleteModal.faculty.code);
+			setDeleteModal({ isOpen: false, faculty: null });
+			fetchFaculties();
+		} catch (error) {
+			console.error("Error deleting faculty:", error);
+			setError("Failed to delete faculty. Please try again.");
+		}
+	};
 
 	const handleDeleteCancel = () => {
 		setDeleteModal({ isOpen: false, faculty: null });
 	};
-
-	if (loading) {
-		return (
-			<Layout>
-				<div className={styles.loading}>Loading faculties...</div>
-			</Layout>
-		);
-	}
 
 	return (
 		<div className={styles.container}>
@@ -106,7 +150,7 @@ const FacultyListPage = () => {
 
 			{/* Search and Create Section */}
 			<div className={styles.actionsRow}>
-				<form
+				{/* <form
 					onSubmit={handleSearch}
 					className={styles.searchForm}
 				>
@@ -120,10 +164,15 @@ const FacultyListPage = () => {
 						type="text"
 						className={styles.searchInput}
 						placeholder="Search..."
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
+						value={searchPhrase}
+						onChange={(e) => setSearchPhrase(e.target.value)}
 					/>
-				</form>
+				</form> */}
+				<SearchBarAdmin
+					value={searchPhrase}
+					onChange={(e) => setSearchPhrase(e.target.value)}
+					onSubmit={handleSearch}
+				/>
 				<div className={styles.createBtnContainer}>
 					<button
 						onClick={handleCreateFaculty}
@@ -217,27 +266,32 @@ const FacultyListPage = () => {
 				</table>
 			</div>
 			{!loading && faculties.length > 0 && (
-				<div className={styles.pageIndicesContainer}>
-					<button
-						onClick={() => setPage((prev) => Math.max(0, prev - 1))}
-						disabled={page === 0}
-						className={styles.paginationButton}
-					>
-						Previous
-					</button>
-					<span className={styles.pageInfo}>
-						Page {page + 1} of {totalPages}
-					</span>
-					<button
-						onClick={() =>
-							setPage((prev) => Math.min(totalPages - 1, prev + 1))
-						}
-						disabled={page >= totalPages - 1}
-						className={styles.paginationButton}
-					>
-						Next
-					</button>
-				</div>
+				// <div className={styles.pageIndicesContainer}>
+				// 	<button
+				// 		onClick={() => setPage((prev) => Math.max(0, prev - 1))}
+				// 		disabled={page === 0}
+				// 		className={styles.paginationButton}
+				// 	>
+				// 		<i className="bi bi-chevron-left"></i>
+				// 	</button>
+				// 	<span className={styles.pageInfo}>
+				// 		Page {page + 1} of {totalPages}
+				// 	</span>
+				// 	<button
+				// 		onClick={() =>
+				// 			setPage((prev) => Math.min(totalPages - 1, prev + 1))
+				// 		}
+				// 		disabled={page >= totalPages - 1}
+				// 		className={styles.paginationButton}
+				// 	>
+				// 		<i className="bi bi-chevron-right"></i>
+				// 	</button>
+				// </div>
+				<Pagination
+					page={page}
+					totalPages={totalPages}
+					onPageChange={setPage}
+				/>
 			)}
 			{/* Delete Confirmation Modal */}
 			<ConfirmModal

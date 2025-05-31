@@ -117,10 +117,32 @@ const api = {
 			throw error;
 		}
 	},
-	getFaculty: (id) => api.get(`/api/faculties/${id}`),
-	createFaculty: (data) => api.post("/api/faculties", data),
-	updateFaculty: (id, data) => api.put(`/api/faculties/${id}`, data),
-	deleteFaculty: (id) => api.delete(`/api/faculties/${id}`),
+	getFaculty: (code) => api.get(`/api/admin/faculties/${code}`),
+	createFaculty: (data) => api.post("/api/admin/faculties", data),
+	updateFaculty: (code, data) => api.put(`/api/admin/faculties/${code}`, data),
+	deleteFaculty: (code) => api.delete(`/api/admin/faculties/${code}`),
+
+	searchFaculties: async (searchPhrase, page = 0, size = 10) => {
+		try {
+			const response = await api.get("/api/admin/faculties/search", {
+				params: {
+					searchPhrase,
+					page,
+					size,
+				},
+			});
+			return {
+				content: response.content || [],
+				totalPages: response.totalPages || 0,
+				totalElements: response.totalElements || 0,
+				number: response.number || 0,
+				size: response.size || size,
+			};
+		} catch (error) {
+			console.error("Error searching faculties:", error);
+			throw error;
+		}
+	},
 
 	// File upload
 	uploadFile: async (endpoint, file, additionalData = {}) => {

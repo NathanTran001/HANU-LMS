@@ -111,6 +111,17 @@ public class AdminController {
         return ResponseEntity.ok(facultyRepository.findAll(pageable));
     }
 
+    @GetMapping("/faculties/{code}")
+    public ResponseEntity<?> getFaculty(@PathVariable String code) {
+        Optional<Faculty> existing = facultyRepository.findById(code);
+        if (existing.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Faculty not found"));
+        }
+
+        return ResponseEntity.ok(existing.get());
+    }
+
     @PostMapping("/faculties")
     public ResponseEntity<?> createFaculty(@Valid @RequestBody Faculty faculty) {
         boolean exists = facultyRepository.findAll().stream()
@@ -124,15 +135,19 @@ public class AdminController {
                 .body(Map.of("success", true, "faculty", saved, "message", "Faculty created successfully"));
     }
 
-    @PutMapping("/faculties")
-    public ResponseEntity<?> editFaculty(@Valid @RequestBody Faculty faculty) {
-        boolean exists = facultyRepository.findAll().stream()
-                .anyMatch(f -> f.getCode().equals(faculty.getCode()));
-        if (!exists) return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", "Faculty code not found"));
+    @PutMapping("/faculties/{code}")
+    public ResponseEntity<?> editFaculty(@PathVariable String code, @Valid @RequestBody Faculty faculty) {
+        Optional<Faculty> existing = facultyRepository.findById(code);
+        if (existing.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Faculty not found"));
+        }
 
-        facultyRepository.save(faculty);
-        return ResponseEntity.ok(faculty);
+        Faculty existingFaculty = existing.get();
+        existingFaculty.setName(faculty.getName());
+
+        Faculty savedFaculty = facultyRepository.save(existingFaculty);
+        return ResponseEntity.ok(savedFaculty);
     }
 
     @DeleteMapping("/faculties/{code}")
@@ -143,19 +158,33 @@ public class AdminController {
     }
 
     // ==================== STUBS FOR SEARCH ====================
-    @GetMapping("/searchLecturer")
-    public ResponseEntity<List<Lecturer>> searchLecturer(@RequestParam String searchPhrase) {
-        // Implement filtering if needed
-        return ResponseEntity.ok(lecturerRepository.findAll());
+    @GetMapping("/lecturers/search")
+    public ResponseEntity<Page<Lecturer>> searchLecturers(
+            @RequestParam String searchPhrase,
+            Pageable pageable) {
+
+        Page<Lecturer> lecturers = lecturerRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                searchPhrase, searchPhrase, pageable);
+        return ResponseEntity.ok(lecturers);
     }
 
-    @GetMapping("/searchStudent")
-    public ResponseEntity<List<Student>> searchStudent(@RequestParam String searchPhrase) {
-        return ResponseEntity.ok(studentRepository.findAll());
+    @GetMapping("/students/search")
+    public ResponseEntity<Page<Student>> searchStudents(
+            @RequestParam String searchPhrase,
+            Pageable pageable) {
+
+        Page<Student> students = studentRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                searchPhrase, searchPhrase, pageable);
+        return ResponseEntity.ok(students);
     }
 
-    @GetMapping("/searchFaculty")
-    public ResponseEntity<List<Faculty>> searchFaculty(@RequestParam String searchPhrase) {
-        return ResponseEntity.ok(facultyRepository.findAll());
+    @GetMapping("/faculties/search")
+    public ResponseEntity<Page<Faculty>> searchFaculties(
+            @RequestParam String searchPhrase,
+            Pageable pageable) {
+
+        Page<Faculty> faculties = facultyRepository.findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase(
+                searchPhrase, searchPhrase, pageable);
+        return ResponseEntity.ok(faculties);
     }
 }

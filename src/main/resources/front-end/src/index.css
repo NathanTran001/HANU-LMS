@@ -7,6 +7,9 @@
 	--primary300: #a45252;
 	--primary200: #b56060;
 	--primary100: #c66d6d;
+	--primary50: #f0e1e1;
+	--danger: #dc3545;
+	--danger-hover: #c82333;
 	font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;

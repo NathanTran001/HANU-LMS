@@ -15,17 +15,14 @@ import { use, useEffect } from "react";
 import { getUser } from "./utils/auth.js";
 import {
 	CREATE_FACULTY_PAGE,
+	EDIT_FACULTY_PAGE,
 	FACULTY_LIST_PAGE,
 	LOGIN_PAGE,
 	MY_COURSES_PAGE,
 } from "./constants/paths.js";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
-
-export const loginPage = "/";
-export const facultyListPage = "/admin/listFaculty";
-export const createFacultyPage = "/admin/createFaculty";
-export const myCoursesPage = "/myCourses";
+import EditFacultyPage from "./pages/EditFacultyPage.jsx";
 
 const router = createBrowserRouter([
 	{
@@ -48,6 +45,16 @@ const router = createBrowserRouter([
 			<ProtectedRoute>
 				<Layout>
 					<CreateFacultyPage />
+				</Layout>
+			</ProtectedRoute>
+		),
+	},
+	{
+		path: EDIT_FACULTY_PAGE,
+		element: (
+			<ProtectedRoute>
+				<Layout>
+					<EditFacultyPage />
 				</Layout>
 			</ProtectedRoute>
 		),

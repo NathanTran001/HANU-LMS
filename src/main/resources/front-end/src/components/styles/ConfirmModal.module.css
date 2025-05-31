@@ -1,3 +1,5 @@
+@import "../../index.css";
+
 .modalOverlay {
 	position: fixed;
 	top: 0;
@@ -109,12 +111,12 @@
 }
 
 .btnSecondary {
-	background-color: #6c757d;
-	color: white;
+	background-color: transparent;
+	color: var(--primary800);
 }
 
 .btnSecondary:hover {
-	background-color: #5a6268;
+	background-color: var(--primary50);
 }
 
 .btnPrimary {
