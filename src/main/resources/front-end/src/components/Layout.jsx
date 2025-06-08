@@ -3,11 +3,12 @@ import Footer from "./Footer";
 import styles from "./styles/Layout.module.css";
 import { getUserRole } from "../utils/auth";
 import NavBarAdmin from "./NavBarAdmin";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import { LOGIN_PAGE } from "../constants/paths";
+import { ADMIN, LECTURER, STUDENT } from "../constants/roles";
 
-const Layout = ({ children }) => {
+const Layout = () => {
 	const [userRole, setUserRole] = useState("");
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
@@ -21,10 +22,10 @@ const Layout = ({ children }) => {
 				setUserRole(role);
 			} catch (error) {
 				console.error("Error fetching user role:", error);
-				navigate(LOGIN_PAGE);
+				// navigate(LOGIN_PAGE);
 			} finally {
-				if (userRole === undefined) {
-					navigate(LOGIN_PAGE);
+				if (!userRole) {
+					// navigate(LOGIN_PAGE);
 				}
 				setLoading(false);
 			}
@@ -49,26 +50,28 @@ const Layout = ({ children }) => {
 	}
 
 	// Use admin layout for admin users, regular layout for others
-	if (userRole?.toLowerCase() === "admin") {
+	if (userRole.includes(ADMIN)) {
 		return (
 			<div className={styles.pageContainer}>
 				<NavBarAdmin />
-				<main className={styles.mainContent}>{children}</main>
+				<main className={styles.mainContent}>
+					<Outlet />
+				</main>
 				<Footer />
 			</div>
 		);
-	} else if (
-		userRole?.toLowerCase() === "student" ||
-		userRole?.toLowerCase() === "lecturer"
-	) {
+	} else if (userRole.includes(STUDENT) || userRole.includes(LECTURER)) {
 		return (
 			<div className={styles.pageContainer}>
 				<NavBar />
-				<main className={styles.mainContent}>{children}</main>
+				<main className={styles.mainContent}>
+					<Outlet />
+				</main>
 				<Footer />
 			</div>
 		);
-	} else navigate(LOGIN_PAGE);
+	}
+	// else navigate(LOGIN_PAGE);
 };
 
 export default Layout;

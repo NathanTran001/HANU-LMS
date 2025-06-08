@@ -3,7 +3,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./styles/LoginPage.module.css";
 import api from "../services/apiService";
 import { getUserRole } from "../utils/auth";
-import { FACULTY_LIST_PAGE, MY_COURSES_PAGE } from "../constants/paths";
+import {
+	FACULTY_LIST_PAGE,
+	LECTURER_LIST_PAGE,
+	MY_COURSES_PAGE,
+} from "../constants/paths";
+import { ADMIN, LECTURER, STUDENT } from "../constants/roles";
 
 const LoginPage = () => {
 	const [credentials, setCredentials] = useState({
@@ -25,6 +30,7 @@ const LoginPage = () => {
 		if (urlParams.get("error") !== null) {
 			setError("Bad Credentials!");
 		}
+		handleRedirect();
 	}, [location]);
 
 	const handleInputChange = (e) => {
@@ -43,14 +49,10 @@ const LoginPage = () => {
 
 		try {
 			await api.login(credentials);
-			const role = await getUserRole();
-			console.log(`Role: ${role}`);
-
-			if (role === "ADMIN" || role === "admin") navigate(FACULTY_LIST_PAGE);
-			else navigate(MY_COURSES_PAGE);
+			handleRedirect();
 		} catch (err) {
 			if (err.response) {
-				setError(err.response.data.message || "Bad Credentials!");
+				setError(err.response.data.message);
 			} else {
 				console.error("Login error:", err);
 				setError("Network error. Please try again.");
@@ -66,6 +68,17 @@ const LoginPage = () => {
 
 	const handleSignupRedirect = () => {
 		navigate("/signup");
+	};
+
+	const handleRedirect = async () => {
+		const role = await getUserRole();
+		if (!role) return;
+		console.log(`Role: ${role}`);
+		if (role.includes(ADMIN)) {
+			navigate(LECTURER_LIST_PAGE);
+			console.log(role);
+		} else if (role.includes(LECTURER) || role.includes(STUDENT))
+			navigate(MY_COURSES_PAGE);
 	};
 
 	return (

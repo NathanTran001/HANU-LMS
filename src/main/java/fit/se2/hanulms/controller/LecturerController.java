@@ -2,13 +2,9 @@ package fit.se2.hanulms.controller;
 
 import fit.se2.hanulms.Repository.*;
 import fit.se2.hanulms.model.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -25,9 +21,9 @@ public class LecturerController {
     @Autowired
     LecturerRepository lecturerRepository;
     @Autowired
-    TopicRepository topicRepository;
-    @Autowired
     StudentRepository studentRepository;
+    @Autowired
+    TopicRepository topicRepository;
     @Autowired
     AnnouncementRepository announcementRepository;
     @Autowired
@@ -42,17 +38,17 @@ public class LecturerController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String faculty) {
         try {
-            List<Lecturer> lecturers = lecturerRepository.findAll();
+            List<Lecturer> academicUsers = lecturerRepository.findAll();
 
             // Apply filters if provided
             if (search != null && !search.trim().isEmpty()) {
-                lecturers = lecturers.stream()
+                academicUsers = academicUsers.stream()
                         .filter(l -> l.getUsername().toLowerCase().contains(search.toLowerCase()) ||
                                 (l.getName() != null && l.getName().toLowerCase().contains(search.toLowerCase())))
                         .collect(Collectors.toList());
             }
 
-            return ResponseEntity.ok(lecturers);
+            return ResponseEntity.ok(academicUsers);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -97,8 +93,8 @@ public class LecturerController {
             lecturer.setName(name);
             lecturer.setEmail(email);
 
-            Lecturer savedLecturer = lecturerRepository.save(lecturer);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedLecturer);
+            Lecturer savedAcademicUser = lecturerRepository.save(lecturer);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedAcademicUser);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to create lecturer"));
@@ -280,7 +276,7 @@ public class LecturerController {
                         .body(Map.of("error", "Invalid enrollment key"));
             }
 
-            if (course.getStudents().contains(student)) {
+            if (course.getLecturers().contains(student)) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Student already enrolled"));
             }

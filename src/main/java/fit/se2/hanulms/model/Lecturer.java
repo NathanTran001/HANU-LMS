@@ -1,71 +1,52 @@
 package fit.se2.hanulms.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
+@Table(name = "lecturer")
+@PrimaryKeyJoinColumn(name = "user_id")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class Lecturer {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@DiscriminatorValue("LECTURER")
+public class Lecturer extends LMSUser {
+
     private String name;
     private String email;
-    @ManyToOne
-    private Faculty faculty;
-    @ManyToMany(cascade = CascadeType.REMOVE)
-    private List<Course> courses;
-    private String username;
 
-    private String password;
-    private String role;
-    public Lecturer() {}
+    @ManyToOne
+    @JoinColumn(name = "faculty_id")
+    private Faculty faculty;
+
+    @ManyToMany(cascade = CascadeType.REMOVE)
+    @JoinTable(
+            name = "lecturer_courses",
+            joinColumns = @JoinColumn(name = "lecturer_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private List<Course> courses;
+
+    public Lecturer() {
+        super();
+    }
+
     public Lecturer(UserTemplate userTemplate, PasswordEncoder passwordEncoder) {
+        super(userTemplate,
+                passwordEncoder,
+                Set.of(Role.LECTURER));
+
         this.name = userTemplate.getName();
         this.email = userTemplate.getEmail();
         this.faculty = userTemplate.getFaculty();
-        this.username = userTemplate.getUsername();
-        this.password = passwordEncoder.encode(userTemplate.getPassword()); // Encode pw
-        this.role = "LECTURER";
-    }
-    public String getRole() {
-        return role;
-    }
-    public void setRole(String role) {
-        this.role = role;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    // Getters and Setters for lecturer-specific attributes only
     public String getName() {
         return name;
     }

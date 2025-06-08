@@ -53,7 +53,7 @@
         let tagsHTML = "";
 
         if (selectedOptions.length === 0) {
-          tagsHTML = '<span class="placeholder">Select lecturers</span>';
+          tagsHTML = '<span class="placeholder">Select academicUsers</span>';
         } else {
           const maxTagsToShow = 3;
           let additionalTagsCount = 0;
@@ -275,7 +275,7 @@
             </span>
             <input required type="text" id="enrolment-key" class="form-control" th:field="${course.enrolmentKey}" />
           </div>
-          <label for="lecturers" class="form-label">Lecturers</label>
+          <label for="academicUsers" class="form-label">Lecturers</label>
 
           <div class="mb-3 input-group">
             <span class="input-group-text">
@@ -283,7 +283,7 @@
             </span>
             <div class="custom-select open">
               <div class="select-box">
-                <input required type="text" class="tags_input" name="tags" th:field="${course.lecturers}" />
+                <input required type="text" class="tags_input" name="tags" th:field="${course.academicUsers}" />
                 <div class="selected-options">
                 </div>
                 <div class="arrow">
@@ -292,13 +292,13 @@
               </div>
               <div class="options">
                 <div class="option-search-tags">
-                  <input type="text" class="search-tags" placeholder="Search lecturers...">
+                  <input type="text" class="search-tags" placeholder="Search academicUsers...">
                   <button type="button" class="clear">
                     <i class="fa fa-close"></i>
                   </button>
                 </div>
                 <div class="option all-tags" data-value="All">Select All</div>
-                <div th:each="lecturer : ${allLecturers}" th:text="${lecturer.name}" class="option" th:attr="data-value=${lecturer.id}"></div>
+                <div th:each="academicUser : ${allLecturers}" th:text="${academicUser.name}" class="option" th:attr="data-value=${academicUser.id}"></div>
                 <div class="no-result-message" style="display: none;">No matched results</div>
               </div>
               <span class="tag_error_msg error"></span>

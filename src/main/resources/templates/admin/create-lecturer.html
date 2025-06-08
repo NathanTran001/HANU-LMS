@@ -25,7 +25,7 @@
         <h3 class="title">CREATE NEW LECTURER</h3>
       </div>
 
-      <form th:action="'/admin/createLecturer'" th:object="${lecturer}" method="post">
+      <form th:action="'/admin/createLecturer'" th:object="${academicUser}" method="post">
         <div class="row mb-3">
           <label for="fullName" class="form-label">Full Name</label>
           <input th:field="*{name}" type="text" class="form-control" id="fullName" placeholder="Enter Full Name" required>

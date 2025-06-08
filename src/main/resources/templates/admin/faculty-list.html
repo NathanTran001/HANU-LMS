@@ -58,7 +58,7 @@
                 <p th:text="${faculty.name}"></p>
               </td>
               <td>
-                <p th:text="${#lists.size(faculty.lecturers)}"></p>
+                <p th:text="${#lists.size(faculty.academicUsers)}"></p>
               </td>
               <td>
                 <p th:text="${#lists.size(faculty.students)}"></p>
@@ -83,7 +83,7 @@
                       </button>
                     </div>
                     <div class="modal-body">
-                      Are you sure you want to delete this faculty along with all associated lecturers, students, and courses?
+                      Are you sure you want to delete this faculty along with all associated academicUsers, students, and courses?
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

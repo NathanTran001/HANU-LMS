@@ -11,6 +11,5 @@ public interface FacultyRepository extends JpaRepository<Faculty, String> {
     @Query("SELECT f FROM Faculty f WHERE LOWER(f.name) LIKE LOWER(CONCAT('%', :searchPhrase, '%')) OR LOWER(f.code) LIKE LOWER(CONCAT('%', :searchPhrase, '%'))")
     Page<Faculty> findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase(
             @Param("searchPhrase") String searchPhrase,
-            @Param("searchPhrase") String searchPhrase2,
             Pageable pageable);
 }

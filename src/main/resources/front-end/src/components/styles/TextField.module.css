@@ -1,0 +1,58 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css");
+
+.textfieldContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+.textfieldLabel {
+	font-size: 14px;
+	font-weight: 500;
+	margin-bottom: 4px;
+	color: #333;
+	text-align: left;
+}
+
+.textfieldRequired {
+	color: red;
+	margin-left: 4px;
+}
+
+.textfieldInputWrapper {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.textfieldInputWrapper:has(.textfieldTextarea) {
+	align-items: flex-start;
+}
+
+.textfieldIconBox {
+	background-color: #e0e0e0;
+	padding: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.textfieldIcon {
+	font-size: 16px;
+	color: #666;
+}
+
+.textfieldInput {
+	flex: 1;
+	border: none;
+	padding: 8px;
+	font-size: 14px;
+	outline: none;
+}
+
+.textfieldTextarea {
+	resize: vertical;
+	font-family: inherit;
+}

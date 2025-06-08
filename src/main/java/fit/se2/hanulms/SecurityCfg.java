@@ -1,6 +1,7 @@
 package fit.se2.hanulms;
 
 import fit.se2.hanulms.filter.JwtAuthenticationFilter;
+import fit.se2.hanulms.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,8 +59,8 @@ public class SecurityCfg {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/auth/**", "/login", "/").permitAll()
-                        .requestMatchers("/myCourses").hasAnyAuthority("LECTURER", "STUDENT")
-                        .requestMatchers("/admin/**", "/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/courses").hasAnyRole("LECTURER", "STUDENT")
+                        .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

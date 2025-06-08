@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getUserRole } from "../utils/auth";
 import styles from "./styles/MyCoursesPage.module.css";
 import api from "../services/apiService";
+import { LECTURER } from "../constants/roles";
 
 const MyCoursesPage = () => {
 	const [courses, setCourses] = useState([]);
@@ -55,7 +56,7 @@ const MyCoursesPage = () => {
 		setActiveModal(null);
 	};
 
-	const isLecturer = userRole === "LECTURER";
+	const isLecturer = userRole === LECTURER;
 
 	return (
 		<div className={styles.containerLg}>
@@ -129,11 +130,11 @@ const MyCoursesPage = () => {
 
 					<p className={styles.courseDescription}>{course.description}</p>
 
-					<div className={styles.lecturers}>
-						{course.lecturers.map((lecturer, index) => (
+					<div className={styles.academicUsers}>
+						{course.academicUsers.map((academicUser, index) => (
 							<span key={index}>
-								<span>{lecturer.name}</span>
-								{index < course.lecturers.length - 1 && (
+								<span>{academicUser.name}</span>
+								{index < course.academicUsers.length - 1 && (
 									<span className={styles.abc}> | </span>
 								)}
 							</span>

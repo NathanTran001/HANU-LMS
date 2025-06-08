@@ -1,8 +1,14 @@
 // components/NavBarAdmin.js
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useNavBar } from "../hooks/useNavBar";
 import styles from "./styles/NavBar.module.css";
+import {
+	FACULTY_LIST_PAGE,
+	LECTURER_LIST_PAGE,
+	STUDENT_LIST_PAGE,
+} from "../constants/paths";
+import logo from "../assets/HANU.png";
 
 const NavBarAdmin = () => {
 	const {
@@ -21,9 +27,9 @@ const NavBarAdmin = () => {
 	};
 
 	const adminNavItems = [
-		{ path: "/admin/listLecturer", label: "Lecturer" },
-		{ path: "/admin/listStudent", label: "Student" },
-		{ path: "/admin/listFaculty", label: "Faculty" },
+		{ path: LECTURER_LIST_PAGE, label: "Lecturer" },
+		{ path: STUDENT_LIST_PAGE, label: "Student" },
+		{ path: FACULTY_LIST_PAGE, label: "Faculty" },
 	];
 
 	return (
@@ -36,7 +42,7 @@ const NavBarAdmin = () => {
 					<div className={styles.logoSection}>
 						<div className={styles.logo}>
 							<img
-								src="/images/HANU.png"
+								src={logo}
 								alt="HANU Logo"
 								className={styles.logoImage}
 							/>
@@ -50,18 +56,17 @@ const NavBarAdmin = () => {
 									key={item.path}
 									className={styles.navItem}
 								>
-									<a
-										href={item.path}
-										className={`${styles.navbarItem} ${
-											isActiveRoute(item.path) ? styles.active : ""
-										}`}
-										onClick={(e) => {
-											e.preventDefault();
-											navigate(item.path);
+									<NavLink
+										// key={item.path}
+										to={item.path}
+										className={({ isActive }) => {
+											return `${styles.navbarItem} ${
+												isActive ? styles.active : ""
+											}`;
 										}}
 									>
 										{item.label}
-									</a>
+									</NavLink>
 								</div>
 							))}
 						</div>

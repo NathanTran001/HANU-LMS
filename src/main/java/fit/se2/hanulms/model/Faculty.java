@@ -1,7 +1,6 @@
 package fit.se2.hanulms.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -27,14 +26,6 @@ public class Faculty {
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
     private List<FacultyAnnouncement> facultyAnnouncements;
 
-    public List<Student> getStudents() {
-        return students;
-    }
-
-    public void setStudents(List<Student> students) {
-        this.students = students;
-    }
-
     public String getCode() {
         return code;
     }
@@ -57,6 +48,14 @@ public class Faculty {
 
     public void setLecturers(List<Lecturer> lecturers) {
         this.lecturers = lecturers;
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Student> students) {
+        this.students = students;
     }
 
     public List<Course> getCourses() {

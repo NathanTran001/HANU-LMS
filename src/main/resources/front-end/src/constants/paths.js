@@ -1,7 +1,14 @@
-export const LOGIN_PAGE = "/";
-export const FACULTY_LIST_PAGE = "/admin/facultyList";
-export const LECTURER_LIST_PAGE = "/admin/lecturerList";
-export const STUDENT_LIST_PAGE = "/admin/studentList";
-export const CREATE_FACULTY_PAGE = "/admin/createFaculty";
-export const EDIT_FACULTY_PAGE = "/admin/editFaculty/:facultyCode";
-export const MY_COURSES_PAGE = "/myCourses";
+export const LOGIN_PAGE = "/login";
+export const MY_COURSES_PAGE = "/courses";
+
+export const FACULTY_LIST_PAGE = "/admin/faculties";
+export const CREATE_FACULTY_PAGE = "/admin/faculties/create";
+export const EDIT_FACULTY_PAGE = "/admin/faculties/edit/:code";
+
+export const LECTURER_LIST_PAGE = "/admin/lecturers";
+export const CREATE_LECTURER_PAGE = "/admin/lecturers/create";
+export const EDIT_LECTURER_PAGE = "/admin/lecturers/edit/:id";
+
+export const STUDENT_LIST_PAGE = "/admin/students";
+export const CREATE_STUDENT_PAGE = "/admin/students/create";
+export const EDIT_STUDENT_PAGE = "/admin/students/edit/:id";

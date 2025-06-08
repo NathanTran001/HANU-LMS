@@ -18,9 +18,8 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
 	(response) => response,
 	(error) => {
-		if (error.response?.status === 401) {
-			localStorage.removeItem("user");
-			window.location.href = "/";
+		if (error.response?.status === 401 || error.response?.status === 403) {
+			window.dispatchEvent(new Event("force-logout"));
 		}
 		return Promise.reject(error);
 	}
@@ -79,11 +78,49 @@ const api = {
 	updateProfile: (data) => api.put("/api/user/profile", data),
 
 	// Lecturer operations
-	getLecturers: (params) => api.get("/api/lecturers", { params }),
-	getLecturer: (id) => api.get(`/api/lecturers/${id}`),
-	createLecturer: (data) => api.post("/api/lecturers", data),
-	updateLecturer: (id, data) => api.put(`/api/lecturers/${id}`, data),
-	deleteLecturer: (id) => api.delete(`/api/lecturers/${id}`),
+	getLecturers: (page = 0, size = 10) =>
+		api.get("/api/admin/lecturers", { params: { page, size } }),
+	getLecturer: (id) => api.get(`/api/admin/lecturers/${id}`),
+	createLecturer: (data) => api.post("/api/admin/lecturers", data),
+	updateLecturer: (id, lecturer) =>
+		api.put(`/api/admin/lecturers/${id}`, lecturer),
+	deleteLecturer: (id) => api.delete(`/api/admin/lecturers/${id}`),
+	searchLecturers: (searchPhrase, page = 0, size = 10) =>
+		api.get("/api/admin/lecturers/search", {
+			params: { searchPhrase, page, size },
+		}),
+
+	// Student operations
+	getStudents: (page = 0, size = 10) =>
+		api.get("/api/admin/students", { params: { page, size } }),
+	getStudent: (id) => api.get(`/api/admin/students/${id}`),
+	createStudent: (student) => api.post("/api/admin/students", student),
+	updateStudent: (id, student) => api.put(`/api/admin/students/${id}`, student),
+	deleteStudent: (id) => api.delete(`/api/admin/students/${id}`),
+	searchStudents: (searchPhrase, page = 0, size = 10) =>
+		api.get("/api/admin/students/search", {
+			params: { searchPhrase, page, size },
+		}),
+
+	// Faculty operations
+	getFaculties: (page = 0, size = 10) =>
+		api.get("/api/admin/faculties", {
+			params: { page, size },
+		}),
+	getAllFaculties: () => api.get("/api/admin/faculties/all"),
+	getFaculty: (code) => api.get(`/api/admin/faculties/${code}`),
+	createFaculty: (faculty) => api.post("/api/admin/faculties", faculty),
+	updateFaculty: (code, faculty) =>
+		api.put(`/api/admin/faculties/${code}`, faculty),
+	deleteFaculty: (code) => api.delete(`/api/admin/faculties/${code}`),
+	searchFaculties: (searchPhrase, page = 0, size = 10) =>
+		api.get("/api/admin/faculties/search", {
+			params: {
+				searchPhrase,
+				page,
+				size,
+			},
+		}),
 
 	// Course operations
 	getCourses: (params) => api.get("/api/courses", { params }),
@@ -93,56 +130,6 @@ const api = {
 	deleteCourse: (id) => api.delete(`/api/courses/${id}`),
 	getCoursesByFaculty: (facultyId) =>
 		api.get(`/api/courses/faculty/${facultyId}`),
-
-	// Faculty operations
-	getFaculties: async (page = 0, size = 10) => {
-		try {
-			const response = await api.get("/api/admin/faculties", {
-				params: {
-					page,
-					size,
-					sort: "code,asc", // Optional: add default sorting
-				},
-				withCredentials: true, // Include cookies in requests
-			});
-			return {
-				content: response.content || [],
-				totalPages: response.totalPages || 0,
-				totalElements: response.totalElements || 0,
-				number: response.number || 0,
-				size: response.size || size,
-			};
-		} catch (error) {
-			console.error("Error fetching faculties:", error);
-			throw error;
-		}
-	},
-	getFaculty: (code) => api.get(`/api/admin/faculties/${code}`),
-	createFaculty: (data) => api.post("/api/admin/faculties", data),
-	updateFaculty: (code, data) => api.put(`/api/admin/faculties/${code}`, data),
-	deleteFaculty: (code) => api.delete(`/api/admin/faculties/${code}`),
-
-	searchFaculties: async (searchPhrase, page = 0, size = 10) => {
-		try {
-			const response = await api.get("/api/admin/faculties/search", {
-				params: {
-					searchPhrase,
-					page,
-					size,
-				},
-			});
-			return {
-				content: response.content || [],
-				totalPages: response.totalPages || 0,
-				totalElements: response.totalElements || 0,
-				number: response.number || 0,
-				size: response.size || size,
-			};
-		} catch (error) {
-			console.error("Error searching faculties:", error);
-			throw error;
-		}
-	},
 
 	// File upload
 	uploadFile: async (endpoint, file, additionalData = {}) => {

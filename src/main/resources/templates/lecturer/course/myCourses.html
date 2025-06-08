@@ -50,8 +50,8 @@
         </div>
       </div>
       <p class="course-description" th:text="${course.description}"></p>
-      <span class="lecturers" th:each="lecturer, iterStat : ${course.lecturers}">
-        <span th:text="${lecturer.name}"></span>
+      <span class="academicUsers" th:each="academicUser, iterStat : ${course.academicUsers}">
+        <span th:text="${academicUser.name}"></span>
         <span th:if="${!iterStat.last}" class="abc"> | </span>
       </span>
 

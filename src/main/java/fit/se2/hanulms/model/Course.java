@@ -23,20 +23,12 @@ public class Course {
     private Faculty faculty;
     @ManyToMany(mappedBy = "courses", cascade = CascadeType.REMOVE)
     private List<Lecturer> lecturers;
-    @ManyToMany(cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "courses", cascade = CascadeType.REMOVE)
     private List<Student> students;
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Topic> topics;
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Announcement> announcements;
-
-    public List<Student> getStudents() {
-        return students;
-    }
-
-    public void setStudents(List<Student> students) {
-        this.students = students;
-    }
 
     public String getCourseImage() {
         return courseImage;
@@ -47,50 +39,60 @@ public class Course {
     }
 
     public String getCode() {
-  return code;
- }
+        return code;
+    }
 
     public void setCode(String code) {
-  this.code = code;
- }
+        this.code = code;
+    }
+
     public String getName() {
-      return name;
-     }
+        return name;
+    }
+
     public void setName(String name) {
-      this.name = name;
-     }
+        this.name = name;
+    }
 
     public String getDescription() {
-      return description;
-     }
+        return description;
+    }
 
     public void setDescription(String description) {
-      this.description = description;
-     }
+        this.description = description;
+    }
 
     public String getEnrolmentKey() {
-      return enrolmentKey;
-     }
+        return enrolmentKey;
+    }
 
     public void setEnrolmentKey(String enrolmentKey) {
-      this.enrolmentKey = enrolmentKey;
-     }
+        this.enrolmentKey = enrolmentKey;
+    }
 
     public Faculty getFaculty() {
-      return faculty;
-     }
+        return faculty;
+    }
 
     public void setFaculty(Faculty faculty) {
-      this.faculty = faculty;
-     }
+        this.faculty = faculty;
+    }
 
     public List<Lecturer> getLecturers() {
-      return lecturers;
-     }
+        return lecturers;
+    }
 
     public void setLecturers(List<Lecturer> lecturers) {
-      this.lecturers = lecturers;
-     }
+        this.lecturers = lecturers;
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Student> students) {
+        this.students = students;
+    }
 
     public List<Topic> getTopics() {
         return topics;
@@ -99,6 +101,7 @@ public class Course {
     public void setTopics(List<Topic> topics) {
         this.topics = topics;
     }
+
     public List<Announcement> getAnnouncements() {
         return announcements;
     }

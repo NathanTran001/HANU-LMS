@@ -3,7 +3,8 @@ import { NavLink } from "react-router-dom";
 import { useNavBar } from "../hooks/useNavBar";
 import { useSearch } from "../hooks/useSearch";
 import styles from "./styles/NavBar.module.css";
-import logo from "../assets/react.svg";
+import logo from "../assets/HANU.png";
+import { MY_COURSES_PAGE } from "../constants/paths";
 
 const NavBar = () => {
 	const {
@@ -25,7 +26,7 @@ const NavBar = () => {
 
 	const userNavItems = [
 		{ path: "/", label: "Home" },
-		{ path: "/myCourses", label: "My Courses" },
+		{ path: MY_COURSES_PAGE, label: "My Courses" },
 		{ path: "/facultyAnnouncement", label: "Faculty Announcements" },
 	];
 

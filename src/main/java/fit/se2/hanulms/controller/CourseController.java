@@ -29,9 +29,9 @@ public class CourseController {
     @Autowired
     LecturerRepository lecturerRepository;
     @Autowired
-    TopicRepository topicRepository;
-    @Autowired
     StudentRepository studentRepository;
+    @Autowired
+    TopicRepository topicRepository;
     @Autowired
     AnnouncementRepository announcementRepository;
     @Autowired
@@ -46,48 +46,50 @@ public class CourseController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String faculty,
             @AuthenticationPrincipal UserDetails userDetails) {
-        try {
-            List<Course> courses;
-
-            if (userDetails != null && userDetails.getAuthorities().stream()
-                    .anyMatch(authority -> authority.getAuthority().equals("LECTURER"))) {
-                // Return courses for this lecturer
-                Lecturer thisLecturer = lecturerRepository.findByUsername(userDetails.getUsername()).get();
-                courses = courseRepository.findAll().stream()
-                        .filter(c -> c.getLecturers().contains(thisLecturer))
-                        .collect(Collectors.toList());
-            } else if (userDetails != null && userDetails.getAuthorities().stream()
-                    .anyMatch(authority -> authority.getAuthority().equals("STUDENT"))) {
-                // Return courses for this student
-                Student thisStudent = studentRepository.findByUsername(userDetails.getUsername()).get();
-                courses = courseRepository.findAll().stream()
-                        .filter(c -> c.getStudents().contains(thisStudent))
-                        .collect(Collectors.toList());
-            } else {
-                courses = courseRepository.findAll();
-            }
-
-            // Apply search filter if provided
-            if (search != null && !search.trim().isEmpty()) {
-                String lowerCaseSearch = search.toLowerCase();
-                courses = courses.stream()
-                        .filter(c -> c.getCode().toLowerCase().contains(lowerCaseSearch) ||
-                                c.getName().toLowerCase().contains(lowerCaseSearch) ||
-                                (c.getDescription() != null && c.getDescription().toLowerCase().contains(lowerCaseSearch)))
-                        .collect(Collectors.toList());
-            }
-
-            // Apply faculty filter if provided
-            if (faculty != null && !faculty.trim().isEmpty()) {
-                courses = courses.stream()
-                        .filter(c -> c.getFaculty() != null && c.getFaculty().getCode().equals(faculty))
-                        .collect(Collectors.toList());
-            }
-
-            return ResponseEntity.ok(courses);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        System.out.println("Got courses!");
+        return ResponseEntity.ok(courseRepository.findAll());
+//        try {
+//            List<Course> courses;
+//
+//            if (userDetails != null && userDetails.getAuthorities().stream()
+//                    .anyMatch(authority -> authority.getAuthority().equals("LECTURER"))) {
+//                // Return courses for this lecturer
+//                AcademicUser thisAcademicUser = academicUserRepository.findByUsername(userDetails.getUsername()).get();
+//                courses = courseRepository.findAll().stream()
+//                        .filter(c -> c.getAcademicUsers().contains(thisAcademicUser))
+//                        .collect(Collectors.toList());
+//            } else if (userDetails != null && userDetails.getAuthorities().stream()
+//                    .anyMatch(authority -> authority.getAuthority().equals("STUDENT"))) {
+//                // Return courses for this student
+//                AcademicUser thisStudent = academicUserRepository.findByUsername(userDetails.getUsername()).get();
+//                courses = courseRepository.findAll().stream()
+//                        .filter(c -> c.getAcademicUsers().contains(thisStudent))
+//                        .collect(Collectors.toList());
+//            } else {
+//                courses = courseRepository.findAll();
+//            }
+//
+//            // Apply search filter if provided
+//            if (search != null && !search.trim().isEmpty()) {
+//                String lowerCaseSearch = search.toLowerCase();
+//                courses = courses.stream()
+//                        .filter(c -> c.getCode().toLowerCase().contains(lowerCaseSearch) ||
+//                                c.getName().toLowerCase().contains(lowerCaseSearch) ||
+//                                (c.getDescription() != null && c.getDescription().toLowerCase().contains(lowerCaseSearch)))
+//                        .collect(Collectors.toList());
+//            }
+//
+//            // Apply faculty filter if provided
+//            if (faculty != null && !faculty.trim().isEmpty()) {
+//                courses = courses.stream()
+//                        .filter(c -> c.getFaculty() != null && c.getFaculty().getCode().equals(faculty))
+//                        .collect(Collectors.toList());
+//            }
+//
+//            return ResponseEntity.ok(courses);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
     }
 
     @GetMapping("/courses/{code}")
@@ -133,12 +135,12 @@ public class CourseController {
             }
 
             if (lecturerIds != null && !lecturerIds.isEmpty()) {
-                List<Lecturer> lecturers = lecturerRepository.findAllById(lecturerIds);
-                course.setLecturers(lecturers);
+                List<Lecturer> academicUsers = lecturerRepository.findAllById(lecturerIds);
+                course.setLecturers(academicUsers);
 
                 // Update lecturer's course list
-                for (Lecturer lecturer : lecturers) {
-                    lecturer.getCourses().add(course);
+                for (Lecturer academicUser : academicUsers) {
+                    academicUser.getCourses().add(course);
                 }
             }
 
@@ -175,9 +177,9 @@ public class CourseController {
             Course course = optionalCourse.get();
 
             // Clear existing lecturer associations
-            for (Lecturer lecturer : course.getLecturers()) {
-                lecturer.getCourses().remove(course);
-                lecturerRepository.save(lecturer);
+            for (Lecturer academicUser : course.getLecturers()) {
+                academicUser.getCourses().remove(course);
+                lecturerRepository.save(academicUser);
             }
             course.getLecturers().clear();
 
@@ -192,12 +194,12 @@ public class CourseController {
             }
 
             if (lecturerIds != null && !lecturerIds.isEmpty()) {
-                List<Lecturer> lecturers = lecturerRepository.findAllById(lecturerIds);
-                course.setLecturers(lecturers);
+                List<Lecturer> academicUsers = lecturerRepository.findAllById(lecturerIds);
+                course.setLecturers(academicUsers);
 
                 // Update lecturer's course list
-                for (Lecturer lecturer : lecturers) {
-                    lecturer.getCourses().add(course);
+                for (Lecturer academicUser : academicUsers) {
+                    academicUser.getCourses().add(course);
                 }
             }
 
@@ -221,9 +223,9 @@ public class CourseController {
             Course course = optionalCourse.get();
 
             // Clear associations before deletion
-            for (Lecturer lecturer : course.getLecturers()) {
-                lecturer.getCourses().remove(course);
-                lecturerRepository.save(lecturer);
+            for (Lecturer academicUser : course.getLecturers()) {
+                academicUser.getCourses().remove(course);
+                lecturerRepository.save(academicUser);
             }
 
             for (Student student : course.getStudents()) {

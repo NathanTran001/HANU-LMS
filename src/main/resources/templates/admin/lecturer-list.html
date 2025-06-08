@@ -52,7 +52,7 @@
               <th>Update</th>
               <th>Delete</th>
             </tr>
-            <tr th:each="lecturer : ${allLecturers}">
+            <tr th:each="academicUser : ${allLecturers}">
               <!-- <td th:text="${account.id}" />
                         <td>
                             <a th:href="'/account/' + ${account.id}" th:text="${account.name}" />
@@ -61,28 +61,28 @@
                         <td th:text="${account.email}" />
                         <td th:text="${account.role}" /> -->
               <td>
-                <p th:text="${lecturer.id}"></p>
+                <p th:text="${academicUser.id}"></p>
               </td>
               <td>
-                <p th:text="${lecturer.name}"></p>
+                <p th:text="${academicUser.name}"></p>
               </td>
               <td>
-                <p th:text="${lecturer.faculty.name}"></p>
+                <p th:text="${academicUser.faculty.name}"></p>
               </td>
               <td>
-                <p th:text="${lecturer.email}"></p>
+                <p th:text="${academicUser.email}"></p>
               </td>
               <td>
-                <p th:text="${lecturer.role}"></p>
+                <p th:text="${academicUser.role}"></p>
               </td>
-              <td><a th:href="'/admin/editLecturer/' + ${lecturer.id}">UPDATE</a></td>
+              <td><a th:href="'/admin/editLecturer/' + ${academicUser.id}">UPDATE</a></td>
 
               <td>
-                <a href="#" data-toggle="modal" th:data-target="'#deleteConfirmModal-' + ${lecturer.id}">DELETE</a>
+                <a href="#" data-toggle="modal" th:data-target="'#deleteConfirmModal-' + ${academicUser.id}">DELETE</a>
               </td>
 
 
-              <div class="modal fade" th:id="'deleteConfirmModal-' + ${lecturer.id}" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+              <div class="modal fade" th:id="'deleteConfirmModal-' + ${academicUser.id}" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -93,11 +93,11 @@
                       </button>
                     </div>
                     <div class="modal-body">
-                      Are you sure you want to delete this lecturer?
+                      Are you sure you want to delete this academicUser?
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                      <a th:href="'/admin/deleteLecturer/' + ${lecturer.id}" class="btn delete-btn" id="deleteAccountBtn">Delete Lecturer</a>
+                      <a th:href="'/admin/deleteLecturer/' + ${academicUser.id}" class="btn delete-btn" id="deleteAccountBtn">Delete Lecturer</a>
                     </div>
                   </div>
                 </div>

@@ -4,34 +4,34 @@ import ConfirmModal from "../components/ConfirmModal";
 import styles from "./styles/AdminObservationPage.module.css";
 import api from "../services/apiService";
 import {
-	CREATE_FACULTY_PAGE,
-	EDIT_FACULTY_PAGE,
-	FACULTY_LIST_PAGE,
+	CREATE_LECTURER_PAGE,
+	EDIT_LECTURER_PAGE,
 	LOGIN_PAGE,
 } from "../constants/paths";
 import SearchBarAdmin from "../components/SearchBarAdmin";
 import Pagination from "../components/Pagination";
 import DataTableAdmin from "../components/DataTableAdmin";
-import { LECTURER, STUDENT } from "../constants/roles";
 
-const FacultyListPage = () => {
+const LecturerListPage = () => {
 	const navigate = useNavigate();
-	const [faculties, setFaculties] = useState([]);
+	const [academicUsers, setLecturers] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 	const [searchPhrase, setSearchPhrase] = useState("");
 	const [deleteModal, setDeleteModal] = useState({
 		isOpen: false,
-		faculty: null,
+		academicUser: null,
 	});
 	const [page, setPage] = useState(0);
-	const [pageSize, setPageSize] = useState(3);
+	const [size, setSize] = useState(3);
 	const [totalPages, setTotalPages] = useState(0);
 	const debounceTimeout = useRef();
 
 	useEffect(() => {
 		if (searchPhrase.trim()) {
 			performSearch();
+		} else {
+			fetchLecturers();
 		}
 	}, [page]);
 
@@ -44,27 +44,24 @@ const FacultyListPage = () => {
 				performSearch();
 			} else {
 				setPage(0);
-				fetchFaculties();
+				fetchLecturers();
 			}
 		}, 400);
 
 		return () => clearTimeout(debounceTimeout.current);
 	}, [searchPhrase]);
 
-	const fetchFaculties = async () => {
+	const fetchLecturers = async () => {
 		try {
 			setLoading(true);
-			const response = await api.getFaculties(page, pageSize);
-			setFaculties(response.content);
-			console.log("Fetched faculties:", response.content);
-
+			const response = await api.getLecturers(page, size);
+			setLecturers(response.content);
 			setTotalPages(response.totalPages);
 		} catch (error) {
-			console.error("Error fetching faculties:", error);
-
+			console.error("Error fetching academicUsers:", error);
 			if (error.response && error.response.status === 403) {
 				setError("You are not authorized to access this resource (403)");
-				navigate(LOGIN_PAGE);
+				// navigate(LOGIN_PAGE);
 			} else {
 				setError("Network error occurred");
 			}
@@ -75,17 +72,16 @@ const FacultyListPage = () => {
 
 	const performSearch = async () => {
 		if (!searchPhrase.trim()) return;
-
 		try {
 			setLoading(true);
 			setError("");
-			const response = await api.searchFaculties(searchPhrase, page, pageSize);
-			setFaculties(response.content);
+			const response = await api.searchLecturers(searchPhrase, page, size);
+			setLecturers(response.content);
 			setTotalPages(response.totalPages);
 		} catch (error) {
-			console.error("Error searching faculties:", error);
-			setError("Failed to search faculties. Please try again.");
-			setFaculties([]);
+			console.error("Error searching academicUsers:", error);
+			setError("Failed to search academicUsers. Please try again.");
+			setLecturers([]);
 			setTotalPages(0);
 		} finally {
 			setLoading(false);
@@ -96,7 +92,7 @@ const FacultyListPage = () => {
 		if (e) e.preventDefault();
 
 		if (!searchPhrase.trim()) {
-			fetchFaculties();
+			fetchLecturers();
 			return;
 		}
 
@@ -104,51 +100,47 @@ const FacultyListPage = () => {
 		performSearch();
 	};
 
-	const handleCreateFaculty = () => {
-		navigate(CREATE_FACULTY_PAGE);
+	const handleCreateLecturer = () => {
+		navigate(CREATE_LECTURER_PAGE);
 	};
 
-	const handleEditFaculty = (facultyCode) => {
-		navigate(FACULTY_LIST_PAGE.concat(`/edit/${facultyCode}`));
+	const handleEditLecturer = (lecturerId) => {
+		navigate(EDIT_LECTURER_PAGE.replace(":id", lecturerId));
 	};
 
-	const handleDeleteClick = (faculty) => {
+	const handleDeleteClick = (academicUser) => {
 		setDeleteModal({
 			isOpen: true,
-			faculty: faculty,
+			academicUser: academicUser,
 		});
 	};
 
 	const handleDeleteConfirm = async () => {
-		if (!deleteModal.faculty) return;
+		if (!deleteModal.academicUser) return;
 		try {
-			await api.deleteFaculty(deleteModal.faculty.code);
-			setDeleteModal({ isOpen: false, faculty: null });
+			await api.deleteLecturer(deleteModal.academicUser.id);
+			setDeleteModal({ isOpen: false, academicUser: null });
 
-			// Should refresh based on current state
 			if (searchPhrase.trim()) {
-				performSearch(); // If searching, refresh search results
+				performSearch();
 			} else {
-				fetchFaculties(); // If browsing, refresh browse results
+				fetchLecturers();
 			}
 		} catch (error) {
-			console.error("Error deleting faculty:", error);
-			setError("Failed to delete faculty. Please try again.");
+			console.error("Error deleting academicUser:", error);
+			setError("Failed to delete academicUser. Please try again.");
 		}
 	};
 
 	const handleDeleteCancel = () => {
-		setDeleteModal({ isOpen: false, faculty: null });
+		setDeleteModal({ isOpen: false, academicUser: null });
 	};
 
 	return (
 		<div className={styles.container}>
-			{/* Title */}
 			<div className={styles.titleContainer}>
-				<h3 className={styles.title}>FACULTY LIST</h3>
+				<h3 className={styles.title}>LECTURER LIST</h3>
 			</div>
-
-			{/* Search and Create Section */}
 			<div className={styles.actionsRow}>
 				<SearchBarAdmin
 					value={searchPhrase}
@@ -157,7 +149,7 @@ const FacultyListPage = () => {
 				/>
 				<div className={styles.createBtnContainer}>
 					<button
-						onClick={handleCreateFaculty}
+						onClick={handleCreateLecturer}
 						className={styles.createBtn}
 						type="button"
 					>
@@ -165,58 +157,41 @@ const FacultyListPage = () => {
 					</button>
 				</div>
 			</div>
-
-			{/* Error Display */}
 			{error && <div className={styles.error}>{error}</div>}
-
-			{/* Faculty Table */}
 			<div className={styles.tableContainer}>
 				<DataTableAdmin
 					columns={[
-						{ key: "code", label: "Code" },
+						{ key: "id", label: "ID" },
 						{ key: "name", label: "Name" },
 						{
-							key: "lecturers",
-							label: "Lecturers",
-							render: (row) => {
-								return row.lecturers?.length || 0;
-							},
+							key: "faculty",
+							label: "Faculty",
+							render: (academicUser) => academicUser.faculty?.code || "",
 						},
-						{
-							key: "students",
-							label: "Students",
-							render: (row) => {
-								return row.students?.length || 0;
-							},
-						},
-						{
-							key: "courses",
-							label: "Courses",
-							render: (row) => row.courses?.length || 0,
-						},
+						{ key: "email", label: "Email" },
+						{ key: "username", label: "Username" },
 					]}
-					data={faculties}
+					data={academicUsers}
 					loading={loading}
-					noDataText="Loading faculties..."
-					onEdit={handleEditFaculty}
+					noDataText="Loading academicUsers..."
+					onEdit={handleEditLecturer}
 					onDelete={handleDeleteClick}
 				/>
 			</div>
-			{!loading && faculties.length > 0 && (
+			{!loading && academicUsers.length > 0 && (
 				<Pagination
 					page={page}
 					totalPages={totalPages}
 					onPageChange={setPage}
 				/>
 			)}
-			{/* Delete Confirmation Modal */}
 			<ConfirmModal
 				isOpen={deleteModal.isOpen}
-				title="Confirm Faculty Deletion"
-				message="Are you sure you want to delete this faculty along with all associated academicUsers, students, and courses?"
+				title="Confirm Lecturer Deletion"
+				message="Are you sure you want to delete this academicUser?"
 				onConfirm={handleDeleteConfirm}
 				onCancel={handleDeleteCancel}
-				confirmText="Delete Faculty"
+				confirmText="Delete Lecturer"
 				cancelText="Cancel"
 				confirmButtonClass={styles.modalDeleteBtn}
 			/>
@@ -224,4 +199,4 @@ const FacultyListPage = () => {
 	);
 };
 
-export default FacultyListPage;
+export default LecturerListPage;

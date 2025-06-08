@@ -7,22 +7,6 @@
 	padding: 0 15px;
 }
 
-.pathContainer {
-	margin-top: 1rem;
-	margin-bottom: 1rem;
-}
-
-.path {
-	color: black;
-	text-decoration: none;
-	transition: color 0.3s ease;
-}
-
-.path:hover {
-	color: var(--primary800);
-	text-decoration: none;
-}
-
 .titleContainer {
 	margin: 1rem 0;
 }
@@ -81,81 +65,6 @@
 	overflow-x: auto;
 	border-radius: 8px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.table {
-	width: 100%;
-	border-collapse: collapse;
-	background-color: white;
-}
-
-.tableHeader {
-	background-color: var(--primary800);
-	color: var(--accent-yellow);
-}
-
-.tableHeader th {
-	padding: 12px;
-	text-align: center;
-	font-weight: 600;
-	border-bottom: 2px solid var(--primary500);
-}
-
-.tableRow {
-	transition: background-color 0.2s ease;
-}
-
-.tableRow:nth-child(even) {
-	background-color: #fbfbfb;
-}
-
-.tableRow:nth-child(even):hover {
-	background-color: #f0f0f0;
-}
-
-.table td {
-	padding: 12px;
-	text-align: center;
-	border-bottom: 1px solid #dee2e6;
-	vertical-align: middle;
-}
-
-.table p {
-	margin: 0;
-	font-size: 14px;
-	color: #333;
-}
-
-.actionBtn {
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: 8px;
-	border-radius: 4px;
-	transition: all 0.3s ease;
-	color: var(--primary800);
-	font-size: 1.2rem;
-}
-
-.actionBtn:hover {
-	background-color: rgba(112, 4, 4, 0.1);
-	color: var(--primary500);
-}
-
-.deleteBtn {
-	color: var(--danger);
-}
-
-.deleteBtn:hover {
-	background-color: rgba(220, 53, 69, 0.1);
-	color: var(--danger-hover);
-}
-
-.noData {
-	text-align: center;
-	padding: 40px;
-	color: #666;
-	font-style: italic;
 }
 
 .modalDeleteBtn {

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,50 +15,82 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-
-    @Autowired private LecturerRepository lecturerRepository;
-    @Autowired private StudentRepository studentRepository;
-    @Autowired private FacultyRepository facultyRepository;
-    @Autowired private CourseRepository courseRepository;
-    @Autowired private PasswordEncoder p;
+    @Autowired
+    private LecturerRepository lecturerRepository;
+    @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private FacultyRepository facultyRepository;
+    @Autowired
+    private CourseRepository courseRepository;
+    @Autowired
+    private PasswordEncoder p;
 
     // ==================== LECTURERS ====================
     @GetMapping("/lecturers")
     public ResponseEntity<Page<Lecturer>> listLecturer(Pageable pageable) {
+
         return ResponseEntity.ok(lecturerRepository.findAll(pageable));
+    }
+
+    @GetMapping("/lecturers/{id}")
+    public ResponseEntity<?> getLecturer(@PathVariable Long id) {
+        Optional<Lecturer> existing = lecturerRepository.findById(id);
+        if (existing.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Lecturer not found"));
+        }
+
+        return ResponseEntity.ok(existing.get());
     }
 
     @PostMapping("/lecturers")
     public ResponseEntity<?> createLecturer(@Valid @RequestBody UserTemplate userTemplate) {
-        if (lecturerRepository.findByUsername(userTemplate.getUsername()).isPresent()) {
+        // Check username uniqueness across all users (lecturers, students, admins)
+        if (lecturerRepository.existsByUsername(userTemplate.getUsername()) ||
+                studentRepository.existsByUsername(userTemplate.getUsername())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Username already exists"));
         }
+
         Lecturer newLecturer = new Lecturer(userTemplate, p);
         return ResponseEntity.status(HttpStatus.CREATED).body(lecturerRepository.save(newLecturer));
     }
 
-    @PutMapping("/lecturers")
-    public ResponseEntity<?> editLecturer(@Valid @RequestBody UserTemplate userTemplate) {
-        Optional<Lecturer> optLecturer = lecturerRepository.findByUsername(userTemplate.getUsername());
-        if (optLecturer.isEmpty()) return ResponseEntity.notFound().build();
+    @PutMapping("/lecturers/{id}")
+    public ResponseEntity<?> editLecturer(@PathVariable Long id, @Valid @RequestBody UserTemplate userTemplate) {
+        Optional<Lecturer> chosenLecturer = lecturerRepository.findById(id);
+        if (chosenLecturer.isEmpty()) return ResponseEntity.notFound().build();
 
-        Lecturer lecturer = optLecturer.get();
+        Lecturer lecturer = chosenLecturer.get();
         lecturer.setName(userTemplate.getName());
         lecturer.setEmail(userTemplate.getEmail());
-        lecturer.setPassword(p.encode(userTemplate.getPassword()));
+
+        // Only update password if provided
+        if (userTemplate.getPassword() != null && !userTemplate.getPassword().isEmpty()) {
+            lecturer.setPassword(p.encode(userTemplate.getPassword()));
+        }
+
         lecturer.setFaculty(userTemplate.getFaculty());
         return ResponseEntity.ok(lecturerRepository.save(lecturer));
     }
 
     @DeleteMapping("/lecturers/{id}")
     public ResponseEntity<?> deleteLecturer(@PathVariable Long id) {
-        Lecturer lecturer = lecturerRepository.getReferenceById(id);
+        Optional<Lecturer> lecturerOpt = lecturerRepository.findById(id);
+        if (lecturerOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Lecturer lecturer = lecturerOpt.get();
+
+        // Remove lecturer from all courses
         for (Course c : lecturer.getCourses()) {
             c.getLecturers().remove(lecturer);
             courseRepository.save(c);
         }
         lecturer.getCourses().clear();
+
         lecturerRepository.delete(lecturer);
         return ResponseEntity.ok().build();
     }
@@ -70,37 +101,64 @@ public class AdminController {
         return ResponseEntity.ok(studentRepository.findAll(pageable));
     }
 
+    @GetMapping("/students/{id}")
+    public ResponseEntity<?> getStudent(@PathVariable Long id) {
+        Optional<Student> existing = studentRepository.findById(id);
+        if (existing.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Student not found"));
+        }
+
+        return ResponseEntity.ok(existing.get());
+    }
+
     @PostMapping("/students")
     public ResponseEntity<?> createStudent(@Valid @RequestBody UserTemplate userTemplate) {
-        if (studentRepository.findByUsername(userTemplate.getUsername()).isPresent()) {
+        // Check username uniqueness across all users
+        if (lecturerRepository.existsByUsername(userTemplate.getUsername()) ||
+                studentRepository.existsByUsername(userTemplate.getUsername())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Username already exists"));
         }
+
         Student newStudent = new Student(userTemplate, p);
         return ResponseEntity.status(HttpStatus.CREATED).body(studentRepository.save(newStudent));
     }
 
-    @PutMapping("/students")
-    public ResponseEntity<?> editStudent(@Valid @RequestBody UserTemplate userTemplate) {
-        Optional<Student> optStudent = studentRepository.findByUsername(userTemplate.getUsername());
-        if (optStudent.isEmpty()) return ResponseEntity.notFound().build();
+    @PutMapping("/students/{id}")
+    public ResponseEntity<?> editStudent(@PathVariable Long id, @Valid @RequestBody UserTemplate userTemplate) {
+        Optional<Student> selectedStudent = studentRepository.findById(id);
+        if (selectedStudent.isEmpty()) return ResponseEntity.notFound().build();
 
-        Student student = optStudent.get();
+        Student student = selectedStudent.get();
         student.setName(userTemplate.getName());
         student.setEmail(userTemplate.getEmail());
-        student.setPassword(p.encode(userTemplate.getPassword()));
+
+        // Only update password if provided
+        if (userTemplate.getPassword() != null && !userTemplate.getPassword().isEmpty()) {
+            student.setPassword(p.encode(userTemplate.getPassword()));
+        }
+
         student.setFaculty(userTemplate.getFaculty());
         return ResponseEntity.ok(studentRepository.save(student));
     }
 
     @DeleteMapping("/students/{id}")
     public ResponseEntity<?> deleteStudent(@PathVariable Long id) {
-        Student student = studentRepository.getReferenceById(id);
+        Optional<Student> studentOpt = studentRepository.findById(id);
+        if (studentOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Student student = studentOpt.get();
+
+        // Remove student from all courses
         for (Course c : student.getCourses()) {
             c.getStudents().remove(student);
             courseRepository.save(c);
         }
         student.getCourses().clear();
+
         studentRepository.delete(student);
         return ResponseEntity.ok().build();
     }
@@ -109,6 +167,11 @@ public class AdminController {
     @GetMapping("/faculties")
     public ResponseEntity<Page<Faculty>> listFaculty(Pageable pageable) {
         return ResponseEntity.ok(facultyRepository.findAll(pageable));
+    }
+
+    @GetMapping("/faculties/all")
+    public ResponseEntity<List<Faculty>> listFacultyAll() {
+        return ResponseEntity.ok(facultyRepository.findAll());
     }
 
     @GetMapping("/faculties/{code}")
@@ -124,9 +187,7 @@ public class AdminController {
 
     @PostMapping("/faculties")
     public ResponseEntity<?> createFaculty(@Valid @RequestBody Faculty faculty) {
-        boolean exists = facultyRepository.findAll().stream()
-                .anyMatch(f -> f.getCode().equals(faculty.getCode()));
-        if (exists) {
+        if (facultyRepository.existsById(faculty.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("success", false, "error", "Faculty code already exists"));
         }
@@ -152,19 +213,23 @@ public class AdminController {
 
     @DeleteMapping("/faculties/{code}")
     public ResponseEntity<?> deleteFaculty(@PathVariable String code) {
-        Faculty faculty = facultyRepository.getReferenceById(code);
-        facultyRepository.delete(faculty);
+        if (!facultyRepository.existsById(code)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        facultyRepository.deleteById(code);
         return ResponseEntity.ok().build();
     }
 
-    // ==================== STUBS FOR SEARCH ====================
+    // ==================== SEARCH ENDPOINTS ====================
     @GetMapping("/lecturers/search")
     public ResponseEntity<Page<Lecturer>> searchLecturers(
             @RequestParam String searchPhrase,
             Pageable pageable) {
 
-        Page<Lecturer> lecturers = lecturerRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-                searchPhrase, searchPhrase, pageable);
+        Page<Lecturer> lecturers = lecturerRepository
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                        searchPhrase, pageable);
         return ResponseEntity.ok(lecturers);
     }
 
@@ -173,8 +238,9 @@ public class AdminController {
             @RequestParam String searchPhrase,
             Pageable pageable) {
 
-        Page<Student> students = studentRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-                searchPhrase, searchPhrase, pageable);
+        Page<Student> students = studentRepository
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                        searchPhrase, pageable);
         return ResponseEntity.ok(students);
     }
 
@@ -184,7 +250,7 @@ public class AdminController {
             Pageable pageable) {
 
         Page<Faculty> faculties = facultyRepository.findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase(
-                searchPhrase, searchPhrase, pageable);
+                searchPhrase, pageable);
         return ResponseEntity.ok(faculties);
     }
 }

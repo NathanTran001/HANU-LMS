@@ -1,11 +1,11 @@
 package fit.se2.hanulms.controller;
 
-import fit.se2.hanulms.model.UserTemplate;
+import fit.se2.hanulms.model.LMSUser;
+import fit.se2.hanulms.model.Role;
 import fit.se2.hanulms.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,16 +18,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
@@ -51,13 +49,21 @@ public class AuthController {
                             loginRequest.getPassword()
                     )
             );
-
-            String role = authentication.getAuthorities().stream()
-                    .findFirst()
+//            System.out.println("DEBUG - Raw authorities from authentication: " + authentication.getAuthorities());
+            // Get ALL roles from authentication
+            Set<String> allRoles = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
+                    .map(auth -> auth.replace("ROLE_", "")) // Remove ROLE_ prefix if present
+                    .collect(Collectors.toSet());
+//            System.out.println("DEBUG - Processed roles: " + allRoles); // Add this too
+
+            // Get the primary role for backward compatibility
+            String primaryRole = allRoles.stream()
+                    .findFirst()
                     .orElse("STUDENT");
 
-            String token = jwtUtil.generateToken(loginRequest.getUsername(), role);
+            // Generate token with ALL roles, not just primary role
+            String token = jwtUtil.generateTokenFromStringRoles(loginRequest.getUsername(), allRoles);
 
             // 🔐 Create secure HttpOnly cookie
             ResponseCookie cookie = ResponseCookie.from("token", token)
@@ -70,14 +76,21 @@ public class AuthController {
 
             servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-            // ✅ Return user info WITHOUT token in body
-            Map<String, Object> response = new HashMap<>();
-            response.put("user", Map.of(
-                    "username", loginRequest.getUsername(),
-                    "role", role
-            ));
+            // Get all roles for response (already have this from above)
+            // Set<String> allRoles = authentication.getAuthorities().stream()
+            //         .map(GrantedAuthority::getAuthority)
+            //         .map(auth -> auth.replace("ROLE_", ""))
+            //         .collect(Collectors.toSet());
 
-            return ResponseEntity.ok(response);
+            // ✅ Return user info WITHOUT token in body
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("user", Map.of(
+//                    "username", loginRequest.getUsername(),
+//                    "role", primaryRole,
+//                    "roles", allRoles
+//            ));
+
+            return ResponseEntity.ok(userDetailsService.loadUserByUsername(loginRequest.getUsername()));
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", "Bad Credentials!");
@@ -88,28 +101,44 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         try {
-            // Extract JWT from HTTP-only cookie
             String token = extractTokenFromCookie(request);
-            String username = jwtUtil.extractUsername(token);
-            String role = jwtUtil.extractRole(token);
-            System.out.println("Expiration Time: " + jwtUtil.extractExpiration(token));
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "No token found"));
+            }
 
-            if (token != null && jwtUtil.validateToken(token, username)) {
-                // Get additional user details if needed
+            String username = jwtUtil.extractUsername(token);
+
+            if (jwtUtil.validateToken(token, username)) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                // Create response object with user details including role
                 Map<String, Object> userResponse = new HashMap<>();
-                userResponse.put("username", username);
-                userResponse.put("role", role);
 
-                // Add additional user fields if your UserDetails implementation has them
-                if (userDetails instanceof UserTemplate) {
-                    UserTemplate user = (UserTemplate) userDetails;
-                    userResponse.put("username", user.getUsername()); // Assuming getName() method exists
-                    userResponse.put("name", user.getName());
-                    userResponse.put("email", user.getEmail());
-                    userResponse.put("faculty", user.getFaculty());
+                // Check if userDetails is actually an AcademicUser
+                if (userDetails instanceof LMSUser) {
+                    LMSUser user = (LMSUser) userDetails;
+                    userResponse.put("id", user.getId());
+                    userResponse.put("username", user.getUsername());
+//                    userResponse.put("name", user.getName());
+//                    userResponse.put("email", user.getEmail());
+//                    userResponse.put("faculty", user.getFaculty());
+                    userResponse.put("roles", user.getRoles());
+
+                    // Also include primary role for backward compatibility
+                    String primaryRole = user.getRoles().stream()
+                            .findFirst()
+                            .map(Role::name)
+                            .orElse("STUDENT");
+                    userResponse.put("role", primaryRole);
+                } else {
+                    // Fallback for basic UserDetails
+                    userResponse.put("username", userDetails.getUsername());
+                    Set<String> roles = userDetails.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .map(auth -> auth.replace("ROLE_", ""))
+                            .collect(Collectors.toSet());
+                    userResponse.put("roles", roles);
+                    userResponse.put("role", roles.stream().findFirst().orElse("STUDENT"));
                 }
 
                 return ResponseEntity.ok(userResponse);
@@ -120,7 +149,7 @@ public class AuthController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error fetching user details"));
+                    .body(Map.of("message", "Error fetching user details: " + e.getMessage()));
         }
     }
 
@@ -169,9 +198,20 @@ public class AuthController {
         private String password;
 
         // Getters and setters
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 }

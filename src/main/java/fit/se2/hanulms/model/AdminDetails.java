@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AdminDetails implements UserDetails {
     private Admin admin;
@@ -17,14 +19,10 @@ public class AdminDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String[] roles = admin.getRole().split(",");
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role));
-        }
-        return authorities;
+        return admin.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toSet());
     }
-
     @Override
     public String getPassword() {
         return admin.getPassword();

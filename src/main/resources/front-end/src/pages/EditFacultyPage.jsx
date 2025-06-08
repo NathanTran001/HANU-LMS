@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./styles/AdminOperationPage.module.css";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/apiService";
 import { FACULTY_LIST_PAGE } from "../constants/paths";
+import TextField from "../components/TextField";
 
 const EditFacultyPage = () => {
-	const { facultyCode } = useParams(); // Get faculty code from the URL
+	const { code } = useParams();
 	const navigate = useNavigate();
 	const [faculty, setFaculty] = useState({
 		code: "",
@@ -19,7 +20,7 @@ const EditFacultyPage = () => {
 	useEffect(() => {
 		const fetchFaculty = async () => {
 			try {
-				const response = await api.getFaculty(facultyCode);
+				const response = await api.getFaculty(code);
 				setFaculty(response);
 			} catch (error) {
 				console.error("Error fetching faculty details:", error);
@@ -30,20 +31,19 @@ const EditFacultyPage = () => {
 		};
 
 		fetchFaculty();
-	}, [facultyCode, navigate]);
+	}, [code, navigate]);
 
-	const handleInputChange = (e) => {
-		const { name, value } = e.target;
+	const handleInputChange = (value, fieldName) => {
 		setFaculty((prev) => ({
 			...prev,
-			[name]: value,
+			[fieldName]: value,
 		}));
 
 		// Clear error when user starts typing
-		if (errors[name]) {
+		if (errors[fieldName]) {
 			setErrors((prev) => ({
 				...prev,
-				[name]: "",
+				[fieldName]: "",
 			}));
 		}
 	};
@@ -54,8 +54,7 @@ const EditFacultyPage = () => {
 		setErrors({});
 
 		try {
-			await api.updateFaculty(facultyCode, { name: faculty.name });
-			console.log("Faculty updated successfully");
+			await api.updateFaculty(code, faculty);
 			navigate(FACULTY_LIST_PAGE);
 		} catch (error) {
 			if (error.response && error.response.data) {
@@ -89,43 +88,24 @@ const EditFacultyPage = () => {
 				onSubmit={handleSubmit}
 				className={styles.form}
 			>
-				<div className={styles.formGroup}>
-					<label
-						htmlFor="facultyCode"
-						className={styles.formLabel}
-					>
-						Faculty Code
-					</label>
-					<input
-						name="code"
-						value={faculty.code}
-						type="text"
-						className={styles.formControl}
-						id="facultyCode"
-						placeholder="Faculty Code"
-						disabled // Make the code field immutable
-					/>
-				</div>
-
-				<div className={styles.formGroup}>
-					<label
-						htmlFor="facultyName"
-						className={styles.formLabel}
-					>
-						Faculty Name
-					</label>
-					<input
-						name="name"
-						value={faculty.name}
-						onChange={handleInputChange}
-						type="text"
-						className={styles.formControl}
-						id="facultyName"
-						placeholder="Enter Faculty Name"
-						required
-					/>
-					{errors.name && <div className={styles.error}>{errors.name}</div>}
-				</div>
+				<TextField
+					label="Faculty Code"
+					required
+					placeholder="e.g. FIT"
+					value={faculty.code}
+					onChange={(value) => handleInputChange(value, "code")}
+					icon={"bi bi-alphabet-uppercase text-secondary"}
+					readonly={true}
+				/>
+				<TextField
+					label="Faculty Name"
+					required
+					placeholder="e.g. Faculty of Information Technology"
+					value={faculty.name}
+					onChange={(value) => handleInputChange(value, "name")}
+					icon={"bi bi-hash text-secondary"}
+				/>
+				{errors.name && <div className={styles.error}>{errors.name}</div>}
 
 				<button
 					type="submit"

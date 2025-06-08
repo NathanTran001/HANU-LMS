@@ -38,7 +38,7 @@ const CreateFacultyPage = () => {
 			await api.createFaculty(faculty);
 			console.log("Faculty created successfully");
 			setFaculty({ code: "", name: "" });
-			navigate("/admin/listFaculty");
+			navigate(FACULTY_LIST_PAGE);
 		} catch (error) {
 			if (error.response && error.response.data) {
 				setErrors(error.response.data.errors || {});

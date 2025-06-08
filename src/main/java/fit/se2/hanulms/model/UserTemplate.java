@@ -4,6 +4,8 @@ package fit.se2.hanulms.model;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.Set;
+
 // When you receive a form, you receive UserTemplate object instead of User object. All validation will be done inside
 // UserTemplate. If the UserTemplate object is valid, then values will be transferred to User
 public class UserTemplate {
@@ -17,6 +19,7 @@ public class UserTemplate {
     private String name;
     private String email;
     private Faculty faculty;
+    private Set<Role> roles;
 
     public String getName() {
         return name;
@@ -56,5 +59,11 @@ public class UserTemplate {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    public Set<Role> getRoles() {
+        return roles;
+    }
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

@@ -15,14 +15,27 @@ import { use, useEffect } from "react";
 import { getUser } from "./utils/auth.js";
 import {
 	CREATE_FACULTY_PAGE,
+	CREATE_LECTURER_PAGE,
+	CREATE_STUDENT_PAGE,
 	EDIT_FACULTY_PAGE,
+	EDIT_LECTURER_PAGE,
+	EDIT_STUDENT_PAGE,
 	FACULTY_LIST_PAGE,
+	LECTURER_LIST_PAGE,
 	LOGIN_PAGE,
 	MY_COURSES_PAGE,
+	STUDENT_LIST_PAGE,
 } from "./constants/paths.js";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import EditFacultyPage from "./pages/EditFacultyPage.jsx";
+import LecturerListPage from "./pages/LecturerListPage.jsx";
+import CreateLecturerPage from "./pages/CreateLecturerPage.jsx";
+import EditLecturerPage from "./pages/EditLecturerPage.jsx";
+import StudentListPage from "./pages/StudentListPage.jsx";
+import CreateStudentPage from "./pages/CreateStudentPage.jsx";
+import EditStudentPage from "./pages/EditStudentPage.jsx";
+import RoleBasedRedirect from "./components/RoleBasedRedirect.jsx";
 
 const router = createBrowserRouter([
 	{
@@ -30,54 +43,70 @@ const router = createBrowserRouter([
 		element: <LoginPage />,
 	},
 	{
-		path: FACULTY_LIST_PAGE,
-		element: (
-			<ProtectedRoute>
-				<Layout>
-					<FacultyListPage />
-				</Layout>
-			</ProtectedRoute>
-		),
-	},
-	{
-		path: CREATE_FACULTY_PAGE,
-		element: (
-			<ProtectedRoute>
-				<Layout>
-					<CreateFacultyPage />
-				</Layout>
-			</ProtectedRoute>
-		),
-	},
-	{
-		path: EDIT_FACULTY_PAGE,
-		element: (
-			<ProtectedRoute>
-				<Layout>
-					<EditFacultyPage />
-				</Layout>
-			</ProtectedRoute>
-		),
-	},
-	{
-		path: MY_COURSES_PAGE,
-		element: (
-			<ProtectedRoute>
-				<Layout>
-					<MyCoursesPage />
-				</Layout>
-			</ProtectedRoute>
-		),
-	},
-	{
 		path: "/",
-		element: (
-			<Navigate
-				to={LOGIN_PAGE}
-				replace
-			/>
-		),
+		element: <RoleBasedRedirect />,
 	},
+	{
+		element: (
+			<ProtectedRoute>
+				<Layout />
+			</ProtectedRoute>
+		),
+		children: [
+			// ADMIN PAGES
+			{
+				path: FACULTY_LIST_PAGE,
+				element: <FacultyListPage />,
+			},
+			{
+				path: CREATE_FACULTY_PAGE,
+				element: <CreateFacultyPage />,
+			},
+			{
+				path: EDIT_FACULTY_PAGE,
+				element: <EditFacultyPage />,
+			},
+			{
+				path: LECTURER_LIST_PAGE,
+				element: <LecturerListPage />,
+			},
+			{
+				path: CREATE_LECTURER_PAGE,
+				element: <CreateLecturerPage />,
+			},
+			{
+				path: EDIT_LECTURER_PAGE,
+				element: <EditLecturerPage />,
+			},
+			{
+				path: STUDENT_LIST_PAGE,
+				element: <StudentListPage />,
+			},
+			{
+				path: CREATE_STUDENT_PAGE,
+				element: <CreateStudentPage />,
+			},
+			{
+				path: EDIT_STUDENT_PAGE,
+				element: <EditStudentPage />,
+			},
+			// LECTURER PAGES
+			{
+				path: MY_COURSES_PAGE,
+				element: <MyCoursesPage />,
+			},
+			// STUDENT PAGES
+		],
+	},
+	// {
+	// 	path: "/",
+	// 	element: (
+	// 		<Navigate
+	// 			to={LOGIN_PAGE}
+	// 			replace
+	// 		/>
+	// 	),
+	// },
 	{
 		path: "*",
 		element: <div>404 Not Found</div>,

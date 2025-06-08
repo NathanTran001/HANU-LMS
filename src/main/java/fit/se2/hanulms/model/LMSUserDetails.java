@@ -4,42 +4,31 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.stream.Collectors;
 
-public class StudentDetails implements UserDetails {
-    private Student student;
+public class LMSUserDetails implements UserDetails {
+    private LMSUser lmsUser;
 
-    public StudentDetails(Student student) {
-        this.student = student;
-    }
-
-    public List<Course> getCourses() {
-        return student.getCourses();
-    }
-    public String getName() {
-        return student.getName();
+    public LMSUserDetails(LMSUser lmsUser) {
+        this.lmsUser = lmsUser;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String[] roles = student.getRole().split(",");
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role));
-        }
-        return authorities;
+        return lmsUser.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public String getPassword() {
-        return student.getPassword();
+        return lmsUser.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return student.getUsername();
+        return lmsUser.getUsername();
     }
 
     @Override

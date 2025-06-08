@@ -30,7 +30,7 @@
         <h2 class="mb-3 text-truncate text-wrap" th:text="${course.name}" />
 
         <p class="text-truncate fs-6">
-          <!--            <strong th:text="${course.lecturers}"/>-->
+          <!--            <strong th:text="${course.academicUsers}"/>-->
         </p>
       </div>
       <!-- Setting button -->
@@ -72,9 +72,9 @@
       <!-- Right-top-teacher -->
       <div class="col-lg-4 col-md-3 col-sm-12">
         <div class="d-flex flex-column">
-          <div th:each="lecturer : ${course.lecturers}" class="d-flex flex-row flex-nowrap align-items-center px-4">
+          <div th:each="academicUser : ${course.academicUsers}" class="d-flex flex-row flex-nowrap align-items-center px-4">
             <img id="avatar" class="img-fluid d-flex rounded-circle mx-3" src="../../static/images/HANU.png" alt="avatar" />
-            <p th:text="${lecturer.name}"></p>
+            <p th:text="${academicUser.name}"></p>
           </div>
 
           <div id="top-teacher" class="mt-3 text-wrap px-4">
