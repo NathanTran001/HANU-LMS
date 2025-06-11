@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { getUserRole } from "../utils/auth";
+import { useState, useEffect } from "react";
 import styles from "./styles/MyCoursesPage.module.css";
 import api from "../services/apiService";
 import { LECTURER } from "../constants/roles";
+import { useAuth } from "../contexts/AuthContext";
+import { Link } from "react-router-dom";
+import { CREATE_COURSE_PAGE } from "../constants/paths";
 
 const MyCoursesPage = () => {
 	const [courses, setCourses] = useState([]);
 	const [message, setMessage] = useState("");
-	const [userRole, setUserRole] = useState("");
 	const [activeModal, setActiveModal] = useState(null);
+	const { isAuthenticated, user, checkAuthStatus, loading } = useAuth();
 
 	useEffect(() => {
-		// Get user role on component mount
-		const role = getUserRole();
-		setUserRole(role);
+		checkAuthStatus();
 
-		// TODO: Fetch courses data from your API
-		// This is placeholder data - replace with your actual API call
 		fetchCourses();
 	}, []);
 
@@ -27,9 +25,9 @@ const MyCoursesPage = () => {
 			// const coursesData = await response.json();
 
 			// Placeholder data for demonstration
-			const coursesData = api.getCourses();
+			const coursesData = await api.getCourses(user.username);
 
-			setCourses(Array.isArray(coursesData) ? coursesData : []);
+			setCourses(Array.isArray(coursesData.content) ? coursesData.content : []);
 		} catch (error) {
 			console.error("Error fetching courses:", error);
 			setMessage("Error loading courses");
@@ -56,35 +54,20 @@ const MyCoursesPage = () => {
 		setActiveModal(null);
 	};
 
-	const isLecturer = userRole === LECTURER;
-
 	return (
 		<div className={styles.containerLg}>
-			<div className={styles.pathContainer}>
-				<a
-					href=""
-					className={styles.path}
-				>
-					Home
-				</a>{" "}
-				/
-				<a
-					href=""
-					className={styles.path}
-				>
-					My Courses
-				</a>
-			</div>
-
 			<div className={`${styles.titleContainer} ${styles.mb3}`}>
 				<h1 className={styles.title}>MY COURSES</h1>
-				{isLecturer && (
-					<button
-						className={styles.baseButton}
-						onClick={onCreateClick}
-					>
-						Create
-					</button>
+
+				{user?.role === LECTURER && (
+					<Link to={CREATE_COURSE_PAGE}>
+						<button
+							className={styles.baseButton}
+							// onClick={onCreateClick}
+						>
+							Create
+						</button>
+					</Link>
 				)}
 			</div>
 
@@ -103,14 +86,14 @@ const MyCoursesPage = () => {
 					className={styles.courseItemContainer}
 				>
 					<div className={styles.courseTitleContainer}>
-						<a
+						<Link
 							className={`${styles.courseTitle} ${styles.hyperlink}`}
-							href={`/myCourses/course-details/${course.code}`}
+							to={`/myCourses/course-details/${course.code}`}
 						>
 							{course.code} - {course.name}
-						</a>
+						</Link>
 
-						{isLecturer && (
+						{user?.role === LECTURER && (
 							<div className={styles.buttonsContainer}>
 								<button
 									className={styles.baseButton}
@@ -131,10 +114,10 @@ const MyCoursesPage = () => {
 					<p className={styles.courseDescription}>{course.description}</p>
 
 					<div className={styles.academicUsers}>
-						{course.academicUsers.map((academicUser, index) => (
+						{course.lecturers.map((lecturer, index) => (
 							<span key={index}>
-								<span>{academicUser.name}</span>
-								{index < course.academicUsers.length - 1 && (
+								<span>{lecturer.name}</span>
+								{index < course.lecturers.length - 1 && (
 									<span className={styles.abc}> | </span>
 								)}
 							</span>

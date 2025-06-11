@@ -23,7 +23,7 @@ const CreateStudentPage = () => {
 	useEffect(() => {
 		const fetchFaculties = async () => {
 			try {
-				const res = await api.getFaculties(0, 100);
+				const res = await api.getAllFaculties();
 				setFaculties(res.content);
 			} catch {
 				setFaculties([]);

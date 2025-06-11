@@ -82,7 +82,7 @@ const NavBarAdmin = () => {
 
 							<div className={styles.avatarContainer}>
 								<img
-									src="/images/HANU.png"
+									src={logo}
 									alt="Admin Avatar"
 								/>
 							</div>

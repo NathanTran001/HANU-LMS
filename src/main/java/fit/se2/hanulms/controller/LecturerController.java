@@ -2,6 +2,7 @@ package fit.se2.hanulms.controller;
 
 import fit.se2.hanulms.Repository.*;
 import fit.se2.hanulms.model.*;
+import fit.se2.hanulms.model.DTO.FacultyDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,266 +33,69 @@ public class LecturerController {
     AssignmentRepository assignmentRepository;
 
     // ============== LECTURER ENDPOINTS ==============
-
-    @GetMapping("/lecturers")
-    public ResponseEntity<List<Lecturer>> getLecturers(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String faculty) {
-        try {
-            List<Lecturer> academicUsers = lecturerRepository.findAll();
-
-            // Apply filters if provided
-            if (search != null && !search.trim().isEmpty()) {
-                academicUsers = academicUsers.stream()
-                        .filter(l -> l.getUsername().toLowerCase().contains(search.toLowerCase()) ||
-                                (l.getName() != null && l.getName().toLowerCase().contains(search.toLowerCase())))
-                        .collect(Collectors.toList());
-            }
-
-            return ResponseEntity.ok(academicUsers);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    @GetMapping("/lecturers/all")
+    public ResponseEntity<List<Lecturer>> listAllLecturers(@RequestParam(required = false) String code) {
+        // Getting all lecturers in a specific faculty, if no faculty code provided, find all lecturers
+        List<Lecturer> lecturers = lecturerRepository.findAll();
+        if (code != null && !code.isEmpty()) {
+            lecturers = lecturers.stream()
+                    .filter(lecturer -> lecturer.getFaculty() != null && lecturer.getFaculty().getCode().equals(code))
+                    .collect(Collectors.toList());
         }
+        return ResponseEntity.ok(lecturers);
     }
 
-    @GetMapping("/lecturers/{id}")
-    public ResponseEntity<Lecturer> getLecturer(@PathVariable Long id) {
-        try {
-            Optional<Lecturer> lecturer = lecturerRepository.findById(id);
-            if (lecturer.isPresent()) {
-                return ResponseEntity.ok(lecturer.get());
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PostMapping("/lecturers")
-    public ResponseEntity<?> createLecturer(@RequestBody Map<String, Object> request) {
-        try {
-            // Extract and validate data from request
-            String username = (String) request.get("username");
-            String name = (String) request.get("name");
-            String email = (String) request.get("email");
-
-            // Basic validation
-            if (username == null || username.trim().isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Username is required"));
-            }
-
-            // Validate if username already exists
-            if (lecturerRepository.findByUsername(username).isPresent()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Username already exists"));
-            }
-
-            Lecturer lecturer = new Lecturer();
-            lecturer.setUsername(username);
-            lecturer.setName(name);
-            lecturer.setEmail(email);
-
-            Lecturer savedAcademicUser = lecturerRepository.save(lecturer);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedAcademicUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to create lecturer"));
-        }
-    }
-
-    @PutMapping("/lecturers/{id}")
-    public ResponseEntity<?> updateLecturer(@PathVariable Long id,
-                                            @RequestBody Map<String, Object> request) {
-        try {
-            Optional<Lecturer> optionalLecturer = lecturerRepository.findById(id);
-            if (!optionalLecturer.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            Lecturer lecturer = optionalLecturer.get();
-
-            // Update only provided fields
-            if (request.containsKey("name")) {
-                lecturer.setName((String) request.get("name"));
-            }
-            if (request.containsKey("email")) {
-                lecturer.setEmail((String) request.get("email"));
-            }
-
-            Lecturer updatedLecturer = lecturerRepository.save(lecturer);
-            return ResponseEntity.ok(updatedLecturer);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to update lecturer"));
-        }
-    }
-
-    @DeleteMapping("/lecturers/{id}")
-    public ResponseEntity<?> deleteLecturer(@PathVariable Long id) {
-        try {
-            Optional<Lecturer> optionalLecturer = lecturerRepository.findById(id);
-            if (!optionalLecturer.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            lecturerRepository.deleteById(id);
-            return ResponseEntity.ok(Map.of("message", "Lecturer deleted successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to delete lecturer"));
-        }
-    }
-
-
-    // ============== FACULTY ENDPOINTS ==============
-
-    @GetMapping("/faculties")
-    public ResponseEntity<List<Faculty>> getFaculties(
-            @RequestParam(required = false) String search) {
-        try {
-            List<Faculty> faculties = facultyRepository.findAll();
-
-            if (search != null && !search.trim().isEmpty()) {
-                String lowerCaseSearch = search.toLowerCase();
-                faculties = faculties.stream()
-                        .filter(f -> f.getCode().toLowerCase().contains(lowerCaseSearch) ||
-                                f.getName().toLowerCase().contains(lowerCaseSearch))
-                        .collect(Collectors.toList());
-            }
-
-            return ResponseEntity.ok(faculties);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("/faculties/{id}")
-    public ResponseEntity<Faculty> getFaculty(@PathVariable String id) {
-        try {
-            Optional<Faculty> faculty = facultyRepository.findById(id);
-            if (faculty.isPresent()) {
-                return ResponseEntity.ok(faculty.get());
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PostMapping("/faculties")
-    public ResponseEntity<?> createFaculty(@RequestBody Map<String, Object> request) {
-        try {
-            String code = (String) request.get("code");
-            String name = (String) request.get("name");
-
-            if (code == null || code.trim().isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Faculty code is required"));
-            }
-
-            if (facultyRepository.findById(code).isPresent()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Faculty code already exists"));
-            }
-
-            Faculty faculty = new Faculty();
-            faculty.setCode(code);
-            faculty.setName(name);
-
-            Faculty savedFaculty = facultyRepository.save(faculty);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedFaculty);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to create faculty"));
-        }
-    }
-
-    @PutMapping("/faculties/{id}")
-    public ResponseEntity<?> updateFaculty(@PathVariable String id,
-                                           @RequestBody Map<String, Object> request) {
-        try {
-            Optional<Faculty> optionalFaculty = facultyRepository.findById(id);
-            if (!optionalFaculty.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            Faculty faculty = optionalFaculty.get();
-
-            if (request.containsKey("name")) {
-                faculty.setName((String) request.get("name"));
-            }
-
-            Faculty updatedFaculty = facultyRepository.save(faculty);
-            return ResponseEntity.ok(updatedFaculty);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to update faculty"));
-        }
-    }
-
-    @DeleteMapping("/faculties/{id}")
-    public ResponseEntity<?> deleteFaculty(@PathVariable String id) {
-        try {
-            Optional<Faculty> optionalFaculty = facultyRepository.findById(id);
-            if (!optionalFaculty.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            facultyRepository.deleteById(id);
-            return ResponseEntity.ok(Map.of("message", "Faculty deleted successfully"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to delete faculty"));
-        }
+    @GetMapping("/faculties/all")
+    public ResponseEntity<List<FacultyDTO>> listFacultyAll() {
+        return ResponseEntity.ok(facultyRepository.findAll().stream().map(
+                FacultyDTO::new
+        ).collect(Collectors.toList()));
     }
 
     // ============== ENROLLMENT ENDPOINT ==============
 
-    @PostMapping("/courses/{courseCode}/enroll")
-    public ResponseEntity<?> enrollStudent(@PathVariable String courseCode,
-                                           @RequestBody Map<String, Object> request) {
-        try {
-            Long studentId = Long.valueOf(request.get("studentId").toString());
-            String enrolmentKey = (String) request.get("enrolmentKey");
-
-            Optional<Course> optionalCourse = courseRepository.findById(courseCode);
-            if (!optionalCourse.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            Optional<Student> optionalStudent = studentRepository.findById(studentId);
-            if (!optionalStudent.isPresent()) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Student not found"));
-            }
-
-            Course course = optionalCourse.get();
-            Student student = optionalStudent.get();
-
-            if (!course.getEnrolmentKey().equals(enrolmentKey)) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Invalid enrollment key"));
-            }
-
-            if (course.getLecturers().contains(student)) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Student already enrolled"));
-            }
-
-            student.getCourses().add(course);
-            course.getStudents().add(student);
-
-            studentRepository.save(student);
-            courseRepository.save(course);
-
-            return ResponseEntity.ok(Map.of("message", "Successfully enrolled"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to enroll student"));
-        }
-    }
+//    @PostMapping("/courses/{courseCode}/enroll")
+//    public ResponseEntity<?> enrollStudent(@PathVariable String courseCode,
+//                                           @RequestBody Map<String, Object> request) {
+//        try {
+//            Long studentId = Long.valueOf(request.get("studentId").toString());
+//            String enrolmentKey = (String) request.get("enrolmentKey");
+//
+//            Optional<Course> optionalCourse = courseRepository.findById(courseCode);
+//            if (!optionalCourse.isPresent()) {
+//                return ResponseEntity.notFound().build();
+//            }
+//
+//            Optional<Student> optionalStudent = studentRepository.findById(studentId);
+//            if (!optionalStudent.isPresent()) {
+//                return ResponseEntity.badRequest()
+//                        .body(Map.of("error", "Student not found"));
+//            }
+//
+//            Course course = optionalCourse.get();
+//            Student student = optionalStudent.get();
+//
+//            if (!course.getEnrolmentKey().equals(enrolmentKey)) {
+//                return ResponseEntity.badRequest()
+//                        .body(Map.of("error", "Invalid enrollment key"));
+//            }
+//
+//            if (course.getLecturers().contains(student)) {
+//                return ResponseEntity.badRequest()
+//                        .body(Map.of("error", "Student already enrolled"));
+//            }
+//
+//            student.getCourses().add(course);
+//            course.getStudents().add(student);
+//
+//            studentRepository.save(student);
+//            courseRepository.save(course);
+//
+//            return ResponseEntity.ok(Map.of("message", "Successfully enrolled"));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Map.of("error", "Failed to enroll student"));
+//        }
+//    }
 
 }

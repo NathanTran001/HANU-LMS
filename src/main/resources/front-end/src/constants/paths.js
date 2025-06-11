@@ -12,3 +12,6 @@ export const EDIT_LECTURER_PAGE = "/admin/lecturers/edit/:id";
 export const STUDENT_LIST_PAGE = "/admin/students";
 export const CREATE_STUDENT_PAGE = "/admin/students/create";
 export const EDIT_STUDENT_PAGE = "/admin/students/edit/:id";
+
+export const CREATE_COURSE_PAGE = "/courses/create";
+export const EDIT_COURSE_PAGE = "/courses/edit/:id";

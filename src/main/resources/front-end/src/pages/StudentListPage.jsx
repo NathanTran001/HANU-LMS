@@ -30,6 +30,8 @@ const StudentListPage = () => {
 	useEffect(() => {
 		if (searchPhrase.trim()) {
 			performSearch();
+		} else {
+			fetchStudents();
 		}
 	}, [page]);
 
@@ -42,7 +44,6 @@ const StudentListPage = () => {
 				performSearch();
 			} else {
 				setPage(0);
-				fetchStudents();
 			}
 		}, 400);
 
@@ -166,7 +167,7 @@ const StudentListPage = () => {
 						{
 							key: "faculty",
 							label: "Faculty",
-							render: (student) => student.faculty?.code || "",
+							render: (student) => student.facultyCode || "",
 						},
 						{ key: "email", label: "Email" },
 						{ key: "username", label: "Username" },

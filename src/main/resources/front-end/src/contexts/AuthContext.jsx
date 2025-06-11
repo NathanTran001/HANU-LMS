@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
 
 	const checkAuthStatus = async () => {
 		try {
-			const userData = getUser();
+			const userData = await getUser();
 			setUser(userData);
 			setIsAuthenticated(true);
 		} catch (error) {

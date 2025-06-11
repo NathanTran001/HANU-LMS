@@ -56,3 +56,23 @@
 	resize: vertical;
 	font-family: inherit;
 }
+
+/* When no value is selected, make text grey */
+.textfieldInput.placeholder {
+	color: #999;
+}
+
+/* Placeholder option styling */
+.placeholderOption {
+	color: #999;
+}
+
+/* All other options should be black */
+.textfieldInput option:not(.placeholderOption) {
+	color: #000;
+}
+
+/* When a value is selected, text should be black */
+.textfieldInput:not(.placeholder) {
+	color: #000;
+}

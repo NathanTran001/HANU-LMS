@@ -8,7 +8,7 @@ import PasswordField from "../components/PasswordField";
 import DropdownField from "../components/DropdownField";
 
 const CreateLecturerPage = () => {
-	const [academicUser, setLecturer] = useState({
+	const [lecturer, setLecturer] = useState({
 		name: "",
 		faculty: "",
 		email: "",
@@ -23,7 +23,7 @@ const CreateLecturerPage = () => {
 	useEffect(() => {
 		const fetchFaculties = async () => {
 			try {
-				const res = await api.getFaculties(0, 100);
+				const res = await api.getAllFaculties();
 				setFaculties(res.content);
 			} catch {
 				setFaculties([]);
@@ -33,16 +33,16 @@ const CreateLecturerPage = () => {
 	}, []);
 
 	const handleInputChange = (value, field) => {
-		setLecturer({ ...academicUser, [field]: value });
+		setLecturer({ ...lecturer, [field]: value });
 	};
 
 	const validate = () => {
 		const errs = {};
-		if (!academicUser.name) errs.name = "Name is required";
-		if (!academicUser.faculty) errs.faculty = "Faculty is required";
-		if (!academicUser.email) errs.email = "Email is required";
-		if (!academicUser.username) errs.username = "Username is required";
-		if (!academicUser.password) errs.password = "Password is required";
+		if (!lecturer.name) errs.name = "Name is required";
+		if (!lecturer.faculty) errs.faculty = "Faculty is required";
+		if (!lecturer.email) errs.email = "Email is required";
+		if (!lecturer.username) errs.username = "Username is required";
+		if (!lecturer.password) errs.password = "Password is required";
 		return errs;
 	};
 
@@ -56,7 +56,7 @@ const CreateLecturerPage = () => {
 		setIsSubmitting(true);
 		try {
 			const selectedFaculty = faculties.find(
-				(f) => f.code === academicUser.faculty
+				(f) => f.code === lecturer.faculty
 			);
 			if (!selectedFaculty) {
 				setErrors({ faculty: "Selected faculty not found." });
@@ -64,7 +64,7 @@ const CreateLecturerPage = () => {
 				return;
 			}
 			const lecturerToSend = {
-				...academicUser,
+				...lecturer,
 				faculty: selectedFaculty,
 			};
 			await api.createLecturer(lecturerToSend);
@@ -96,14 +96,14 @@ const CreateLecturerPage = () => {
 					label="Full Name"
 					required
 					placeholder="e.g. John Doe"
-					value={academicUser.name}
+					value={lecturer.name}
 					onChange={(v) => handleInputChange(v, "name")}
 					icon="person"
 				/>
 				<DropdownField
 					label="Faculty"
 					required
-					value={academicUser.faculty}
+					value={lecturer.faculty}
 					onChange={(v) => handleInputChange(v, "faculty")}
 					options={faculties.map((f) => ({
 						value: f.code,
@@ -114,7 +114,7 @@ const CreateLecturerPage = () => {
 					label="Email"
 					required
 					placeholder="e.g. john@hanu.edu.vn"
-					value={academicUser.email}
+					value={lecturer.email}
 					onChange={(v) => handleInputChange(v, "email")}
 					icon="envelope"
 				/>
@@ -122,7 +122,7 @@ const CreateLecturerPage = () => {
 					label="Username"
 					required
 					placeholder="e.g. johndoe"
-					value={academicUser.username}
+					value={lecturer.username}
 					onChange={(v) => handleInputChange(v, "username")}
 					icon="person-badge"
 				/>
@@ -130,7 +130,7 @@ const CreateLecturerPage = () => {
 					label="Password"
 					required
 					placeholder="Enter password"
-					value={academicUser.password}
+					value={lecturer.password}
 					onChange={(v) => handleInputChange(v, "password")}
 				/>
 				{Object.values(errors).map(

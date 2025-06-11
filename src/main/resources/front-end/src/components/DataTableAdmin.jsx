@@ -31,7 +31,7 @@ const DataTableAdmin = ({
 			) : (
 				data.map((row) => (
 					<tr
-						key={row.code || row.id}
+						key={row.id ?? row.code}
 						className={styles.tableRow}
 					>
 						{columns.map((col) => (
@@ -43,7 +43,7 @@ const DataTableAdmin = ({
 							<button
 								className={styles.actionBtn}
 								title="Edit"
-								onClick={() => onEdit && onEdit(row.code || row.id)}
+								onClick={() => onEdit && onEdit(row.id ?? row.code)}
 							>
 								<i className="bi bi-pencil-square"></i>
 							</button>

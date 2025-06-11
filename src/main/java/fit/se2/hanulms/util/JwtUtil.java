@@ -3,6 +3,8 @@ package fit.se2.hanulms.util;
 import fit.se2.hanulms.model.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -42,6 +44,18 @@ public class JwtUtil {
         claims.put("role", primaryRole);
 
         return createToken(claims, username);
+    }
+
+    public String extractTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     // Overloaded method for string set

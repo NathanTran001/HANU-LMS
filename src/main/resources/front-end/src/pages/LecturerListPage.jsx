@@ -14,13 +14,13 @@ import DataTableAdmin from "../components/DataTableAdmin";
 
 const LecturerListPage = () => {
 	const navigate = useNavigate();
-	const [academicUsers, setLecturers] = useState([]);
+	const [lecturers, setLecturers] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
 	const [searchPhrase, setSearchPhrase] = useState("");
 	const [deleteModal, setDeleteModal] = useState({
 		isOpen: false,
-		academicUser: null,
+		lecturer: null,
 	});
 	const [page, setPage] = useState(0);
 	const [size, setSize] = useState(3);
@@ -44,7 +44,6 @@ const LecturerListPage = () => {
 				performSearch();
 			} else {
 				setPage(0);
-				fetchLecturers();
 			}
 		}, 400);
 
@@ -55,6 +54,7 @@ const LecturerListPage = () => {
 		try {
 			setLoading(true);
 			const response = await api.getLecturers(page, size);
+			console.log("Fetched lecturers:", response.content);
 			setLecturers(response.content);
 			setTotalPages(response.totalPages);
 		} catch (error) {
@@ -108,18 +108,18 @@ const LecturerListPage = () => {
 		navigate(EDIT_LECTURER_PAGE.replace(":id", lecturerId));
 	};
 
-	const handleDeleteClick = (academicUser) => {
+	const handleDeleteClick = (lecturer) => {
 		setDeleteModal({
 			isOpen: true,
-			academicUser: academicUser,
+			lecturer: lecturer,
 		});
 	};
 
 	const handleDeleteConfirm = async () => {
-		if (!deleteModal.academicUser) return;
+		if (!deleteModal.lecturer) return;
 		try {
-			await api.deleteLecturer(deleteModal.academicUser.id);
-			setDeleteModal({ isOpen: false, academicUser: null });
+			await api.deleteLecturer(deleteModal.lecturer.id);
+			setDeleteModal({ isOpen: false, lecturer: null });
 
 			if (searchPhrase.trim()) {
 				performSearch();
@@ -127,13 +127,13 @@ const LecturerListPage = () => {
 				fetchLecturers();
 			}
 		} catch (error) {
-			console.error("Error deleting academicUser:", error);
-			setError("Failed to delete academicUser. Please try again.");
+			console.error("Error deleting lecturer:", error);
+			setError("Failed to delete lecturer. Please try again.");
 		}
 	};
 
 	const handleDeleteCancel = () => {
-		setDeleteModal({ isOpen: false, academicUser: null });
+		setDeleteModal({ isOpen: false, lecturer: null });
 	};
 
 	return (
@@ -166,19 +166,19 @@ const LecturerListPage = () => {
 						{
 							key: "faculty",
 							label: "Faculty",
-							render: (academicUser) => academicUser.faculty?.code || "",
+							render: (lecturer) => lecturer.facultyCode || "",
 						},
 						{ key: "email", label: "Email" },
 						{ key: "username", label: "Username" },
 					]}
-					data={academicUsers}
+					data={lecturers}
 					loading={loading}
-					noDataText="Loading academicUsers..."
+					noDataText="Loading lecturers..."
 					onEdit={handleEditLecturer}
 					onDelete={handleDeleteClick}
 				/>
 			</div>
-			{!loading && academicUsers.length > 0 && (
+			{!loading && lecturers.length > 0 && (
 				<Pagination
 					page={page}
 					totalPages={totalPages}
@@ -188,7 +188,7 @@ const LecturerListPage = () => {
 			<ConfirmModal
 				isOpen={deleteModal.isOpen}
 				title="Confirm Lecturer Deletion"
-				message="Are you sure you want to delete this academicUser?"
+				message="Are you sure you want to delete this lecturer?"
 				onConfirm={handleDeleteConfirm}
 				onCancel={handleDeleteCancel}
 				confirmText="Delete Lecturer"

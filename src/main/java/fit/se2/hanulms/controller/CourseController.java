@@ -1,11 +1,13 @@
 package fit.se2.hanulms.controller;
 
 import fit.se2.hanulms.Repository.*;
-import fit.se2.hanulms.model.Course;
-import fit.se2.hanulms.model.Faculty;
-import fit.se2.hanulms.model.Lecturer;
-import fit.se2.hanulms.model.Student;
+import fit.se2.hanulms.model.*;
+import fit.se2.hanulms.model.DTO.CourseDTO;
+import fit.se2.hanulms.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api")
 public class CourseController {
+    @Autowired
+    JwtUtil jwtUtil;
     @Autowired
     CourseRepository courseRepository;
     @Autowired
@@ -42,113 +46,127 @@ public class CourseController {
     // ============== COURSE ENDPOINTS ==============
 
     @GetMapping("/courses")
-    public ResponseEntity<List<Course>> getCourses(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String faculty,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        System.out.println("Got courses!");
-        return ResponseEntity.ok(courseRepository.findAll());
-//        try {
-//            List<Course> courses;
-//
-//            if (userDetails != null && userDetails.getAuthorities().stream()
-//                    .anyMatch(authority -> authority.getAuthority().equals("LECTURER"))) {
-//                // Return courses for this lecturer
-//                AcademicUser thisAcademicUser = academicUserRepository.findByUsername(userDetails.getUsername()).get();
-//                courses = courseRepository.findAll().stream()
-//                        .filter(c -> c.getAcademicUsers().contains(thisAcademicUser))
-//                        .collect(Collectors.toList());
-//            } else if (userDetails != null && userDetails.getAuthorities().stream()
-//                    .anyMatch(authority -> authority.getAuthority().equals("STUDENT"))) {
-//                // Return courses for this student
-//                AcademicUser thisStudent = academicUserRepository.findByUsername(userDetails.getUsername()).get();
-//                courses = courseRepository.findAll().stream()
-//                        .filter(c -> c.getAcademicUsers().contains(thisStudent))
-//                        .collect(Collectors.toList());
-//            } else {
-//                courses = courseRepository.findAll();
-//            }
-//
-//            // Apply search filter if provided
-//            if (search != null && !search.trim().isEmpty()) {
-//                String lowerCaseSearch = search.toLowerCase();
-//                courses = courses.stream()
-//                        .filter(c -> c.getCode().toLowerCase().contains(lowerCaseSearch) ||
-//                                c.getName().toLowerCase().contains(lowerCaseSearch) ||
-//                                (c.getDescription() != null && c.getDescription().toLowerCase().contains(lowerCaseSearch)))
-//                        .collect(Collectors.toList());
-//            }
-//
-//            // Apply faculty filter if provided
-//            if (faculty != null && !faculty.trim().isEmpty()) {
-//                courses = courses.stream()
-//                        .filter(c -> c.getFaculty() != null && c.getFaculty().getCode().equals(faculty))
-//                        .collect(Collectors.toList());
-//            }
-//
-//            return ResponseEntity.ok(courses);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
+    public ResponseEntity<Page<CourseDTO>> getCourses(
+            HttpServletRequest request,
+            Pageable pageable) {
+        String username = jwtUtil.extractUsername(jwtUtil.extractTokenFromCookie(request));
+
+        // Check if user is a student
+        Optional<Student> studentOpt = studentRepository.findByUsername(username);
+        if (studentOpt.isPresent()) {
+            Page<Course> courses = courseRepository.findAllByStudentsContaining(studentOpt.get(), pageable);
+            return ResponseEntity.ok(courses.map(CourseDTO::new));
+        }
+
+        // Check if user is a lecturer
+        Optional<Lecturer> lecturerOpt = lecturerRepository.findByUsername(username);
+        if (lecturerOpt.isPresent()) {
+            Page<Course> courses = courseRepository.findAllByLecturersContaining(lecturerOpt.get(), pageable);
+            return ResponseEntity.ok(courses.map(CourseDTO::new));
+        }
+
+        // User not found - return empty page with proper message
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .build();
     }
 
+    // Shared endpoint for both students and lecturers to get course details
     @GetMapping("/courses/{code}")
-    public ResponseEntity<Course> getCourse(@PathVariable String code) {
-        try {
-            Optional<Course> course = courseRepository.findById(code);
-            if (course.isPresent()) {
-                return ResponseEntity.ok(course.get());
-            } else {
-                return ResponseEntity.notFound().build();
+    public ResponseEntity<CourseDTO> getCourse(HttpServletRequest request, @PathVariable String code) {
+        String username = jwtUtil.extractUsername(jwtUtil.extractTokenFromCookie(request));
+        Optional<Course> courseOpt = courseRepository.findById(code);
+        if (courseOpt.isPresent()) {
+            // Check if user is a student
+            Optional<Student> studentOpt = studentRepository.findByUsername(username);
+            if (studentOpt.isPresent()) {
+                // Check if student is enrolled in the course
+                if (courseOpt.get().getStudents().contains(studentOpt.get())) {
+                    return ResponseEntity.ok(new CourseDTO(courseOpt.get()));
+                }
             }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            // Check if user is a lecturer
+            Optional<Lecturer> lecturerOpt = lecturerRepository.findByUsername(username);
+            if (lecturerOpt.isPresent()) {
+                // Check if lecturer is associated with the course
+                if (courseOpt.get().getLecturers().contains(lecturerOpt.get())) {
+                    return ResponseEntity.ok(new CourseDTO(courseOpt.get()));
+                }
+            }
+
+            // No student or lecturer associated with the course
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(null);
+
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping("/courses")
     @PreAuthorize("hasRole('LECTURER')")
-    public ResponseEntity<?> createCourse(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseRequest request) {
         try {
-            String code = (String) request.get("code");
-            String name = (String) request.get("name");
-            String description = (String) request.get("description");
-            String enrolmentKey = (String) request.get("enrolmentKey");
-            String facultyCode = (String) request.get("facultyCode");
-            List<Long> lecturerIds = (List<Long>) request.get("lecturerIds");
+            // Validate basic course data
+            List<String> errorMessages = validateCourse(request.getCode(), request.getName(),
+                    request.getDescription(), request.getEnrolmentKey(), "create");
 
-            List<String> errorMessages = validateCourse(code, name, description, enrolmentKey, "create");
+            // Validate faculty exists
+            if (request.getFacultyCode() == null || request.getFacultyCode().trim().isEmpty()) {
+                errorMessages.add("Faculty code is required");
+            } else {
+                Optional<Faculty> faculty = facultyRepository.findById(request.getFacultyCode());
+                if (faculty.isEmpty()) {
+                    errorMessages.add("Faculty with code '" + request.getFacultyCode() + "' not found");
+                }
+            }
+
+            // Validate lecturers exist
+            if (request.getLecturerIds() == null || request.getLecturerIds().isEmpty()) {
+                errorMessages.add("At least one lecturer must be selected");
+            } else {
+                List<Lecturer> foundLecturers = lecturerRepository.findAllById(request.getLecturerIds());
+                if (foundLecturers.size() != request.getLecturerIds().size()) {
+                    errorMessages.add("One or more selected lecturers not found");
+                }
+            }
 
             if (!errorMessages.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("errors", errorMessages));
             }
 
+            // Create course
             Course course = new Course();
-            course.setCode(code);
-            course.setName(name);
-            course.setEnrolmentKey(enrolmentKey);
-            course.setDescription(description);
+            course.setCode(request.getCode());
+            course.setName(request.getName());
+            course.setEnrolmentKey(request.getEnrolmentKey());
+            course.setDescription(request.getDescription());
 
-            if (facultyCode != null) {
-                Optional<Faculty> faculty = facultyRepository.findById(facultyCode);
-                faculty.ifPresent(course::setFaculty);
+            // Set faculty
+            Optional<Faculty> faculty = facultyRepository.findById(request.getFacultyCode());
+            if (faculty.isPresent()) {
+                course.setFaculty(faculty.get());
             }
 
-            if (lecturerIds != null && !lecturerIds.isEmpty()) {
-                List<Lecturer> academicUsers = lecturerRepository.findAllById(lecturerIds);
-                course.setLecturers(academicUsers);
+            // Set lecturers
+            if (request.getLecturerIds() != null && !request.getLecturerIds().isEmpty()) {
+                List<Lecturer> lecturers = lecturerRepository.findAllById(request.getLecturerIds());
+                course.setLecturers(lecturers);
 
-                // Update lecturer's course list
-                for (Lecturer academicUser : academicUsers) {
-                    academicUser.getCourses().add(course);
+                // Update lecturer's course list (if bidirectional relationship)
+                for (Lecturer lecturer : lecturers) {
+                    if (lecturer.getCourses() == null) {
+                        lecturer.setCourses(new ArrayList<>());
+                    }
+                    lecturer.getCourses().add(course);
                 }
             }
 
             Course savedCourse = courseRepository.save(course);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to create course"));
+                    .body(Map.of("error", "Failed to create course: " + e.getMessage()));
         }
     }
 
@@ -241,24 +259,36 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/courses/faculty/{facultyId}")
-    public ResponseEntity<List<Course>> getCoursesByFaculty(@PathVariable String facultyId) {
+//    @GetMapping("/courses/faculty/{facultyId}")
+//    public ResponseEntity<List<Course>> getCoursesByFaculty(@PathVariable String facultyId) {
+//        try {
+//            Optional<Faculty> faculty = facultyRepository.findById(facultyId);
+//            if (!faculty.isPresent()) {
+//                return ResponseEntity.notFound().build();
+//            }
+//
+//            List<Course> courses = courseRepository.findAll().stream()
+//                    .filter(c -> c.getFaculty() != null && c.getFaculty().getCode().equals(facultyId))
+//                    .collect(Collectors.toList());
+//
+//            return ResponseEntity.ok(courses);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
+
+    // Search coruse
+    @GetMapping("/courses/search")
+    public ResponseEntity<Page<CourseDTO>> searchCourses(@RequestParam String searchPhrase, Pageable pageable) {
         try {
-            Optional<Faculty> faculty = facultyRepository.findById(facultyId);
-            if (!faculty.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            List<Course> courses = courseRepository.findAll().stream()
-                    .filter(c -> c.getFaculty() != null && c.getFaculty().getCode().equals(facultyId))
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(courses);
+            Page<Course> courses = courseRepository.findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase(
+                    searchPhrase, searchPhrase, pageable);
+            return ResponseEntity.ok(courses.map(CourseDTO::new));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
-
     // ============== HELPER METHODS ==============
 
     private List<String> validateCourse(String courseCode, String courseName,

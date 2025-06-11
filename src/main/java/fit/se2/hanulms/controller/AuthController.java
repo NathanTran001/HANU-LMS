@@ -1,7 +1,7 @@
 package fit.se2.hanulms.controller;
 
-import fit.se2.hanulms.model.LMSUser;
-import fit.se2.hanulms.model.Role;
+import fit.se2.hanulms.model.*;
+import fit.se2.hanulms.service.HanuLMSUserDetailsService;
 import fit.se2.hanulms.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private HanuLMSUserDetailsService userDetailsService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse servletResponse) {
@@ -101,7 +101,7 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         try {
-            String token = extractTokenFromCookie(request);
+            String token = jwtUtil.extractTokenFromCookie(request);
             if (token == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("message", "No token found"));
@@ -110,36 +110,16 @@ public class AuthController {
             String username = jwtUtil.extractUsername(token);
 
             if (jwtUtil.validateToken(token, username)) {
+
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
                 Map<String, Object> userResponse = new HashMap<>();
-
-                // Check if userDetails is actually an AcademicUser
-                if (userDetails instanceof LMSUser) {
-                    LMSUser user = (LMSUser) userDetails;
-                    userResponse.put("id", user.getId());
-                    userResponse.put("username", user.getUsername());
-//                    userResponse.put("name", user.getName());
-//                    userResponse.put("email", user.getEmail());
-//                    userResponse.put("faculty", user.getFaculty());
-                    userResponse.put("roles", user.getRoles());
-
-                    // Also include primary role for backward compatibility
-                    String primaryRole = user.getRoles().stream()
-                            .findFirst()
-                            .map(Role::name)
-                            .orElse("STUDENT");
-                    userResponse.put("role", primaryRole);
-                } else {
-                    // Fallback for basic UserDetails
-                    userResponse.put("username", userDetails.getUsername());
-                    Set<String> roles = userDetails.getAuthorities().stream()
-                            .map(GrantedAuthority::getAuthority)
-                            .map(auth -> auth.replace("ROLE_", ""))
-                            .collect(Collectors.toSet());
-                    userResponse.put("roles", roles);
-                    userResponse.put("role", roles.stream().findFirst().orElse("STUDENT"));
-                }
+                userResponse.put("username", userDetails.getUsername());
+                Set<String> roles = userDetails.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .map(auth -> auth.replace("ROLE_", ""))
+                        .collect(Collectors.toSet());
+                userResponse.put("roles", roles);
+                userResponse.put("role", roles.stream().findFirst());
 
                 return ResponseEntity.ok(userResponse);
             }
@@ -179,18 +159,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error during logout"));
         }
-    }
-
-    private String extractTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 
     public static class LoginRequest {

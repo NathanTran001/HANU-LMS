@@ -80,6 +80,10 @@ const api = {
 	// Lecturer operations
 	getLecturers: (page = 0, size = 10) =>
 		api.get("/api/admin/lecturers", { params: { page, size } }),
+	getAllLecturers: (code) => {
+		const params = code ? { code } : {};
+		return api.get("/api/lecturers/all", { params });
+	},
 	getLecturer: (id) => api.get(`/api/admin/lecturers/${id}`),
 	createLecturer: (data) => api.post("/api/admin/lecturers", data),
 	updateLecturer: (id, lecturer) =>
@@ -107,7 +111,7 @@ const api = {
 		api.get("/api/admin/faculties", {
 			params: { page, size },
 		}),
-	getAllFaculties: () => api.get("/api/admin/faculties/all"),
+	getAllFaculties: () => api.get("/api/faculties/all"),
 	getFaculty: (code) => api.get(`/api/admin/faculties/${code}`),
 	createFaculty: (faculty) => api.post("/api/admin/faculties", faculty),
 	updateFaculty: (code, faculty) =>
@@ -123,7 +127,8 @@ const api = {
 		}),
 
 	// Course operations
-	getCourses: (params) => api.get("/api/courses", { params }),
+	getCourses: (username, page = 0, size = 10) =>
+		api.get("/api/courses", { params: { username, page, size } }),
 	getCourse: (id) => api.get(`/api/courses/${id}`),
 	createCourse: (data) => api.post("/api/courses", data),
 	updateCourse: (id, data) => api.put(`/api/courses/${id}`, data),

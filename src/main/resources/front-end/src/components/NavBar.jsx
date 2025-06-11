@@ -94,7 +94,7 @@ const NavBar = () => {
 
 							<div className={styles.avatarContainer}>
 								<img
-									src="/images/HANU.png"
+									src={logo}
 									alt="User Avatar"
 								/>
 							</div>

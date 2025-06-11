@@ -2,6 +2,9 @@ package fit.se2.hanulms.controller;
 
 import fit.se2.hanulms.Repository.*;
 import fit.se2.hanulms.model.*;
+import fit.se2.hanulms.model.DTO.FacultyDTO;
+import fit.se2.hanulms.model.DTO.LecturerDTO;
+import fit.se2.hanulms.model.DTO.StudentDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,9 +31,9 @@ public class AdminController {
 
     // ==================== LECTURERS ====================
     @GetMapping("/lecturers")
-    public ResponseEntity<Page<Lecturer>> listLecturer(Pageable pageable) {
-
-        return ResponseEntity.ok(lecturerRepository.findAll(pageable));
+    public ResponseEntity<Page<LecturerDTO>> listLecturer(Pageable pageable) {
+        Page<Lecturer> lecturers = lecturerRepository.findAll(pageable);
+        return ResponseEntity.ok(lecturers.map(LecturerDTO::new));
     }
 
     @GetMapping("/lecturers/{id}")
@@ -97,8 +100,9 @@ public class AdminController {
 
     // ==================== STUDENTS ====================
     @GetMapping("/students")
-    public ResponseEntity<Page<Student>> listStudent(Pageable pageable) {
-        return ResponseEntity.ok(studentRepository.findAll(pageable));
+    public ResponseEntity<Page<StudentDTO>> listStudent(Pageable pageable) {
+        Page<Student> students = studentRepository.findAll(pageable);
+        return ResponseEntity.ok(students.map(StudentDTO::new));
     }
 
     @GetMapping("/students/{id}")
@@ -165,13 +169,12 @@ public class AdminController {
 
     // ==================== FACULTIES ====================
     @GetMapping("/faculties")
-    public ResponseEntity<Page<Faculty>> listFaculty(Pageable pageable) {
-        return ResponseEntity.ok(facultyRepository.findAll(pageable));
-    }
+    public ResponseEntity<Page<FacultyDTO>> listFaculty(Pageable pageable) {
+        Page<Faculty> facultyPage = facultyRepository.findAll(pageable);
+        return ResponseEntity.ok(facultyPage.map(FacultyDTO::new));
+//        Page<FacultyDTO> facultyDTOPage = facultyService.getFacultiesWithCounts(pageable);
+//        return ResponseEntity.ok(facultyDTOPage);
 
-    @GetMapping("/faculties/all")
-    public ResponseEntity<List<Faculty>> listFacultyAll() {
-        return ResponseEntity.ok(facultyRepository.findAll());
     }
 
     @GetMapping("/faculties/{code}")

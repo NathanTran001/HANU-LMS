@@ -1,10 +1,5 @@
 /* CSS Variables */
-:root {
-	--accent-yellow: #fff012;
-	--primary800: #700404;
-	--primary500: #823838;
-}
-
+@import url("../../index.css");
 /* Layout Classes */
 .containerLg {
 	max-width: 1140px;
@@ -106,7 +101,7 @@
 
 .baseButton {
 	background-color: var(--primary800);
-	color: white;
+	color: var(--accent-yellow);
 	border: none;
 	padding: 8px 16px;
 	border-radius: 4px;

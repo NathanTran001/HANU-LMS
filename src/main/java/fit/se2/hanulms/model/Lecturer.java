@@ -1,7 +1,6 @@
 package fit.se2.hanulms.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -9,19 +8,18 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "lecturer")
 @PrimaryKeyJoinColumn(name = "user_id")
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 @DiscriminatorValue("LECTURER")
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id")
 public class Lecturer extends LMSUser {
 
     private String name;
     private String email;
 
     @ManyToOne
-    @JoinColumn(name = "faculty_id")
+    @JsonIgnoreProperties(ignoreUnknown = true, value = {"lecturers"})
     private Faculty faculty;
 
     @ManyToMany(cascade = CascadeType.REMOVE)
@@ -30,6 +28,7 @@ public class Lecturer extends LMSUser {
             joinColumns = @JoinColumn(name = "lecturer_id"),
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
+    @JsonIgnoreProperties(ignoreUnknown = true, value = {"lecturers"})
     private List<Course> courses;
 
     public Lecturer() {

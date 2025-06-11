@@ -17,7 +17,9 @@ const DropdownField = ({
 		</label>
 		<div className={styles.textfieldInputWrapper}>
 			<select
-				className={styles.textfieldInput}
+				className={`${styles.textfieldInput} ${
+					!value ? styles.placeholder : ""
+				}`}
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
 				disabled={readonly}
@@ -26,6 +28,7 @@ const DropdownField = ({
 				<option
 					value=""
 					disabled
+					className={styles.placeholderOption}
 				>
 					{placeholder}
 				</option>

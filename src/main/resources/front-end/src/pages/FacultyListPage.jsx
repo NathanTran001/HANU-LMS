@@ -32,6 +32,8 @@ const FacultyListPage = () => {
 	useEffect(() => {
 		if (searchPhrase.trim()) {
 			performSearch();
+		} else {
+			fetchFaculties();
 		}
 	}, [page]);
 
@@ -44,7 +46,6 @@ const FacultyListPage = () => {
 				performSearch();
 			} else {
 				setPage(0);
-				fetchFaculties();
 			}
 		}, 400);
 
@@ -57,6 +58,7 @@ const FacultyListPage = () => {
 			const response = await api.getFaculties(page, pageSize);
 			setFaculties(response.content);
 			console.log("Fetched faculties:", response.content);
+			console.log("Fetched faculties data:", response.data);
 
 			setTotalPages(response.totalPages);
 		} catch (error) {
@@ -179,20 +181,20 @@ const FacultyListPage = () => {
 							key: "lecturers",
 							label: "Lecturers",
 							render: (row) => {
-								return row.lecturers?.length || 0;
+								return row.lecturerCount || 0;
 							},
 						},
 						{
 							key: "students",
 							label: "Students",
 							render: (row) => {
-								return row.students?.length || 0;
+								return row.studentCount || 0;
 							},
 						},
 						{
 							key: "courses",
 							label: "Courses",
-							render: (row) => row.courses?.length || 0,
+							render: (row) => row.courseCount || 0,
 						},
 					]}
 					data={faculties}

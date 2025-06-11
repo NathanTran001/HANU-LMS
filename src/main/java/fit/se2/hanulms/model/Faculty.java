@@ -1,7 +1,6 @@
 package fit.se2.hanulms.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -10,18 +9,21 @@ import jakarta.persistence.OneToMany;
 import java.util.List;
 
 @Entity
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "code")
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "code")
 public class Faculty {
     @Id
     private String code;
     private String name;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties(ignoreUnknown = true, value = {"faculty"})
     private List<Lecturer> lecturers;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties(ignoreUnknown = true, value = {"faculty"})
     private List<Student> students;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
+    @JsonIgnoreProperties(ignoreUnknown = true, value = {"faculty"})
     private List<Course> courses;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
     private List<FacultyAnnouncement> facultyAnnouncements;
