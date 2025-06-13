@@ -8,7 +8,7 @@ import {
 	EDIT_LECTURER_PAGE,
 	LOGIN_PAGE,
 } from "../constants/paths";
-import SearchBarAdmin from "../components/SearchBarAdmin";
+import SearchBar from "../components/SearchBar";
 import Pagination from "../components/Pagination";
 import DataTableAdmin from "../components/DataTableAdmin";
 
@@ -44,6 +44,7 @@ const LecturerListPage = () => {
 				performSearch();
 			} else {
 				setPage(0);
+				fetchLecturers();
 			}
 		}, 400);
 
@@ -142,7 +143,7 @@ const LecturerListPage = () => {
 				<h3 className={styles.title}>LECTURER LIST</h3>
 			</div>
 			<div className={styles.actionsRow}>
-				<SearchBarAdmin
+				<SearchBar
 					value={searchPhrase}
 					onChange={(e) => setSearchPhrase(e.target.value)}
 					onSubmit={handleSearch}

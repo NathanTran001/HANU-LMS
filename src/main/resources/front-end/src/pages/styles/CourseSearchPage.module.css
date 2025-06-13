@@ -1,0 +1,49 @@
+.containerLg {
+	max-width: 1140px;
+	margin: 0 auto;
+	padding: 0 15px;
+}
+
+.titleContainer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.title {
+	font-size: 2rem;
+	font-weight: bold;
+	color: var(--primary800);
+	margin: 0;
+}
+
+.baseButton {
+	background-color: var(--primary800);
+	color: var(--accent-yellow);
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	transition: background-color 0.3s ease;
+}
+
+.baseButton:hover {
+	background-color: var(--primary500);
+}
+
+.textSuccess {
+	color: #28a745;
+	margin-bottom: 1rem;
+}
+
+.loading {
+	color: #6c757d;
+	margin-bottom: 1rem;
+}
+
+.searchBarContainer {
+	margin-bottom: 1.5rem;
+}

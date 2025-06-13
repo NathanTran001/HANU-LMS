@@ -9,6 +9,7 @@ const DropdownField = ({
 	options = [],
 	readonly = false,
 	placeholder = "Select...",
+	icon,
 }) => (
 	<div className={styles.textfieldContainer}>
 		<label className={styles.textfieldLabel}>
@@ -16,6 +17,11 @@ const DropdownField = ({
 			{required && <span className={styles.textfieldRequired}>*</span>}
 		</label>
 		<div className={styles.textfieldInputWrapper}>
+			{icon && (
+				<div className={styles.textfieldIconBox}>
+					<i className={`bi bi-${icon} ${styles.textfieldIcon}`}></i>
+				</div>
+			)}
 			<select
 				className={`${styles.textfieldInput} ${
 					!value ? styles.placeholder : ""

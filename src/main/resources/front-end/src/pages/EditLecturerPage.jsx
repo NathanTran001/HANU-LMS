@@ -96,7 +96,7 @@ const EditLecturerPage = () => {
 			<button
 				type="button"
 				className={styles.backBtn}
-				onClick={() => navigate(LECTURER_LIST_PAGE)}
+				onClick={() => navigate(-1)}
 			>
 				&#8592; Back
 			</button>

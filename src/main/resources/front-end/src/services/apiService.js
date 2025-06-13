@@ -135,6 +135,10 @@ const api = {
 	deleteCourse: (id) => api.delete(`/api/courses/${id}`),
 	getCoursesByFaculty: (facultyId) =>
 		api.get(`/api/courses/faculty/${facultyId}`),
+	searchCourse: (searchPhrase, page = 0, size = 10) =>
+		api.get("/api/courses/search", {
+			params: { searchPhrase, page, size },
+		}),
 
 	// File upload
 	uploadFile: async (endpoint, file, additionalData = {}) => {

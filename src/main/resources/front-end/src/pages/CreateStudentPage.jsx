@@ -80,7 +80,7 @@ const CreateStudentPage = () => {
 			<button
 				type="button"
 				className={styles.backBtn}
-				onClick={() => navigate(STUDENT_LIST_PAGE)}
+				onClick={() => navigate(-1)}
 			>
 				&#8592; Back
 			</button>

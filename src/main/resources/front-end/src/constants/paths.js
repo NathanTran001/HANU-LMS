@@ -15,3 +15,5 @@ export const EDIT_STUDENT_PAGE = "/admin/students/edit/:id";
 
 export const CREATE_COURSE_PAGE = "/courses/create";
 export const EDIT_COURSE_PAGE = "/courses/edit/:id";
+
+export const SEARCH_COURSE_PAGE = "/courses/search/:searchPhrase";

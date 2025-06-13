@@ -9,6 +9,7 @@ import {
 	MY_COURSES_PAGE,
 } from "../constants/paths";
 import { ADMIN, LECTURER, STUDENT } from "../constants/roles";
+import { useAuth } from "../contexts/AuthContext";
 
 const LoginPage = () => {
 	const [credentials, setCredentials] = useState({
@@ -18,6 +19,7 @@ const LoginPage = () => {
 	const [error, setError] = useState("");
 	const [message, setMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const { user, checkAuthStatus, isAuthenticated } = useAuth();
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -72,13 +74,16 @@ const LoginPage = () => {
 
 	const handleRedirect = async () => {
 		const role = await getUserRole();
+		checkAuthStatus();
 		if (!role) return;
 		console.log(`Role: ${role}`);
-		if (role.includes(ADMIN)) {
-			navigate(LECTURER_LIST_PAGE);
-			console.log(role);
-		} else if (role.includes(LECTURER) || role.includes(STUDENT))
-			navigate(MY_COURSES_PAGE);
+		if (isAuthenticated) {
+			if (role.includes(ADMIN)) {
+				navigate(LECTURER_LIST_PAGE);
+				console.log(role);
+			} else if (role.includes(LECTURER) || role.includes(STUDENT))
+				navigate(MY_COURSES_PAGE);
+		}
 	};
 
 	return (

@@ -1,7 +1,6 @@
-import React from "react";
-import styles from "./styles/SearchBarAdmin.module.css";
+import styles from "./styles/SearchBar.module.css";
 
-const SearchBarAdmin = ({
+const SearchBar = ({
 	value,
 	onChange,
 	onSubmit,
@@ -29,4 +28,4 @@ const SearchBarAdmin = ({
 	</form>
 );
 
-export default SearchBarAdmin;
+export default SearchBar;

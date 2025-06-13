@@ -8,7 +8,7 @@ import {
 	EDIT_STUDENT_PAGE,
 	LOGIN_PAGE,
 } from "../constants/paths";
-import SearchBarAdmin from "../components/SearchBarAdmin";
+import SearchBar from "../components/SearchBar";
 import Pagination from "../components/Pagination";
 import DataTableAdmin from "../components/DataTableAdmin";
 
@@ -44,6 +44,7 @@ const StudentListPage = () => {
 				performSearch();
 			} else {
 				setPage(0);
+				fetchStudents();
 			}
 		}, 400);
 
@@ -143,7 +144,7 @@ const StudentListPage = () => {
 				<h3 className={styles.title}>STUDENT LIST</h3>
 			</div>
 			<div className={styles.actionsRow}>
-				<SearchBarAdmin
+				<SearchBar
 					value={searchPhrase}
 					onChange={(e) => setSearchPhrase(e.target.value)}
 					onSubmit={handleSearch}

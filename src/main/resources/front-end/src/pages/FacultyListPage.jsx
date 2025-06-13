@@ -9,7 +9,7 @@ import {
 	FACULTY_LIST_PAGE,
 	LOGIN_PAGE,
 } from "../constants/paths";
-import SearchBarAdmin from "../components/SearchBarAdmin";
+import SearchBar from "../components/SearchBar";
 import Pagination from "../components/Pagination";
 import DataTableAdmin from "../components/DataTableAdmin";
 import { LECTURER, STUDENT } from "../constants/roles";
@@ -46,6 +46,7 @@ const FacultyListPage = () => {
 				performSearch();
 			} else {
 				setPage(0);
+				fetchFaculties();
 			}
 		}, 400);
 
@@ -152,7 +153,7 @@ const FacultyListPage = () => {
 
 			{/* Search and Create Section */}
 			<div className={styles.actionsRow}>
-				<SearchBarAdmin
+				<SearchBar
 					value={searchPhrase}
 					onChange={(e) => setSearchPhrase(e.target.value)}
 					onSubmit={handleSearch}

@@ -14,6 +14,7 @@ import Layout from "./components/Layout.jsx";
 import { use, useEffect } from "react";
 import { getUser } from "./utils/auth.js";
 import {
+	SEARCH_COURSE_PAGE,
 	CREATE_COURSE_PAGE,
 	CREATE_FACULTY_PAGE,
 	CREATE_LECTURER_PAGE,
@@ -38,6 +39,7 @@ import CreateStudentPage from "./pages/CreateStudentPage.jsx";
 import EditStudentPage from "./pages/EditStudentPage.jsx";
 import RoleBasedRedirect from "./components/RoleBasedRedirect.jsx";
 import CreateCoursePage from "./pages/CreateCoursePage.jsx";
+import SearchCoursePage from "./pages/SearchCoursePage.jsx";
 
 const router = createBrowserRouter([
 	{
@@ -96,6 +98,10 @@ const router = createBrowserRouter([
 			{
 				path: MY_COURSES_PAGE,
 				element: <MyCoursesPage />,
+			},
+			{
+				path: SEARCH_COURSE_PAGE,
+				element: <SearchCoursePage />,
 			},
 			// LECTURER PAGES
 			{

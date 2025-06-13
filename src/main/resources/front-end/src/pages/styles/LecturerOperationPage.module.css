@@ -1,4 +1,5 @@
 @import "../../index.css";
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css");
 
 /* General container styling */
 .container {
@@ -152,17 +153,16 @@
 .customSelect {
 	position: relative;
 	width: 100%;
+	/* padding-block: 0.5rem; */
+	background-color: white;
+	cursor: pointer;
 }
 
 .selectBox {
 	display: flex;
 	align-items: center;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	padding: 0.5rem;
-	cursor: pointer;
-	background: #fff;
-	min-height: 44px;
+	padding-inline: 0.5rem;
+	padding-block: 0.5rem;
 }
 
 .selectedOptions {
@@ -197,16 +197,19 @@
 	z-index: 10;
 	max-height: 260px;
 	overflow-y: auto;
-	padding: 0.5rem 0;
 }
 
 .option {
 	padding: 0.5rem 1rem;
 	cursor: pointer;
 	transition: background 0.15s;
+	border-bottom: solid 1px #f0f0f0;
 }
 
-.option:hover,
+.option:hover {
+	background: rgb(234, 234, 234);
+}
+
 .option.active {
 	background: var(--primary50, #f0cbb3);
 }
@@ -236,7 +239,12 @@
 	flex: 1;
 	border: 1px solid #ccc;
 	border-radius: 3px;
-	padding: 0.25rem 0.5rem;
+	padding: 0.5rem 0.5rem;
+}
+
+.searchTags:focus {
+	border: 1px solid grey;
+	outline: none;
 }
 
 .clear {
@@ -256,7 +264,7 @@
 	margin-right: 0.3rem;
 	display: inline-flex;
 	align-items: center;
-	font-size: 0.95em;
+	font-size: 0.9em;
 }
 
 .removeTag {
@@ -290,4 +298,33 @@
 	margin-left: 4px;
 	font-size: 14px;
 	font-weight: 500;
+}
+
+.msInputWrapper {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	max-height: min-content;
+}
+
+.msInputInnerWrapper {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	background-color: #e0e0e0;
+}
+
+.textfieldIconBox {
+	background-color: #e0e0e0;
+	padding-inline: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.textfieldIcon {
+	font-size: 16px;
+	color: #666;
 }

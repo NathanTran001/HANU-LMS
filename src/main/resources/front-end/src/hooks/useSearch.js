@@ -1,6 +1,7 @@
 // hooks/useSearch.js
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SEARCH_COURSE_PAGE } from "../constants/paths";
 
 export const useSearch = () => {
 	const [searchValue, setSearchValue] = useState("Search...");
@@ -22,9 +23,14 @@ export const useSearch = () => {
 		if (event.key === "Enter") {
 			const searchPhrase = searchValue.trim();
 			if (searchPhrase === "" || searchPhrase === "Search...") {
-				navigate("/searchCourseEmpty");
+				// navigate("/searchCourseEmpty");
 			} else {
-				navigate(`/searchCourse/${encodeURIComponent(searchPhrase)}`);
+				navigate(
+					SEARCH_COURSE_PAGE.replace(
+						":searchPhrase",
+						`${encodeURIComponent(searchPhrase)}`
+					)
+				);
 			}
 		}
 	};

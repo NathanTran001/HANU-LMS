@@ -83,20 +83,6 @@ const CreateCoursePage = () => {
 		}
 		setIsSubmitting(true);
 		try {
-			// const selectedFaculty = faculties.find((f) => f.code === course.faculty);
-			// const selectedLecturers = lecturers.filter((l) =>
-			// 	course.lecturerIds.includes(l.id)
-			// );
-			// if (!selectedFaculty) {
-			// 	setErrors({ faculty: "Selected faculty not found." });
-			// 	setIsSubmitting(false);
-			// 	return;
-			// }
-			// const courseToSend = {
-			// 	...course,
-			// 	faculty: selectedFaculty,
-			// 	lecturerIds: selectedLecturers,
-			// };
 			await api.createCourse(course);
 			navigate(MY_COURSES_PAGE);
 		} catch (error) {
@@ -111,7 +97,7 @@ const CreateCoursePage = () => {
 			<button
 				type="button"
 				className={styles.backBtn}
-				onClick={() => navigate(MY_COURSES_PAGE)}
+				onClick={() => navigate(-1)}
 			>
 				&#8592; Back
 			</button>
@@ -209,6 +195,7 @@ const CreateCoursePage = () => {
 								})),
 							]}
 							error={errors.facultyCode}
+							icon={"alphabet-uppercase"}
 						/>
 					</div>
 				</div>
