@@ -17,13 +17,10 @@ public class Faculty {
     private String code;
     private String name;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
-    @JsonIgnoreProperties(ignoreUnknown = true, value = {"faculty"})
     private List<Lecturer> lecturers;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
-    @JsonIgnoreProperties(ignoreUnknown = true, value = {"faculty"})
     private List<Student> students;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
-    @JsonIgnoreProperties(ignoreUnknown = true, value = {"faculty"})
     private List<Course> courses;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
     private List<FacultyAnnouncement> facultyAnnouncements;

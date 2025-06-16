@@ -52,6 +52,7 @@
 	font-size: 14px;
 	outline: none;
 	height: 100%;
+	appearance: none;
 }
 
 .textfieldTextarea {
@@ -77,4 +78,11 @@
 /* When a value is selected, text should be black */
 .textfieldInput:not(.placeholder) {
 	color: #000;
+}
+
+.arrow {
+	font-size: 1.2rem;
+	color: #888;
+	margin-left: auto;
+	padding-right: 8px;
 }

@@ -38,6 +38,7 @@ const DropdownField = ({
 				>
 					{placeholder}
 				</option>
+
 				{options.map((opt) => (
 					<option
 						key={opt.value}
@@ -47,6 +48,7 @@ const DropdownField = ({
 					</option>
 				))}
 			</select>
+			<span className={styles.arrow}>&#9662;</span>
 		</div>
 	</div>
 );

@@ -1,5 +1,4 @@
 /* CSS Variables */
-@import url("../../index.css");
 @import "../../index.css";
 /* Layout Classes */
 .containerLg {
@@ -44,6 +43,22 @@
 
 /* Messages */
 .textSuccess {
+	background-color: var(--success-background);
+	color: var(--success);
+	padding: 12px;
+	border-radius: 4px;
+	margin: 1rem 0;
+	border: 1px solid var(--success-hover);
+
 	color: #28a745;
 	margin-bottom: 1rem;
+}
+
+.textError {
+	background-color: var(--danger-background);
+	color: var(--primary800);
+	padding: 12px;
+	border-radius: 4px;
+	margin: 1rem 0;
+	border: 1px solid var(--danger-hover);
 }

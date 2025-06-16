@@ -8,41 +8,36 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@PrimaryKeyJoinColumn(name = "user_id")
+//@PrimaryKeyJoinColumn(name = "user_id")
 @DiscriminatorValue("LECTURER")
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id")
 public class Lecturer extends LMSUser {
 
     private String name;
     private String email;
 
     @ManyToOne
-    @JsonIgnoreProperties(ignoreUnknown = true, value = {"lecturers"})
     private Faculty faculty;
 
-    @ManyToMany(cascade = CascadeType.REMOVE)
+    @ManyToMany
     @JoinTable(
             name = "lecturer_courses",
             joinColumns = @JoinColumn(name = "lecturer_id"),
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
-    @JsonIgnoreProperties(ignoreUnknown = true, value = {"lecturers"})
     private List<Course> courses;
 
     public Lecturer() {
         super();
     }
 
-    public Lecturer(UserTemplate userTemplate, PasswordEncoder passwordEncoder) {
+    public Lecturer(UserTemplate userTemplate, PasswordEncoder passwordEncoder, Faculty faculty) {
         super(userTemplate,
                 passwordEncoder,
                 Set.of(Role.LECTURER));
 
         this.name = userTemplate.getName();
         this.email = userTemplate.getEmail();
-        this.faculty = userTemplate.getFaculty();
+        this.faculty = faculty;
     }
 
     // Getters and Setters for lecturer-specific attributes only

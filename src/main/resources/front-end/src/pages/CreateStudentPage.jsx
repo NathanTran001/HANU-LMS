@@ -6,17 +6,18 @@ import { STUDENT_LIST_PAGE } from "../constants/paths";
 import TextField from "../components/TextField";
 import PasswordField from "../components/PasswordField";
 import DropdownField from "../components/DropdownField";
+import getErrorMessage from "../utils/error";
 
 const CreateStudentPage = () => {
 	const [student, setStudent] = useState({
 		name: "",
-		faculty: "",
+		facultyCode: "",
 		email: "",
 		username: "",
 		password: "",
 	});
 	const [faculties, setFaculties] = useState([]);
-	const [errors, setErrors] = useState({});
+	const [errors, setErrors] = useState([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const navigate = useNavigate();
 
@@ -24,7 +25,7 @@ const CreateStudentPage = () => {
 		const fetchFaculties = async () => {
 			try {
 				const res = await api.getAllFaculties();
-				setFaculties(res.content);
+				setFaculties(res);
 			} catch {
 				setFaculties([]);
 			}
@@ -36,40 +37,14 @@ const CreateStudentPage = () => {
 		setStudent({ ...student, [field]: value });
 	};
 
-	const validate = () => {
-		const errs = {};
-		if (!student.name) errs.name = "Name is required";
-		if (!student.faculty) errs.faculty = "Faculty is required";
-		if (!student.email) errs.email = "Email is required";
-		if (!student.username) errs.username = "Username is required";
-		if (!student.password) errs.password = "Password is required";
-		return errs;
-	};
-
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		const errs = validate();
-		if (Object.keys(errs).length) {
-			setErrors(errs);
-			return;
-		}
 		setIsSubmitting(true);
 		try {
-			// Find the selected faculty object by code
-			const selectedFaculty = faculties.find((f) => f.code === student.faculty);
-			if (!selectedFaculty) {
-				setErrors({ faculty: "Selected faculty not found." });
-				setIsSubmitting(false);
-				return;
-			}
-			const studentToSend = {
-				...student,
-				faculty: selectedFaculty,
-			};
-			await api.createStudent(studentToSend);
+			await api.createStudent(student);
 			navigate(STUDENT_LIST_PAGE);
 		} catch (error) {
-			setErrors({ form: "Failed to create student. Please try again." });
+			setErrors(getErrorMessage(error));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -102,8 +77,8 @@ const CreateStudentPage = () => {
 				<DropdownField
 					label="Faculty"
 					required
-					value={student.faculty}
-					onChange={(v) => handleInputChange(v, "faculty")}
+					value={student.facultyCode}
+					onChange={(v) => handleInputChange(v, "facultyCode")}
 					options={faculties.map((f) => ({
 						value: f.code,
 						label: `${f.code} - ${f.name}`,
@@ -132,17 +107,18 @@ const CreateStudentPage = () => {
 					value={student.password}
 					onChange={(v) => handleInputChange(v, "password")}
 				/>
-				{Object.values(errors).map(
-					(err, i) =>
-						err && (
-							<div
-								key={i}
-								className={styles.error}
-							>
-								{err}
-							</div>
-						)
-				)}
+				{errors &&
+					errors.map(
+						(err, i) =>
+							err && (
+								<div
+									key={i}
+									className={styles.error}
+								>
+									{err}
+								</div>
+							)
+					)}
 				<button
 					type="submit"
 					className={styles.btn}

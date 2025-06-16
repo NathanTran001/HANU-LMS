@@ -7,9 +7,6 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Entity
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "code")
 public class Course {
     @Id
     @NotEmpty(message = "Please insert course code")
@@ -20,9 +17,9 @@ public class Course {
     private String courseImage;
     @ManyToOne
     private Faculty faculty;
-    @ManyToMany(mappedBy = "courses", cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "courses")
     private List<Lecturer> lecturers;
-    @ManyToMany(mappedBy = "courses", cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "courses")
     private List<Student> students;
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Topic> topics;

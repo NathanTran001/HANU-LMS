@@ -102,11 +102,6 @@ const SearchCoursePage = () => {
 					key={course.code}
 					course={course}
 					user={user}
-					activeModal={activeModal}
-					openModal={openModal}
-					closeModal={closeModal}
-					onEditClick={onEditClick}
-					onDeleteClick={onDeleteClick}
 				/>
 			))}
 			{!loading && courses.length > 0 && (

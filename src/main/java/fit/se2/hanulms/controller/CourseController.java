@@ -50,19 +50,26 @@ public class CourseController {
             HttpServletRequest request,
             Pageable pageable) {
         String username = jwtUtil.extractUsername(jwtUtil.extractTokenFromCookie(request));
+        System.out.println("Username: " + username);
 
         // Check if user is a student
         Optional<Student> studentOpt = studentRepository.findByUsername(username);
         if (studentOpt.isPresent()) {
             Page<Course> courses = courseRepository.findAllByStudentsContaining(studentOpt.get(), pageable);
-            return ResponseEntity.ok(courses.map(CourseDTO::new));
+            System.out.println("Original courses: " + courses.getTotalElements());
+            Page<CourseDTO> courseDTOs = courses.map(CourseDTO::new);
+            System.out.println("Courses: " + courseDTOs);
+            return ResponseEntity.ok(courseDTOs);
         }
 
         // Check if user is a lecturer
         Optional<Lecturer> lecturerOpt = lecturerRepository.findByUsername(username);
         if (lecturerOpt.isPresent()) {
             Page<Course> courses = courseRepository.findAllByLecturersContaining(lecturerOpt.get(), pageable);
-            return ResponseEntity.ok(courses.map(CourseDTO::new));
+            System.out.println("Original courses: " + courses.getTotalElements());
+            Page<CourseDTO> courseDTOs = courses.map(CourseDTO::new);
+            System.out.println("Courses: " + courseDTOs);
+            return ResponseEntity.ok(courseDTOs);
         }
 
         // User not found - return empty page with proper message
@@ -173,20 +180,42 @@ public class CourseController {
     @PutMapping("/courses/{code}")
     @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<?> updateCourse(@PathVariable String code,
-                                          @RequestBody Map<String, Object> request) {
+                                          @RequestBody CourseRequest request) {
         try {
             Optional<Course> optionalCourse = courseRepository.findById(code);
             if (!optionalCourse.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
 
-            String name = (String) request.get("name");
-            String description = (String) request.get("description");
-            String enrolmentKey = (String) request.get("enrolmentKey");
-            String facultyCode = (String) request.get("facultyCode");
-            List<Long> lecturerIds = (List<Long>) request.get("lecturerIds");
+            // Ensure course code cannot be updated (security check)
+            if (request.getCode() != null && !request.getCode().equals(code)) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Course code cannot be modified"));
+            }
 
-            List<String> errorMessages = validateCourse(code, name, description, enrolmentKey, "edit");
+            // Validate basic course data (using the same validation as create)
+            List<String> errorMessages = validateCourse(code, request.getName(),
+                    request.getDescription(), request.getEnrolmentKey(), "edit");
+
+            // Validate faculty exists
+            if (request.getFacultyCode() == null || request.getFacultyCode().trim().isEmpty()) {
+                errorMessages.add("Faculty code is required");
+            } else {
+                Optional<Faculty> faculty = facultyRepository.findById(request.getFacultyCode());
+                if (faculty.isEmpty()) {
+                    errorMessages.add("Faculty with code '" + request.getFacultyCode() + "' not found");
+                }
+            }
+
+            // Validate lecturers exist
+            if (request.getLecturerIds() == null || request.getLecturerIds().isEmpty()) {
+                errorMessages.add("At least one lecturer must be selected");
+            } else {
+                List<Lecturer> foundLecturers = lecturerRepository.findAllById(request.getLecturerIds());
+                if (foundLecturers.size() != request.getLecturerIds().size()) {
+                    errorMessages.add("One or more selected lecturers not found");
+                }
+            }
 
             if (!errorMessages.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("errors", errorMessages));
@@ -194,38 +223,47 @@ public class CourseController {
 
             Course course = optionalCourse.get();
 
-            // Clear existing lecturer associations
-            for (Lecturer academicUser : course.getLecturers()) {
-                academicUser.getCourses().remove(course);
-                lecturerRepository.save(academicUser);
+            // Clear existing lecturer associations (bidirectional cleanup)
+            if (course.getLecturers() != null) {
+                for (Lecturer lecturer : course.getLecturers()) {
+                    if (lecturer.getCourses() != null) {
+                        lecturer.getCourses().remove(course);
+                    }
+                }
             }
             course.getLecturers().clear();
 
             // Update course fields
-            course.setName(name);
-            course.setEnrolmentKey(enrolmentKey);
-            course.setDescription(description);
+            course.setName(request.getName());
+            course.setEnrolmentKey(request.getEnrolmentKey());
+            course.setDescription(request.getDescription());
 
-            if (facultyCode != null) {
-                Optional<Faculty> faculty = facultyRepository.findById(facultyCode);
-                faculty.ifPresent(course::setFaculty);
+            // Set faculty
+            Optional<Faculty> faculty = facultyRepository.findById(request.getFacultyCode());
+            if (faculty.isPresent()) {
+                course.setFaculty(faculty.get());
             }
 
-            if (lecturerIds != null && !lecturerIds.isEmpty()) {
-                List<Lecturer> academicUsers = lecturerRepository.findAllById(lecturerIds);
-                course.setLecturers(academicUsers);
+            // Set lecturers (same logic as create)
+            if (request.getLecturerIds() != null && !request.getLecturerIds().isEmpty()) {
+                List<Lecturer> lecturers = lecturerRepository.findAllById(request.getLecturerIds());
+                course.setLecturers(lecturers);
 
-                // Update lecturer's course list
-                for (Lecturer academicUser : academicUsers) {
-                    academicUser.getCourses().add(course);
+                // Update lecturer's course list (bidirectional relationship)
+                for (Lecturer lecturer : lecturers) {
+                    if (lecturer.getCourses() == null) {
+                        lecturer.setCourses(new ArrayList<>());
+                    }
+                    lecturer.getCourses().add(course);
                 }
             }
 
             Course updatedCourse = courseRepository.save(course);
             return ResponseEntity.ok(updatedCourse);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to update course"));
+                    .body(Map.of("error", "Failed to update course: " + e.getMessage()));
         }
     }
 
@@ -234,24 +272,30 @@ public class CourseController {
     public ResponseEntity<?> deleteCourse(@PathVariable String code) {
         try {
             Optional<Course> optionalCourse = courseRepository.findById(code);
-            if (!optionalCourse.isPresent()) {
-                return ResponseEntity.notFound().build();
+            if (optionalCourse.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Course not found"));
             }
 
             Course course = optionalCourse.get();
 
-            // Clear associations before deletion
-            for (Lecturer academicUser : course.getLecturers()) {
-                academicUser.getCourses().remove(course);
-                lecturerRepository.save(academicUser);
+            // Manually remove relationships before deleting
+            // Remove course from all lecturers
+            for (Lecturer lecturer : course.getLecturers()) {
+                lecturer.getCourses().remove(course);
             }
 
+            // Remove course from all students
             for (Student student : course.getStudents()) {
                 student.getCourses().remove(course);
-                studentRepository.save(student);
             }
 
+            // Clear the relationships from course side
+            course.getLecturers().clear();
+            course.getStudents().clear();
+
+            // Now delete the course (topics and announcements will be deleted due to CascadeType.REMOVE in @OneToMany)
             courseRepository.delete(course);
+
             return ResponseEntity.ok(Map.of("message", "Course deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

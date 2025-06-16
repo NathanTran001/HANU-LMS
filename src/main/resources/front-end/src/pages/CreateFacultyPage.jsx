@@ -3,6 +3,7 @@ import styles from "./styles/AdminOperationPage.module.css";
 import { useNavigate } from "react-router-dom";
 import api from "../services/apiService";
 import { FACULTY_LIST_PAGE } from "../constants/paths";
+import getErrorMessages from "../utils/error";
 
 const CreateFacultyPage = () => {
 	const [faculty, setFaculty] = useState({
@@ -10,7 +11,7 @@ const CreateFacultyPage = () => {
 		name: "",
 	});
 	const navigate = useNavigate();
-	const [errors, setErrors] = useState({});
+	const [errors, setErrors] = useState([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleInputChange = (e) => {
@@ -19,20 +20,12 @@ const CreateFacultyPage = () => {
 			...prev,
 			[name]: value,
 		}));
-
-		// Clear error when user starts typing
-		if (errors[name]) {
-			setErrors((prev) => ({
-				...prev,
-				[name]: "",
-			}));
-		}
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setIsSubmitting(true);
-		setErrors({});
+		setErrors([]);
 
 		try {
 			await api.createFaculty(faculty);
@@ -40,11 +33,7 @@ const CreateFacultyPage = () => {
 			setFaculty({ code: "", name: "" });
 			navigate(FACULTY_LIST_PAGE);
 		} catch (error) {
-			if (error.response && error.response.data) {
-				setErrors(error.response.data.errors || {});
-			} else {
-				console.error("Error creating faculty:", error);
-			}
+			setErrors(getErrorMessages(error));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -84,7 +73,6 @@ const CreateFacultyPage = () => {
 						placeholder="Enter Faculty Code"
 						required
 					/>
-					{errors.code && <div className={styles.error}>{errors.code}</div>}
 				</div>
 
 				<div className={styles.formGroup}>
@@ -104,9 +92,19 @@ const CreateFacultyPage = () => {
 						placeholder="Enter Faculty Name"
 						required
 					/>
-					{errors.name && <div className={styles.error}>{errors.name}</div>}
 				</div>
-
+				{errors &&
+					errors.map(
+						(err, i) =>
+							err && (
+								<div
+									key={i}
+									className={styles.error}
+								>
+									{err}
+								</div>
+							)
+					)}
 				<button
 					type="submit"
 					className={styles.btn}

@@ -10,10 +10,7 @@ import java.util.Set;
 
 @Entity
 @DiscriminatorValue("ADMIN")
-@PrimaryKeyJoinColumn(name = "user_id")
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id")
+//@PrimaryKeyJoinColumn(name = "user_id")
 public class Admin extends LMSUser {
     public Admin() {
         super();

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/apiService";
 import { FACULTY_LIST_PAGE } from "../constants/paths";
 import TextField from "../components/TextField";
+import getErrorMessages from "../utils/error";
 
 const EditFacultyPage = () => {
 	const { code } = useParams();
@@ -12,7 +13,7 @@ const EditFacultyPage = () => {
 		code: "",
 		name: "",
 	});
-	const [errors, setErrors] = useState({});
+	const [errors, setErrors] = useState([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [loading, setLoading] = useState(true);
 
@@ -23,7 +24,7 @@ const EditFacultyPage = () => {
 				const response = await api.getFaculty(code);
 				setFaculty(response);
 			} catch (error) {
-				console.error("Error fetching faculty details:", error);
+				setErrors(getErrorMessages(error));
 				navigate(FACULTY_LIST_PAGE); // Redirect if faculty not found
 			} finally {
 				setLoading(false);
@@ -38,30 +39,18 @@ const EditFacultyPage = () => {
 			...prev,
 			[fieldName]: value,
 		}));
-
-		// Clear error when user starts typing
-		if (errors[fieldName]) {
-			setErrors((prev) => ({
-				...prev,
-				[fieldName]: "",
-			}));
-		}
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setIsSubmitting(true);
-		setErrors({});
+		setErrors([]);
 
 		try {
 			await api.updateFaculty(code, faculty);
 			navigate(FACULTY_LIST_PAGE);
 		} catch (error) {
-			if (error.response && error.response.data) {
-				setErrors(error.response.data.errors || {});
-			} else {
-				console.error("Error updating faculty:", error);
-			}
+			setErrors(getErrorMessages(error));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -105,7 +94,18 @@ const EditFacultyPage = () => {
 					onChange={(value) => handleInputChange(value, "name")}
 					icon={"bi bi-hash text-secondary"}
 				/>
-				{errors.name && <div className={styles.error}>{errors.name}</div>}
+				{errors &&
+					errors.map(
+						(err, i) =>
+							err && (
+								<div
+									key={i}
+									className={styles.error}
+								>
+									{err}
+								</div>
+							)
+					)}
 
 				<button
 					type="submit"

@@ -10,6 +10,10 @@
 	--primary50: #f0e1e1;
 	--danger: #dc3545;
 	--danger-hover: #c82333;
+	--danger-background: #f8d7da;
+	--success: #28a745;
+	--success-hover: #24903d;
+	--success-background: #bfeac9;
 	font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;

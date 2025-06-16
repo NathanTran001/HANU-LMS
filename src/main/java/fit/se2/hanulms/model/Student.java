@@ -1,9 +1,6 @@
 package fit.se2.hanulms.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -13,37 +10,32 @@ import java.util.Set;
 @Entity
 @PrimaryKeyJoinColumn(name = "user_id")
 @DiscriminatorValue("STUDENT")
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id")
 public class Student extends LMSUser {
 
     private String name;
     private String email;
 
     @ManyToOne
-    @JsonIgnoreProperties(ignoreUnknown = true, value = {"students"})
     private Faculty faculty;
 
-    @ManyToMany(cascade = CascadeType.REMOVE)
+    @ManyToMany
     @JoinTable(
             name = "student_courses",
             joinColumns = @JoinColumn(name = "student_id"),
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
-    @JsonIgnoreProperties(ignoreUnknown = true, value = {"students"})
     private List<Course> courses;
 
     public Student() {
         super();
     }
 
-    public Student(UserTemplate userTemplate, PasswordEncoder passwordEncoder) {
+    public Student(UserTemplate userTemplate, PasswordEncoder passwordEncoder, Faculty faculty) {
         super(userTemplate, passwordEncoder, Set.of(Role.STUDENT));
 
         this.name = userTemplate.getName();
         this.email = userTemplate.getEmail();
-        this.faculty = userTemplate.getFaculty();
+        this.faculty = faculty;
     }
 
     // Getters and Setters for student-specific attributes only

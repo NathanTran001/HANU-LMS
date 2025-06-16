@@ -6,20 +6,21 @@ import { LECTURER_LIST_PAGE } from "../constants/paths";
 import TextField from "../components/TextField";
 import PasswordField from "../components/PasswordField";
 import DropdownField from "../components/DropdownField";
+import getErrorMessages from "../utils/error";
 
 const EditLecturerPage = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const [academicUser, setLecturer] = useState({
+	const [lecturer, setLecturer] = useState({
 		id: "",
 		name: "",
-		faculty: "", // store faculty code here
+		facultyCode: "",
 		email: "",
 		username: "",
 		password: "",
 	});
 	const [faculties, setFaculties] = useState([]);
-	const [errors, setErrors] = useState({});
+	const [errors, setErrors] = useState([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [loading, setLoading] = useState(true);
 
@@ -28,17 +29,16 @@ const EditLecturerPage = () => {
 			try {
 				const [lecturerRes, facultiesRes] = await Promise.all([
 					api.getLecturer(id),
-					api.getFaculties(0, 100),
+					api.getAllFaculties(),
 				]);
 
 				setLecturer({
 					...lecturerRes,
-					faculty: lecturerRes.faculty?.code || "", // store code only
 					password: "",
 				});
-				setFaculties(facultiesRes.content); // store full objects
-			} catch {
-				setErrors({ form: "Failed to load data." });
+				setFaculties(facultiesRes); // store full objects
+			} catch (error) {
+				setErrors(getErrorMessages(error));
 			} finally {
 				setLoading(false);
 			}
@@ -47,43 +47,17 @@ const EditLecturerPage = () => {
 	}, [id]);
 
 	const handleInputChange = (value, field) => {
-		setLecturer({ ...academicUser, [field]: value });
-	};
-
-	const validate = () => {
-		const errs = {};
-		if (!academicUser.name) errs.name = "Name is required";
-		if (!academicUser.faculty) errs.faculty = "Faculty is required";
-		if (!academicUser.email) errs.email = "Email is required";
-		return errs;
+		setLecturer({ ...lecturer, [field]: value });
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		const errs = validate();
-		if (Object.keys(errs).length) {
-			setErrors(errs);
-			return;
-		}
 		setIsSubmitting(true);
 		try {
-			// Find the selected faculty object by code
-			const selectedFaculty = faculties.find(
-				(f) => f.code === academicUser.faculty
-			);
-			if (!selectedFaculty) {
-				setErrors({ faculty: "Selected faculty not found." });
-				setIsSubmitting(false);
-				return;
-			}
-			const lecturerToSend = {
-				...academicUser,
-				faculty: selectedFaculty,
-			};
-			await api.updateLecturer(id, lecturerToSend);
+			await api.updateLecturer(id, lecturer);
 			navigate(LECTURER_LIST_PAGE);
 		} catch (error) {
-			setErrors({ form: "Failed to update academicUser. Please try again." });
+			setErrors(getErrorMessages(error));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -109,21 +83,21 @@ const EditLecturerPage = () => {
 			>
 				<TextField
 					label="ID"
-					value={academicUser.id}
+					value={lecturer.id}
 					readonly
 				/>
 				<TextField
 					label="Full Name"
 					required
-					value={academicUser.name}
+					value={lecturer.name}
 					onChange={(v) => handleInputChange(v, "name")}
 					icon="person"
 				/>
 				<DropdownField
 					label="Faculty"
 					required
-					value={academicUser.faculty}
-					onChange={(v) => handleInputChange(v, "faculty")}
+					value={lecturer.facultyCode}
+					onChange={(v) => handleInputChange(v, "facultyCode")}
 					options={faculties.map((f) => ({
 						value: f.code,
 						label: `${f.code} - ${f.name}`,
@@ -132,33 +106,34 @@ const EditLecturerPage = () => {
 				<TextField
 					label="Email"
 					required
-					value={academicUser.email}
+					value={lecturer.email}
 					onChange={(v) => handleInputChange(v, "email")}
 					icon="envelope"
 				/>
 				<TextField
 					label="Username"
-					value={academicUser.username}
+					value={lecturer.username}
 					icon="person-badge"
 					readonly
 				/>
 				<PasswordField
 					label="Password"
 					placeholder="Leave blank to keep unchanged"
-					value={academicUser.password}
+					value={lecturer.password}
 					onChange={(v) => handleInputChange(v, "password")}
 				/>
-				{Object.values(errors).map(
-					(err, i) =>
-						err && (
-							<div
-								key={i}
-								className={styles.error}
-							>
-								{err}
-							</div>
-						)
-				)}
+				{errors &&
+					errors.map(
+						(err, i) =>
+							err && (
+								<div
+									key={i}
+									className={styles.error}
+								>
+									{err}
+								</div>
+							)
+					)}
 				<button
 					type="submit"
 					className={styles.btn}

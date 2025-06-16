@@ -127,12 +127,12 @@ const api = {
 		}),
 
 	// Course operations
-	getCourses: (username, page = 0, size = 10) =>
-		api.get("/api/courses", { params: { username, page, size } }),
-	getCourse: (id) => api.get(`/api/courses/${id}`),
+	getCourses: (page = 0, size = 10) =>
+		api.get("/api/courses", { params: { page, size } }),
+	getCourse: (code) => api.get(`/api/courses/${code}`),
 	createCourse: (data) => api.post("/api/courses", data),
-	updateCourse: (id, data) => api.put(`/api/courses/${id}`, data),
-	deleteCourse: (id) => api.delete(`/api/courses/${id}`),
+	updateCourse: (code, data) => api.put(`/api/courses/${code}`, data),
+	deleteCourse: (code) => api.delete(`/api/courses/${code}`),
 	getCoursesByFaculty: (facultyId) =>
 		api.get(`/api/courses/faculty/${facultyId}`),
 	searchCourse: (searchPhrase, page = 0, size = 10) =>

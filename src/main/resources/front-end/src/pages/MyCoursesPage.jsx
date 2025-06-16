@@ -10,7 +10,7 @@ import CourseItem from "../components/CourseItem";
 const MyCoursesPage = () => {
 	const [courses, setCourses] = useState([]);
 	const [message, setMessage] = useState("");
-	const [activeModal, setActiveModal] = useState(null);
+	const [error, setError] = useState("");
 	const { isAuthenticated, user, checkAuthStatus, loading } = useAuth();
 
 	useEffect(() => {
@@ -26,33 +26,14 @@ const MyCoursesPage = () => {
 			// const coursesData = await response.json();
 
 			// Placeholder data for demonstration
-			const coursesData = await api.getCourses(user.username);
+			const coursesData = await api.getCourses();
+			console.log("Courses fetched: " + coursesData.content);
 
-			setCourses(Array.isArray(coursesData.content) ? coursesData.content : []);
+			setCourses(coursesData.content);
 		} catch (error) {
 			console.error("Error fetching courses:", error);
 			setMessage("Error loading courses");
 		}
-	};
-
-	const onEditClick = (courseCode) => {
-		window.location.href = `/editCourse/${courseCode}`;
-	};
-
-	const onCreateClick = () => {
-		window.location.href = "/createCourse";
-	};
-
-	const onDeleteClick = (courseCode) => {
-		window.location.href = `/deleteCourse/${courseCode}`;
-	};
-
-	const openModal = (courseCode) => {
-		setActiveModal(courseCode);
-	};
-
-	const closeModal = () => {
-		setActiveModal(null);
 	};
 
 	return (
@@ -79,16 +60,13 @@ const MyCoursesPage = () => {
 					{message}
 				</div>
 			)}
+			{error && <div className={styles.textError}>{error}</div>}
 			{courses.map((course) => (
 				<CourseItem
 					key={course.code}
 					course={course}
 					user={user}
-					activeModal={activeModal}
-					openModal={openModal}
-					closeModal={closeModal}
-					onEditClick={onEditClick}
-					onDeleteClick={onDeleteClick}
+					setError={setError}
 				/>
 			))}
 		</div>

@@ -63,7 +63,7 @@ const StudentListPage = () => {
 			console.error("Error fetching students:", error);
 			if (error.response && error.response.status === 403) {
 				setError("You are not authorized to access this resource (403)");
-				navigate(LOGIN_PAGE);
+				// navigate(LOGIN_PAGE);
 			} else {
 				setError("Network error occurred");
 			}

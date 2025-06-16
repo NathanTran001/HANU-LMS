@@ -5,12 +5,15 @@ import fit.se2.hanulms.model.*;
 import fit.se2.hanulms.model.DTO.FacultyDTO;
 import fit.se2.hanulms.model.DTO.LecturerDTO;
 import fit.se2.hanulms.model.DTO.StudentDTO;
+import fit.se2.hanulms.util.Error;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -28,6 +31,8 @@ public class AdminController {
     private CourseRepository courseRepository;
     @Autowired
     private PasswordEncoder p;
+    @Autowired
+    private Error error;
 
     // ==================== LECTURERS ====================
     @GetMapping("/lecturers")
@@ -44,27 +49,59 @@ public class AdminController {
                     .body(Map.of("error", "Lecturer not found"));
         }
 
-        return ResponseEntity.ok(existing.get());
+        return ResponseEntity.ok(new LecturerDTO(existing.get()));
     }
 
     @PostMapping("/lecturers")
-    public ResponseEntity<?> createLecturer(@Valid @RequestBody UserTemplate userTemplate) {
+    public ResponseEntity<?> createLecturer(@Valid @RequestBody UserTemplate userTemplate, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(error.getErrorMessages(result));
+        }
+
         // Check username uniqueness across all users (lecturers, students, admins)
         if (lecturerRepository.existsByUsername(userTemplate.getUsername()) ||
                 studentRepository.existsByUsername(userTemplate.getUsername())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Username already exists"));
+                    .body(List.of("Username already exists"));
         }
 
-        Lecturer newLecturer = new Lecturer(userTemplate, p);
-        return ResponseEntity.status(HttpStatus.CREATED).body(lecturerRepository.save(newLecturer));
+        String facultyCode = userTemplate.getFacultyCode();
+        if (!facultyRepository.existsById(facultyCode)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(List.of("No faculty found with faculty code " + facultyCode));
+        }
+
+        Lecturer newLecturer = new Lecturer(userTemplate, p, facultyRepository.getReferenceById(facultyCode));
+        lecturerRepository.save(newLecturer);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new LecturerDTO(newLecturer));
     }
 
     @PutMapping("/lecturers/{id}")
-    public ResponseEntity<?> editLecturer(@PathVariable Long id, @Valid @RequestBody UserTemplate userTemplate) {
-        Optional<Lecturer> chosenLecturer = lecturerRepository.findById(id);
-        if (chosenLecturer.isEmpty()) return ResponseEntity.notFound().build();
+    public ResponseEntity<?> editLecturer(@PathVariable Long id,
+                                          @Valid
+                                          @RequestBody UserTemplate userTemplate,
+                                          BindingResult result) {
+        boolean hasNonPasswordErrors = false;
+        if (userTemplate.getPassword() == null || userTemplate.getPassword().trim().isEmpty()) {
+            hasNonPasswordErrors = result.getFieldErrors().stream()
+                    .anyMatch(error -> !"password".equals(error.getField()));
+            hasNonPasswordErrors = hasNonPasswordErrors || result.getGlobalErrors().size() > 0;
+        } else {
+            hasNonPasswordErrors = result.hasErrors();
+        }
 
+        if (hasNonPasswordErrors) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(error.getErrorMessages(result));
+        }
+
+        Optional<Lecturer> chosenLecturer = lecturerRepository.findById(id);
+        Optional<Faculty> chosenFaculty = facultyRepository.findById(userTemplate.getFacultyCode());
+        if (chosenLecturer.isEmpty() || chosenFaculty.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(List.of("Lecturer or Faculty not found!"));
+        }
         Lecturer lecturer = chosenLecturer.get();
         lecturer.setName(userTemplate.getName());
         lecturer.setEmail(userTemplate.getEmail());
@@ -74,8 +111,9 @@ public class AdminController {
             lecturer.setPassword(p.encode(userTemplate.getPassword()));
         }
 
-        lecturer.setFaculty(userTemplate.getFaculty());
-        return ResponseEntity.ok(lecturerRepository.save(lecturer));
+        lecturer.setFaculty(chosenFaculty.get());
+        lecturerRepository.save(lecturer);
+        return ResponseEntity.ok(new LecturerDTO(lecturer));
     }
 
     @DeleteMapping("/lecturers/{id}")
@@ -117,22 +155,55 @@ public class AdminController {
     }
 
     @PostMapping("/students")
-    public ResponseEntity<?> createStudent(@Valid @RequestBody UserTemplate userTemplate) {
+    public ResponseEntity<?> createStudent(@Valid @RequestBody UserTemplate userTemplate, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(error.getErrorMessages(result));
+        }
+
         // Check username uniqueness across all users
         if (lecturerRepository.existsByUsername(userTemplate.getUsername()) ||
                 studentRepository.existsByUsername(userTemplate.getUsername())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Username already exists"));
+                    .body(List.of("Username already exists"));
         }
 
-        Student newStudent = new Student(userTemplate, p);
-        return ResponseEntity.status(HttpStatus.CREATED).body(studentRepository.save(newStudent));
+        String facultyCode = userTemplate.getFacultyCode();
+        if (!facultyRepository.existsById(facultyCode)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(List.of("No faculty found with faculty code " + facultyCode));
+        }
+
+        Student newStudent = new Student(userTemplate, p, facultyRepository.getReferenceById(facultyCode));
+        studentRepository.save(newStudent);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new StudentDTO(newStudent));
     }
 
     @PutMapping("/students/{id}")
-    public ResponseEntity<?> editStudent(@PathVariable Long id, @Valid @RequestBody UserTemplate userTemplate) {
+    public ResponseEntity<?> editStudent(@PathVariable Long id,
+                                         @Valid
+                                         @RequestBody UserTemplate userTemplate,
+                                         BindingResult result) {
+        boolean hasNonPasswordErrors = false;
+        if (userTemplate.getPassword() == null || userTemplate.getPassword().trim().isEmpty()) {
+            hasNonPasswordErrors = result.getFieldErrors().stream()
+                    .anyMatch(error -> !"password".equals(error.getField()));
+            hasNonPasswordErrors = hasNonPasswordErrors || result.getGlobalErrors().size() > 0;
+        } else {
+            hasNonPasswordErrors = result.hasErrors();
+        }
+
+        if (hasNonPasswordErrors) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(error.getErrorMessages(result));
+        }
+
         Optional<Student> selectedStudent = studentRepository.findById(id);
-        if (selectedStudent.isEmpty()) return ResponseEntity.notFound().build();
+        Optional<Faculty> chosenFaculty = facultyRepository.findById(userTemplate.getFacultyCode());
+        if (selectedStudent.isEmpty() || chosenFaculty.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(List.of("Student or Faculty not found!"));
+        }
 
         Student student = selectedStudent.get();
         student.setName(userTemplate.getName());
@@ -143,8 +214,9 @@ public class AdminController {
             student.setPassword(p.encode(userTemplate.getPassword()));
         }
 
-        student.setFaculty(userTemplate.getFaculty());
-        return ResponseEntity.ok(studentRepository.save(student));
+        student.setFaculty(chosenFaculty.get());
+        studentRepository.save(student);
+        return ResponseEntity.ok(new StudentDTO(student));
     }
 
     @DeleteMapping("/students/{id}")
@@ -185,18 +257,18 @@ public class AdminController {
                     .body(Map.of("error", "Faculty not found"));
         }
 
-        return ResponseEntity.ok(existing.get());
+        return ResponseEntity.ok((new FacultyDTO(existing.get())));
     }
 
     @PostMapping("/faculties")
     public ResponseEntity<?> createFaculty(@Valid @RequestBody Faculty faculty) {
         if (facultyRepository.existsById(faculty.getCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("success", false, "error", "Faculty code already exists"));
+                    .body(List.of("Faculty code already exists"));
         }
         Faculty saved = facultyRepository.save(faculty);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("success", true, "faculty", saved, "message", "Faculty created successfully"));
+                .body(new FacultyDTO(saved));
     }
 
     @PutMapping("/faculties/{code}")
@@ -204,14 +276,14 @@ public class AdminController {
         Optional<Faculty> existing = facultyRepository.findById(code);
         if (existing.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Faculty not found"));
+                    .body(List.of("Faculty not found"));
         }
 
         Faculty existingFaculty = existing.get();
         existingFaculty.setName(faculty.getName());
 
         Faculty savedFaculty = facultyRepository.save(existingFaculty);
-        return ResponseEntity.ok(savedFaculty);
+        return ResponseEntity.ok(new FacultyDTO(savedFaculty));
     }
 
     @DeleteMapping("/faculties/{code}")
@@ -226,34 +298,34 @@ public class AdminController {
 
     // ==================== SEARCH ENDPOINTS ====================
     @GetMapping("/lecturers/search")
-    public ResponseEntity<Page<Lecturer>> searchLecturers(
+    public ResponseEntity<Page<LecturerDTO>> searchLecturers(
             @RequestParam String searchPhrase,
             Pageable pageable) {
 
         Page<Lecturer> lecturers = lecturerRepository
                 .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
                         searchPhrase, pageable);
-        return ResponseEntity.ok(lecturers);
+        return ResponseEntity.ok(lecturers.map(LecturerDTO::new));
     }
 
     @GetMapping("/students/search")
-    public ResponseEntity<Page<Student>> searchStudents(
+    public ResponseEntity<Page<StudentDTO>> searchStudents(
             @RequestParam String searchPhrase,
             Pageable pageable) {
 
         Page<Student> students = studentRepository
                 .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
                         searchPhrase, pageable);
-        return ResponseEntity.ok(students);
+        return ResponseEntity.ok(students.map(StudentDTO::new));
     }
 
     @GetMapping("/faculties/search")
-    public ResponseEntity<Page<Faculty>> searchFaculties(
+    public ResponseEntity<Page<FacultyDTO>> searchFaculties(
             @RequestParam String searchPhrase,
             Pageable pageable) {
 
         Page<Faculty> faculties = facultyRepository.findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase(
                 searchPhrase, pageable);
-        return ResponseEntity.ok(faculties);
+        return ResponseEntity.ok(faculties.map(FacultyDTO::new));
     }
 }
