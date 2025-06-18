@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # MySQL Database (replaces XAMPP MySQL)
+  mysql:
+    image: mysql:8.0
+    container_name: hanulms-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: hanulms
+      MYSQL_USER: hanulms_user
+      MYSQL_PASSWORD: hanulms_password
+    ports:
+      - "3306:3306"  # Same port as XAMPP for easy transition
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - hanulms-network
+
+  # phpMyAdmin (replaces XAMPP phpMyAdmin)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: hanulms-phpmyadmin
+    ports:
+      - "8081:80"  # Different from your Spring Boot port
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    depends_on:
+      - mysql
+    networks:
+      - hanulms-network
+
+  # MinIO Object Storage (new addition)
+  minio:
+    image: minio/minio
+    container_name: hanulms-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Web Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - minio_data:/data
+    networks:
+      - hanulms-network
+
+volumes:
+  mysql_data:
+  minio_data:
+
+networks:
+  hanulms-network:
+    driver: bridge

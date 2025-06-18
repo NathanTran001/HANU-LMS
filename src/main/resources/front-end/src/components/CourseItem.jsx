@@ -2,7 +2,7 @@ import { useState } from "react";
 import styles from "./styles/CourseItem.module.css";
 import { Link } from "react-router-dom";
 import { LECTURER } from "../constants/roles";
-import { EDIT_COURSE_PAGE } from "../constants/paths";
+import { COURSE_DETAIL_PAGE, EDIT_COURSE_PAGE } from "../constants/paths";
 import api from "../services/apiService";
 import getErrorMessage from "../utils/error";
 
@@ -11,8 +11,6 @@ const CourseItem = ({ course, user, setError }) => {
 
 	const openModal = () => setModalOpen(true);
 	const closeModal = () => setModalOpen(false);
-
-	const onEditClick = async () => {};
 
 	const onDeleteClick = async () => {
 		try {
@@ -29,7 +27,7 @@ const CourseItem = ({ course, user, setError }) => {
 			<div className={styles.courseTitleContainer}>
 				<Link
 					className={`${styles.courseTitle} ${styles.hyperlink}`}
-					to={EDIT_COURSE_PAGE.replace(":code", course.code)}
+					to={COURSE_DETAIL_PAGE.replace(":code", course.code)}
 				>
 					{course.code} - {course.name}
 				</Link>
@@ -37,12 +35,7 @@ const CourseItem = ({ course, user, setError }) => {
 				{user?.role === LECTURER && (
 					<div className={styles.buttonsContainer}>
 						<Link to={EDIT_COURSE_PAGE.replace(":code", course.code)}>
-							<button
-								className={styles.baseButton}
-								onClick={onEditClick}
-							>
-								Edit
-							</button>
+							<button className={styles.baseButton}>Edit</button>
 						</Link>
 						<button
 							className={styles.baseButton}

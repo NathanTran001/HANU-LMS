@@ -15,7 +15,6 @@ const SearchCoursePage = () => {
 	const [searchValue, setSearchValue] = useState(searchPhrase || "");
 	const [courses, setCourses] = useState([]);
 	const [message, setMessage] = useState("");
-	const [activeModal, setActiveModal] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [page, setPage] = useState(0);
 	const [pageSize] = useState(2);
@@ -56,22 +55,6 @@ const SearchCoursePage = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	const onEditClick = (courseCode) => {
-		window.location.href = `/editCourse/${courseCode}`;
-	};
-
-	const onDeleteClick = (courseCode) => {
-		window.location.href = `/deleteCourse/${courseCode}`;
-	};
-
-	const openModal = (courseCode) => {
-		setActiveModal(courseCode);
-	};
-
-	const closeModal = () => {
-		setActiveModal(null);
 	};
 
 	return (

@@ -28,6 +28,7 @@ import {
 	MY_COURSES_PAGE,
 	STUDENT_LIST_PAGE,
 	EDIT_COURSE_PAGE,
+	COURSE_DETAIL_PAGE,
 } from "./constants/paths.js";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
@@ -42,6 +43,7 @@ import RoleBasedRedirect from "./components/RoleBasedRedirect.jsx";
 import CreateCoursePage from "./pages/CreateCoursePage.jsx";
 import SearchCoursePage from "./pages/SearchCoursePage.jsx";
 import EditCoursePage from "./pages/EditCoursePage.jsx";
+import CourseDetailPage from "./pages/CourseDetailPage.jsx";
 
 const router = createBrowserRouter([
 	{
@@ -104,6 +106,10 @@ const router = createBrowserRouter([
 			{
 				path: SEARCH_COURSE_PAGE,
 				element: <SearchCoursePage />,
+			},
+			{
+				path: COURSE_DETAIL_PAGE,
+				element: <CourseDetailPage />,
 			},
 			// LECTURER PAGES
 			{
