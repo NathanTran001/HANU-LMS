@@ -1,8 +1,7 @@
 package fit.se2.hanulms;
 
-import fit.se2.hanulms.Repository.AdminRepository;
+import fit.se2.hanulms.repository.AdminRepository;
 import fit.se2.hanulms.model.Admin;
-import fit.se2.hanulms.model.LMSUser;
 import fit.se2.hanulms.model.Role;
 import fit.se2.hanulms.model.UserTemplate;
 import org.springframework.boot.CommandLineRunner;

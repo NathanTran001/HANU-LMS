@@ -4,33 +4,31 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @NotEmpty(message = "Please enter the title of topic")
     @Length(max = 20, message = "Max title length is 20 characters!")
     private String title;
-    @NotEmpty(message = "Please enter the description of topic")
-    @Length(max = 40, message = "Max description length is 40 characters!")
-    private String description;
     @ManyToOne
     private Course course;
-    //    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE)
-//    private List<TopicItem> topicItems;
     @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE)
-    private List<File> file;
-    @OneToMany(mappedBy = "topic", cascade = CascadeType.REMOVE)
-    private List<Assignment> assignments;
+    @OrderBy("displayOrder ASC")
+    private List<TopicItem> topicItems = new ArrayList<>();
 
-    public int getId() {
+    public Topic() {
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -50,28 +48,11 @@ public class Topic {
         this.course = course;
     }
 
-    public String getDescription() {
-        return description;
+    public List<TopicItem> getTopicItems() {
+        return topicItems;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTopicItems(List<TopicItem> topicItems) {
+        this.topicItems = topicItems;
     }
-
-    public List<File> getFile() {
-        return file;
-    }
-
-    public void setFile(List<File> file) {
-        this.file = file;
-    }
-
-    public void setAssignments(List<Assignment> assignments) {
-        this.assignments = assignments;
-    }
-
-    public List<Assignment> getAssignments() {
-        return assignments;
-    }
-
 }

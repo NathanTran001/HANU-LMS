@@ -49,7 +49,7 @@ const CourseItem = ({ course, user, setError }) => {
 
 			<p className={styles.courseDescription}>{course.description}</p>
 
-			<div className={styles.academicUsers}>
+			<div className={styles.lecturers}>
 				{course.lecturers.map((lecturer, index) => (
 					<span key={index}>
 						<span>{lecturer.name}</span>

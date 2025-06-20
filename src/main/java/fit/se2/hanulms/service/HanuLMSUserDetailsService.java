@@ -1,9 +1,8 @@
 package fit.se2.hanulms.service;
 
-import fit.se2.hanulms.Repository.AdminRepository;
-import fit.se2.hanulms.Repository.LMSUserRepository;
-import fit.se2.hanulms.Repository.LecturerRepository;
-import fit.se2.hanulms.Repository.StudentRepository;
+import fit.se2.hanulms.repository.AdminRepository;
+import fit.se2.hanulms.repository.LecturerRepository;
+import fit.se2.hanulms.repository.StudentRepository;
 import fit.se2.hanulms.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

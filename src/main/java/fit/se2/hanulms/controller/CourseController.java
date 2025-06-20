@@ -1,6 +1,6 @@
 package fit.se2.hanulms.controller;
 
-import fit.se2.hanulms.Repository.*;
+import fit.se2.hanulms.repository.*;
 import fit.se2.hanulms.model.*;
 import fit.se2.hanulms.model.DTO.CourseDTO;
 import fit.se2.hanulms.util.JwtUtil;
@@ -11,15 +11,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -39,8 +36,6 @@ public class CourseController {
     @Autowired
     AnnouncementRepository announcementRepository;
     @Autowired
-    FileRepository fileRepository;
-    @Autowired
     AssignmentRepository assignmentRepository;
 
     // ============== COURSE ENDPOINTS ==============
@@ -50,13 +45,11 @@ public class CourseController {
             HttpServletRequest request,
             Pageable pageable) {
         String username = jwtUtil.extractUsername(jwtUtil.extractTokenFromCookie(request));
-        System.out.println("Username: " + username);
 
         // Check if user is a student
         Optional<Student> studentOpt = studentRepository.findByUsername(username);
         if (studentOpt.isPresent()) {
             Page<Course> courses = courseRepository.findAllByStudentsContaining(studentOpt.get(), pageable);
-            System.out.println("Original courses: " + courses.getTotalElements());
             Page<CourseDTO> courseDTOs = courses.map(CourseDTO::new);
             System.out.println("Courses: " + courseDTOs);
             return ResponseEntity.ok(courseDTOs);

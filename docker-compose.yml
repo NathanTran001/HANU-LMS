@@ -48,6 +48,28 @@ services:
       - minio_data:/data
     networks:
       - hanulms-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Auto-create MinIO bucket
+  minio-init:
+    image: minio/mc
+    container_name: hanulms-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin123;
+      /usr/bin/mc mb myminio/hanulms --ignore-existing;
+      /usr/bin/mc policy set public myminio/hanulms;
+      exit 0;
+      "
+    networks:
+      - hanulms-network
 
 volumes:
   mysql_data:

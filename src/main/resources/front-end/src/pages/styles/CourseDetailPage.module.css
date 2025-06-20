@@ -1,1 +1,114 @@
 @import "../../index.css";
+
+.courseDetailPage {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 2rem;
+}
+
+.createTopicBtn {
+	background: var(--primary500);
+	color: var(--accent-yellow);
+	border: none;
+	padding: 0.7rem 1.5rem;
+	border-radius: 4px;
+	font-size: 1rem;
+	margin-bottom: 1.5rem;
+	cursor: pointer;
+	transition: background 0.2s;
+	font-weight: bold;
+}
+
+.accordionSection {
+	border: 1px solid #e0e0e0;
+	border-radius: 6px;
+	margin-bottom: 1rem;
+	overflow: hidden;
+	background: #fafbfc;
+}
+
+.accordionHeader {
+	width: 100%;
+	text-align: left;
+	background: var(--primary500);
+	border: none;
+	padding: 0.5rem 1rem;
+	font-size: 1.1rem;
+	font-weight: bold;
+	cursor: pointer;
+	outline: none;
+	transition: background 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	color: var(--accent-yellow);
+}
+
+.accordionContent {
+	padding: 0 1rem;
+	background: #fff;
+	max-height: 0;
+	opacity: 0;
+	overflow: hidden;
+	transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+}
+
+.accordionContent.open {
+	opacity: 1;
+}
+
+.topicInput {
+	width: 100%;
+	padding: 0.5rem;
+	font-size: 1rem;
+	border: 1px solid #bdbdbd;
+	border-radius: 4px;
+}
+
+.iconBtn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 1.1rem;
+	margin-left: 0.5rem;
+	/* vertical-align: middle; */
+}
+
+.chevronWrapper {
+	display: flex;
+	align-items: center;
+	margin-right: 0.75rem;
+	gap: 0.5rem;
+}
+
+.chevronIcon {
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	font-size: 1.2rem;
+}
+
+.chevronOpen {
+	transform: rotate(90deg);
+}
+
+.topicTitle {
+	flex: 1;
+	display: flex;
+	align-items: center;
+}
+
+.actionBtn {
+	color: var(--accent-yellow);
+}
+
+.actionBtn:hover {
+	background-color: var(--accent-yellow);
+	color: var(--primary800);
+}
+
+.deleteBtn {
+	color: var(--accent-yellow);
+}
+
+.deleteBtn:hover {
+	color: var(--danger-hover);
+}

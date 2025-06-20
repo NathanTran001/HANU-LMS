@@ -1,79 +1,150 @@
 package fit.se2.hanulms.controller;
 
-import fit.se2.hanulms.Repository.CourseRepository;
-import fit.se2.hanulms.Repository.FileRepository;
-import fit.se2.hanulms.Repository.TopicRepository;
-import fit.se2.hanulms.model.*;
-import jakarta.validation.Valid;
+import fit.se2.hanulms.model.Topic;
+import fit.se2.hanulms.model.TopicItem;
+import fit.se2.hanulms.repository.CourseRepository;
+import fit.se2.hanulms.repository.TopicRepository;
+import fit.se2.hanulms.service.TopicItemService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-@Controller
-@RequestMapping(value="/myCourses/course-details")
+@RestController
+@RequestMapping("/api/topic-item")
 public class TopicItemController {
-    @Autowired
-    CourseRepository courseRepository;
 
     @Autowired
-    FileRepository fileRepository;
+    private CourseRepository courseRepository;
 
     @Autowired
-    TopicRepository topicRepository;
+    private TopicRepository topicRepository;
 
-    @PostMapping (value="/{code}/{topicId}/upload-file/{type}")
-    public String uploadFile (@PathVariable(value="code") String code, @PathVariable(value="type") String type, @PathVariable(value = "topicId") Long topicId, @Valid FileDTO fileDTO, BindingResult result) {
-//        Course course = courseRepository.getReferenceById(code);
-        Topic topic = topicRepository.getReferenceById(topicId);
-        System.out.println(fileDTO.getFileTitle());
-        File file = new File();
-        if (result.hasErrors()){
-            System.out.println(result.getAllErrors());
-            String errors = "Bad uploading a file";
-            System.out.println("Errors :"+ errors);
-            return "redirect:/myCourses/course-details/"+ code+"?error="+ errors;
+    @Autowired
+    private TopicItemService topicItemService;
+
+    /**
+     * Create a URL-type topic item
+     */
+    @PostMapping("/url")
+    public ResponseEntity<?> createUrlItem(
+            @RequestParam String title,
+            @RequestParam String url,
+            @RequestParam Long topicId) {
+        try {
+            Topic topic = topicRepository.findById(topicId)
+                    .orElseThrow(() -> new RuntimeException("Topic not found"));
+
+            TopicItem item = topicItemService.createUrlItem(title, url, topic);
+            return ResponseEntity.ok(item);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(List.of(e.getMessage()));
         }
-        else {
-            // save image file
-            MultipartFile attachment = fileDTO.getFileData();
-            if (!attachment.isEmpty()) {
-                System.out.println("Not null");
-                Date createdAt = new Date();
-                String storageFileName = createdAt.getTime() + "_" + attachment.getOriginalFilename();
+    }
 
-                try {
-                    String uploadDir = "src/main/resources/static/images/";
-                    Path uploadPath = Paths.get(uploadDir);
+    /**
+     * Create a FILE-type topic item
+     */
+    @PostMapping("/file")
+    public ResponseEntity<?> createFileItem(
+            @RequestParam String title,
+            @RequestParam MultipartFile file,
+            @RequestParam Long topicId) {
+        try {
+            Topic topic = topicRepository.findById(topicId)
+                    .orElseThrow(() -> new RuntimeException("Topic not found"));
 
-                    if (!Files.exists(uploadPath)) {
-                        Files.createDirectories(uploadPath);
-                    }
-                    try (InputStream inputStream = attachment.getInputStream()) {
-                        Files.copy(inputStream, Paths.get(uploadDir + storageFileName),
-                                StandardCopyOption.REPLACE_EXISTING);
-                    }
-                } catch (Exception e) {
-                    System.out.println("Exception: " + e.getMessage());
-                }
-                file.setLink(storageFileName);
-            }
-            file.setType(type);
-            file.setName(fileDTO.getFileTitle());
-            file.setType(fileDTO.getType());
-            file.setTopic(topic);
-            fileRepository.save(file);
-            return "redirect:/myCourses/course-details/"+ code;
+            TopicItem item = topicItemService.createFileItem(title, file, topic);
+            return ResponseEntity.ok(item);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(List.of(e.getMessage()));
+        }
+    }
+
+    /**
+     * Create a FOLDER-type topic item (ZIP file)
+     */
+    @PostMapping("/folder")
+    public ResponseEntity<?> createFolderItem(
+            @RequestParam String title,
+            @RequestParam MultipartFile file,
+            @RequestParam Long topicId) {
+        try {
+            Topic topic = topicRepository.findById(topicId)
+                    .orElseThrow(() -> new RuntimeException("Topic not found"));
+
+            TopicItem item = topicItemService.createFolderItem(title, file, topic);
+            return ResponseEntity.ok(item);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(List.of(e.getMessage()));
+        }
+    }
+
+    /**
+     * Update topic item (title and URL for URL-type items)
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTopicItem(
+            @PathVariable Long id,
+            @RequestParam String title,
+            @RequestParam(required = false) String url) {
+        try {
+            TopicItem item = topicItemService.updateTopicItem(id, title, url);
+            return ResponseEntity.ok(item);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(List.of(e.getMessage()));
+        }
+    }
+
+    /**
+     * Replace file for an existing file-type topic item
+     */
+    @PutMapping("/{id}/file")
+    public ResponseEntity<?> replaceFile(
+            @PathVariable Long id,
+            @RequestParam MultipartFile file) {
+        try {
+            TopicItem item = topicItemService.replaceFile(id, file);
+            return ResponseEntity.ok(item);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(List.of(e.getMessage()));
+        }
+    }
+
+    /**
+     * Get file download URL for file-type topic items
+     */
+    @GetMapping("/{id}/download")
+    public ResponseEntity<?> getFileDownloadUrl(@PathVariable Long id) {
+        try {
+            String downloadUrl = topicItemService.getFileDownloadUrl(id);
+            return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Delete topic item
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTopicItem(@PathVariable Long id) {
+        try {
+            topicItemService.deleteTopicItem(id);
+            return ResponseEntity.ok(List.of("Topic item deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }

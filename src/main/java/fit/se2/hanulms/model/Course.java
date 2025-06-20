@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,7 +23,7 @@ public class Course {
     @ManyToMany(mappedBy = "courses")
     private List<Student> students;
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
-    private List<Topic> topics;
+    private List<Topic> topics = new ArrayList<>();
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Announcement> announcements;
 

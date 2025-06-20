@@ -9,9 +9,9 @@ const apiClient = axios.create({
 	baseURL: API_BASE_URL,
 	timeout: 10000,
 	withCredentials: true, // Include cookies in requests
-	headers: {
-		"Content-Type": "application/json",
-	},
+	// headers: {
+	// 	"Content-Type": "application/json",
+	// },
 });
 
 // Response interceptor for error handling
@@ -126,7 +126,7 @@ const api = {
 			},
 		}),
 
-	// Course operations
+	// COURSE
 	getCourses: (page = 0, size = 10) =>
 		api.get("/api/courses", { params: { page, size } }),
 	getCourse: (code) => api.get(`/api/courses/${code}`),
@@ -140,27 +140,43 @@ const api = {
 			params: { searchPhrase, page, size },
 		}),
 
-	// File upload
-	uploadFile: async (endpoint, file, additionalData = {}) => {
+	// TOPIC
+	createTopic: (courseCode, topic) =>
+		api.post(`/api/topic/${courseCode}`, topic),
+	updateTopic: (id, topic) => api.put(`/api/topic/${id}`, topic),
+	deleteTopic: (id) => api.delete(`/api/topic/${id}`),
+
+	// TOPIC ITEM
+	createUrlTopicItem: (title, url, topicId) =>
+		api.post("/api/topic-item/url", null, { params: { title, url, topicId } }),
+
+	createFileTopicItem: (title, file, topicId) => {
+		const formData = new FormData();
+		formData.append("title", title);
+		formData.append("file", file);
+		formData.append("topicId", topicId);
+		return api.post("/api/topic-item/file", formData);
+	},
+
+	createFolderTopicItem: (title, file, topicId) => {
+		const formData = new FormData();
+		formData.append("title", title);
+		formData.append("file", file);
+		formData.append("topicId", topicId);
+		return api.post("/api/topic-item/folder", formData);
+	},
+
+	updateTopicItem: (id, title, url) =>
+		api.put(`/api/topic-item/${id}`, null, { params: { title, url } }),
+
+	replaceTopicItemFile: (id, file) => {
 		const formData = new FormData();
 		formData.append("file", file);
-
-		Object.keys(additionalData).forEach((key) => {
-			formData.append(key, additionalData[key]);
-		});
-
-		try {
-			const response = await apiClient.post(endpoint, formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			});
-			return response.data;
-		} catch (error) {
-			console.error(`File upload to ${endpoint} failed:`, error);
-			throw error;
-		}
+		return api.put(`/api/topic-item/${id}/file`, formData);
 	},
+	getTopicItemDownloadUrl: (id) => api.get(`/api/topic-item/${id}/download`),
+
+	deleteTopicItem: (id) => api.delete(`/api/topic-item/${id}`),
 };
 
 export { API_BASE_URL };

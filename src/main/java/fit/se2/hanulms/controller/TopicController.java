@@ -1,140 +1,103 @@
-//package fit.se2.hanulms.controller;
-//
-//import fit.se2.hanulms.Repository.*;
-//import fit.se2.hanulms.model.*;
-//import jakarta.validation.Valid;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.core.annotation.AuthenticationPrincipal;
-//import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
-//import org.springframework.validation.BindingResult;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.multipart.MultipartFile;
-//
-//
-//import java.io.InputStream;
-//import java.nio.file.Files;
-//import java.nio.file.Path;
-//import java.nio.file.Paths;
-//import java.nio.file.StandardCopyOption;
-//import java.util.Date;
-//import java.util.List;
-//
-//@Controller
-//public class TopicController {
-//   @Autowired
-//    TopicRepository topicRepository;
-//   @Autowired
-//    CourseRepository courseRepository;
-//   @Autowired
-//    AnnouncementRepository announcementRepository;
-//   @Autowired
-//    FileRepository fileRepository;
-//   @Autowired
-//   StudentRepository studentRepository;
-//
-//    @RequestMapping(value = "/myCourses/course-details/{code}")
-//    public String getCourseDetailById (@PathVariable (value="code") String code,
-//                                       @RequestParam(value="error", required = false, defaultValue = "default")
-//                                       String error, Model model,
-//                                       @AuthenticationPrincipal UserDetails userDetails){
-//        Course course = courseRepository.findById(code).get();
-//        List<Announcement> announcements = course.getAnnouncements();
-//        List<Topic> topics = course.getTopics();
-//        Topic topic = new Topic();
-//        FileDTO fileDTO = new FileDTO();
-//        List<File> files = fileRepository.findAll();
-//        AnnouncementDTO announcementDTO = new AnnouncementDTO();
-//        model.addAttribute("files", files);
-//        model.addAttribute("fileDTO", fileDTO);
-//        model.addAttribute("announcements", announcements);
-//        model.addAttribute("announcementDTO", announcementDTO);
-//        model.addAttribute("course", course);
-//        model.addAttribute("topics", topics);
-//        model.addAttribute("topic", topic);
-//        model.addAttribute("error", error);
-//        if (userDetails.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("LECTURER"))) {
-//            return "/lecturer/course-resource/course-details";
-//        } else if (userDetails.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("STUDENT"))) {
-//            List<Student> allStudents = studentRepository.findAll();
-//            Student thisStudent = new Student();
-//            for (Student student : allStudents) {
-//                if (student.getUsername().equals(userDetails.getUsername())) {
-//                    thisStudent = student;
-//                }
-//            }
-//            model.addAttribute("thisStudent", thisStudent);
-//            if (thisStudent.getCourses().contains(course)) {
-//                return "/student/course-details-enroled";
-//            }
-//            return "/student/course-details-unenroled";
-//        }
-//        return "redirect:/";
-//    }
-//
-//   @PostMapping(value="/myCourses/course-details/{code}/create-topic")
-//    public String insertTopic(@PathVariable(value="code") String code,@Valid Topic topic, BindingResult result  ,Model model, @RequestBody String topicDescription){
-//       Course course = courseRepository.getReferenceById(code);
-//       if (result.hasErrors()){
-//           String errors = "Bad creating a topic";
-//           System.out.println("Errors :"+ errors);
-//          return "redirect:/myCourses/course-details/"+ code+"?error="+ errors;
-//       }
-//       else {
-//           topic.setCourse(course);
-//           topicRepository.save(topic);
-//           return "redirect:/myCourses/course-details/"+ code;
-//       }
-//   }
-//
-//    @PostMapping(value="/myCourses/course-details/{code}/create-announcement")
-//    public String insertAnnouncement(@PathVariable(value="code") String code, @Valid AnnouncementDTO announcementDTO, BindingResult result  , Model model){
-//        Course course = courseRepository.getReferenceById(code);
-//        Announcement announcement = new Announcement();
-//        if (result.hasErrors()){
-//            System.out.println(result.getAllErrors());
-//            String errors = "Bad creating an announcement";
-//            System.out.println("Errors :"+ errors);
-//            return "redirect:/myCourses/course-details/"+ code+"?error="+ errors;
-//        }
-//        else {
-//            // save image file
-//            MultipartFile attachment = announcementDTO.getAttachment();
-//            if (!attachment.isEmpty()) {
-//                System.out.println("Not null");
-//                Date createdAt = new Date();
-//                String storageFileName = createdAt.getTime() + "_" + attachment.getOriginalFilename();
-//
-//                try {
-//                    String uploadDir = "src/main/resources/static/images/";
-//                    Path uploadPath = Paths.get(uploadDir);
-//
-//                    if (!Files.exists(uploadPath)) {
-//                        Files.createDirectories(uploadPath);
-//                    }
-//                    try (InputStream inputStream = attachment.getInputStream()) {
-//                        Files.copy(inputStream, Paths.get(uploadDir + storageFileName),
-//                                StandardCopyOption.REPLACE_EXISTING);
-//                    }
-//                } catch (Exception e) {
-//                    System.out.println("Exception: " + e.getMessage());
-//                }
-//                announcement.setAttachment(storageFileName);
-//            }
-//            announcement.setTitle(announcementDTO.getAnnouncementTitle());
-//            announcement.setDescription(announcementDTO.getAnnouncementDescription());
-//            announcement.setCourse(course);
-//            announcementRepository.save(announcement);
-//            return "redirect:/myCourses/course-details/"+ code;
-//        }
-//    }
-//
-//
-//
-//
-//
-//
-//
-//
-//}
+package fit.se2.hanulms.controller;
+
+import fit.se2.hanulms.model.Course;
+import fit.se2.hanulms.model.DTO.TopicDTO;
+import fit.se2.hanulms.model.Topic;
+import fit.se2.hanulms.repository.*;
+import fit.se2.hanulms.util.Error;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/topic")
+public class TopicController {
+    @Autowired
+    TopicRepository topicRepository;
+    @Autowired
+    CourseRepository courseRepository;
+    @Autowired
+    AnnouncementRepository announcementRepository;
+    @Autowired
+    StudentRepository studentRepository;
+    @Autowired
+    Error error;
+
+    // CREATE
+    @PostMapping("/{courseCode}")
+    public ResponseEntity<?> createTopic(@PathVariable String courseCode,
+                                         @Valid @RequestBody Topic topic,
+                                         BindingResult result) {
+        if (!result.getFieldErrors("title").isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error.getErrorMessages(result));
+        }
+        if (courseCode == null || courseCode.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of("Invalid course code!"));
+        } else {
+            if (!courseRepository.existsById(courseCode)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(List.of("No course found with course code: " + courseCode));
+            }
+        }
+        Course course = courseRepository.getReferenceById(courseCode);
+        List<Topic> topics = course.getTopics();
+        topics.add(topic);
+        course.setTopics(topics);
+        topic.setCourse(course);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new TopicDTO(topicRepository.save(topic)));
+    }
+
+    // READ ALL
+    @GetMapping
+    public ResponseEntity<List<TopicDTO>> getAllTopics() {
+        return ResponseEntity.ok(topicRepository.findAll().stream().map(TopicDTO::new).collect(Collectors.toList()));
+    }
+
+    // READ ONE
+    @GetMapping("/{id}")
+    public ResponseEntity<TopicDTO> getTopic(@PathVariable Long id) {
+        Topic topic = topicRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Topic not found"));
+        return ResponseEntity.ok(new TopicDTO(topic));
+    }
+
+    // UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTopic(@PathVariable Long id,
+                                         @Valid @RequestBody Topic updatedTopic,
+                                         BindingResult result) {
+        if (!result.getFieldErrors("title").isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error.getErrorMessages(result));
+        }
+
+        Optional<Topic> topicOptional = topicRepository.findById(id);
+        if (topicOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of("No topic found with id: " + id));
+        }
+
+        Topic topic = topicOptional.get();
+        topic.setTitle(updatedTopic.getTitle());
+
+        Topic savedTopic = topicRepository.save(topic);
+        return ResponseEntity.ok(new TopicDTO(savedTopic));
+    }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTopic(@PathVariable Long id) {
+        if (!topicRepository.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of("No topic found with id: " + id));
+        }
+        topicRepository.deleteById(id);
+        return ResponseEntity.noContent().build(); // 204 No Content
+    }
+}

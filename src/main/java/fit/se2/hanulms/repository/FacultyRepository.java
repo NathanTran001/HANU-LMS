@@ -1,6 +1,5 @@
-package fit.se2.hanulms.Repository;
+package fit.se2.hanulms.repository;
 
-import fit.se2.hanulms.model.DTO.FacultyDTO;
 import fit.se2.hanulms.model.Faculty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

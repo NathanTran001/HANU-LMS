@@ -156,10 +156,6 @@ const EditCoursePage = () => {
 								value={course.description}
 								onChange={(e) => handleInputChange(e, "description")}
 							/>
-							{errors.description && (
-								<div className={styles.error}>{errors.description}</div>
-							)}
-							{errors.form && <div className={styles.error}>{errors.form}</div>}
 							<div className={styles.buttonGroup}>
 								<button
 									type="button"
@@ -195,6 +191,18 @@ const EditCoursePage = () => {
 						/>
 					</div>
 				</div>
+				{errors &&
+					errors.map(
+						(err, i) =>
+							err && (
+								<div
+									key={i}
+									className={styles.error}
+								>
+									{err}
+								</div>
+							)
+					)}
 			</form>
 		</div>
 	);

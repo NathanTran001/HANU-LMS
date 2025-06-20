@@ -1,11 +1,10 @@
 package fit.se2.hanulms.controller;
 
-import fit.se2.hanulms.Repository.*;
+import fit.se2.hanulms.repository.*;
 import fit.se2.hanulms.model.*;
 import fit.se2.hanulms.model.DTO.FacultyDTO;
 import fit.se2.hanulms.model.DTO.LecturerDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +27,6 @@ public class LecturerController {
     TopicRepository topicRepository;
     @Autowired
     AnnouncementRepository announcementRepository;
-    @Autowired
-    FileRepository fileRepository;
     @Autowired
     AssignmentRepository assignmentRepository;
 

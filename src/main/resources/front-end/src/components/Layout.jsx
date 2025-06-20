@@ -7,34 +7,12 @@ import { Outlet, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import { LOGIN_PAGE } from "../constants/paths";
 import { ADMIN, LECTURER, STUDENT } from "../constants/roles";
+import { useAuth } from "../contexts/AuthContext";
 
 const Layout = () => {
-	const [userRole, setUserRole] = useState("");
-	const [loading, setLoading] = useState(true);
-	const navigate = useNavigate();
+	const { user } = useAuth();
 
-	useEffect(() => {
-		const fetchUserRole = async () => {
-			try {
-				const role = await getUserRole();
-				console.log(`User role fetched: ${role}`);
-
-				setUserRole(role);
-			} catch (error) {
-				console.error("Error fetching user role:", error);
-				// navigate(LOGIN_PAGE);
-			} finally {
-				if (!userRole) {
-					// navigate(LOGIN_PAGE);
-				}
-				setLoading(false);
-			}
-		};
-
-		fetchUserRole();
-	}, []);
-
-	if (loading) {
+	if (!user) {
 		return (
 			<div
 				style={{
@@ -50,7 +28,7 @@ const Layout = () => {
 	}
 
 	// Use admin layout for admin users, regular layout for others
-	if (userRole.includes(ADMIN)) {
+	if (user?.roles?.includes(ADMIN)) {
 		return (
 			<div className={styles.pageContainer}>
 				<NavBarAdmin />
@@ -60,7 +38,10 @@ const Layout = () => {
 				<Footer />
 			</div>
 		);
-	} else if (userRole.includes(STUDENT) || userRole.includes(LECTURER)) {
+	} else if (
+		user?.roles?.includes(STUDENT) ||
+		user?.roles?.includes(LECTURER)
+	) {
 		return (
 			<div className={styles.pageContainer}>
 				<NavBar />

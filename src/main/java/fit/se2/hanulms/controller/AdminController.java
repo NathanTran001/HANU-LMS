@@ -1,6 +1,6 @@
 package fit.se2.hanulms.controller;
 
-import fit.se2.hanulms.Repository.*;
+import fit.se2.hanulms.repository.*;
 import fit.se2.hanulms.model.*;
 import fit.se2.hanulms.model.DTO.FacultyDTO;
 import fit.se2.hanulms.model.DTO.LecturerDTO;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;

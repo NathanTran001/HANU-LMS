@@ -1,6 +1,7 @@
 package fit.se2.hanulms.model.DTO;
 
 import fit.se2.hanulms.model.Course;
+import fit.se2.hanulms.model.Topic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class CourseDTO {
     private String facultyName;
     private List<StudentDTO> students;
     private List<LecturerDTO> lecturers;
+    private List<TopicDTO> topics;
 
     public CourseDTO() {
     }
@@ -38,6 +40,10 @@ public class CourseDTO {
                         .map(LecturerDTO::new)
                         .collect(Collectors.toList()) :
                 new ArrayList<>();
+
+        this.topics = course.getTopics().stream()
+                .map(TopicDTO::new)
+                .collect(Collectors.toList());
     }
 
     public String getCode() {
@@ -102,5 +108,13 @@ public class CourseDTO {
 
     public void setLecturers(List<LecturerDTO> lecturers) {
         this.lecturers = lecturers;
+    }
+
+    public List<TopicDTO> getTopics() {
+        return topics;
+    }
+
+    public void setTopics(List<TopicDTO> topics) {
+        this.topics = topics;
     }
 }

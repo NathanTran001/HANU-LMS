@@ -38,7 +38,8 @@ public class SecurityCfg {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/auth/**", "/login", "/").permitAll()
-                        .requestMatchers("/api/courses/**").hasAnyRole("LECTURER", "STUDENT")
+                        .requestMatchers("/api/test/**").permitAll()
+                        .requestMatchers("/api/**").hasAnyRole("LECTURER", "STUDENT", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
