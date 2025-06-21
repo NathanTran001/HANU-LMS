@@ -6,6 +6,7 @@ import Topic from "../components/Topic";
 import { useAuth } from "../contexts/AuthContext";
 import { LECTURER } from "../constants/roles";
 import getErrorMessages from "../utils/error";
+import CourseAnnouncement from "../components/CourseAnnouncement";
 
 const CourseDetailPage = () => {
 	const [course, setCourse] = useState(null);
@@ -90,6 +91,9 @@ const CourseDetailPage = () => {
 
 	return (
 		<div className={styles.courseDetailPage}>
+			<h3 className={styles.pageTitle}>
+				{course.code} - {course.name}
+			</h3>
 			{errors &&
 				errors.map(
 					(err, i) =>
@@ -102,7 +106,13 @@ const CourseDetailPage = () => {
 							</div>
 						)
 				)}
-
+			<CourseAnnouncement
+				canEdit={user?.role === LECTURER}
+				announcement={course?.announcement}
+				fetchCourse={fetchCourse}
+				courseCode={course?.code}
+			/>
+			<h4 className={styles.pageTitle}>Course Materials</h4>
 			{user?.role === LECTURER && (
 				<button
 					className={styles.createTopicBtn}

@@ -110,9 +110,10 @@ public class TopicItemController {
     @PutMapping("/{id}/file")
     public ResponseEntity<?> replaceFile(
             @PathVariable Long id,
+            @RequestParam String title,
             @RequestParam MultipartFile file) {
         try {
-            TopicItem item = topicItemService.replaceFile(id, file);
+            TopicItem item = topicItemService.replaceFile(id, title, file);
             return ResponseEntity.ok(item);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

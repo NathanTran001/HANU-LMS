@@ -172,7 +172,7 @@ public class TopicItemService {
     /**
      * Replace file for an existing file-type topic item
      */
-    public TopicItem replaceFile(Long id, MultipartFile newFile) {
+    public TopicItem replaceFile(Long id, String title, MultipartFile newFile) {
         TopicItem item = topicItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("TopicItem not found"));
 
@@ -195,6 +195,7 @@ public class TopicItemService {
             item.setOriginalFilename(newFile.getOriginalFilename());
             item.setContentType(newFile.getContentType());
             item.setFileSize(newFile.getSize());
+            item.setTitle(title);
 
             return topicItemRepository.save(item);
 

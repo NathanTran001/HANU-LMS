@@ -1,9 +1,13 @@
 import { useState } from "react";
 import styles from "./styles/TopicItem.module.css";
 import api from "../services/apiService";
+import FileTopicItemModal from "./FileTopicItemModal";
+import UrlTopicItemModal from "./UrlTopicItemModal";
+import FolderTopicItemModal from "./FolderTopicItemModal";
 
-const TopicItem = ({ item, canEdit = false, onDelete }) => {
+const TopicItem = ({ item, canEdit = false, onDelete, onUpdated }) => {
 	const [isDownloading, setIsDownloading] = useState(false);
+	const [showEditModal, setShowEditModal] = useState(false);
 
 	const handleFileDownload = async (e) => {
 		e.preventDefault();
@@ -43,6 +47,44 @@ const TopicItem = ({ item, canEdit = false, onDelete }) => {
 		}
 	};
 
+	const handleEditClick = () => {
+		setShowEditModal(true);
+	};
+
+	const handleEditClose = () => {
+		setShowEditModal(false);
+		if (onUpdated) onUpdated(); // Refresh parent if needed
+	};
+
+	let EditModal = null;
+	if (showEditModal) {
+		if (item.type === "URL") {
+			EditModal = (
+				<UrlTopicItemModal
+					show={true}
+					onClose={handleEditClose}
+					item={item}
+				/>
+			);
+		} else if (item.type === "FILE") {
+			EditModal = (
+				<FileTopicItemModal
+					show={true}
+					onClose={handleEditClose}
+					item={item}
+				/>
+			);
+		} else if (item.type === "FOLDER") {
+			EditModal = (
+				<FolderTopicItemModal
+					show={true}
+					onClose={handleEditClose}
+					item={item}
+				/>
+			);
+		}
+	}
+
 	switch (item.type) {
 		case "URL":
 			return (
@@ -75,7 +117,7 @@ const TopicItem = ({ item, canEdit = false, onDelete }) => {
 								title="Edit"
 								onClick={(e) => {
 									e.stopPropagation();
-									onEdit();
+									handleEditClick();
 								}}
 							>
 								<i className="bi bi-pencil-square"></i>
@@ -92,6 +134,7 @@ const TopicItem = ({ item, canEdit = false, onDelete }) => {
 							</button>
 						</span>
 					)}
+					{EditModal}
 				</div>
 			);
 		case "FILE":
@@ -129,7 +172,7 @@ const TopicItem = ({ item, canEdit = false, onDelete }) => {
 								title="Edit"
 								onClick={(e) => {
 									e.stopPropagation();
-									onEdit();
+									handleEditClick();
 								}}
 							>
 								<i className="bi bi-pencil-square"></i>
@@ -146,6 +189,7 @@ const TopicItem = ({ item, canEdit = false, onDelete }) => {
 							</button>
 						</span>
 					)}
+					{EditModal}
 				</div>
 			);
 		default:

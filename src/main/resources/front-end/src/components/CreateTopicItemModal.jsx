@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./styles/CreateTopicItemModal.module.css";
-import api from "../services/apiService";
-import getErrorMessages from "../utils/error";
+import UrlTopicItemModal from "./UrlTopicItemModal";
+import FileTopicItemModal from "./FileTopicItemModal";
+import FolderTopicItemModal from "./FolderTopicItemModal";
 
 const ICONS = {
 	URL: "bi-link-45deg",
@@ -15,19 +16,8 @@ const LABELS = {
 	FOLDER: "Folder",
 };
 
-const CreateTopicItemModal = ({ topicId, show, onClose, onCreated }) => {
+const CreateTopicItemModal = ({ topicId, show, onClose }) => {
 	const [step, setStep] = useState("select"); // select | url | file | folder
-	const [errors, setErrors] = useState([]);
-	const [loading, setLoading] = useState(false);
-
-	// Form states
-	const [urlTitle, setUrlTitle] = useState("");
-	const [url, setUrl] = useState("");
-	const [fileTitle, setFileTitle] = useState("");
-	const [file, setFile] = useState(null);
-	const [folderTitle, setFolderTitle] = useState("");
-	const [folder, setFolder] = useState(null);
-
 	const modalRef = useRef();
 
 	// Close modal on outside click
@@ -44,75 +34,11 @@ const CreateTopicItemModal = ({ topicId, show, onClose, onCreated }) => {
 
 	const handleClose = () => {
 		setStep("select");
-		setErrors([]);
-		setUrlTitle("");
-		setUrl("");
-		setFileTitle("");
-		setFile(null);
-		setFolderTitle("");
-		setFolder(null);
 		onClose();
 	};
 
 	const handleBack = () => {
 		setStep("select");
-		setErrors([]);
-	};
-
-	const handleCreateUrl = async (e) => {
-		e.preventDefault();
-		setLoading(true);
-		setErrors([]);
-		try {
-			let title = urlTitle;
-			await api.createUrlTopicItem(title, url, topicId);
-			if (onCreated) onCreated();
-			handleClose();
-		} catch (err) {
-			setErrors(getErrorMessages(err));
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleCreateFile = async (e) => {
-		e.preventDefault();
-		if (!file) {
-			setErrors(["Please select a file."]);
-			return;
-		}
-		setLoading(true);
-		setErrors([]);
-		try {
-			let title = fileTitle;
-			await api.createFileTopicItem(title, file, topicId);
-			if (onCreated) onCreated();
-			handleClose();
-		} catch (err) {
-			setErrors(getErrorMessages(err));
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleCreateFolder = async (e) => {
-		e.preventDefault();
-		if (!folder) {
-			setErrors(["Please select a ZIP file."]);
-			return;
-		}
-		setLoading(true);
-		setErrors([]);
-		try {
-			let title = folderTitle;
-			await api.createFolderTopicItem(title, folder, topicId);
-			if (onCreated) onCreated();
-			handleClose();
-		} catch (err) {
-			setErrors(getErrorMessages(err));
-		} finally {
-			setLoading(false);
-		}
 	};
 
 	if (!show) return null;
@@ -150,147 +76,25 @@ const CreateTopicItemModal = ({ topicId, show, onClose, onCreated }) => {
 				)}
 
 				{step === "url" && (
-					<form
-						className={styles.form}
-						onSubmit={handleCreateUrl}
-					>
-						<div className={styles.modalHeader}>
-							<button
-								type="button"
-								className={styles.backBtn}
-								onClick={handleBack}
-							>
-								<i className="bi bi-arrow-left" /> Back
-							</button>
-							<h4>Create URL Topic Item</h4>
-						</div>
-						<input
-							type="text"
-							placeholder="Title"
-							value={urlTitle}
-							onChange={(e) => setUrlTitle(e.target.value)}
-							required
-							className={styles.input}
-						/>
-						<input
-							type="url"
-							placeholder="URL"
-							value={url}
-							onChange={(e) => setUrl(e.target.value)}
-							required
-							className={styles.input}
-						/>
-						{errors.map((err, i) => (
-							<div
-								key={i}
-								className={styles.error}
-							>
-								{err}
-							</div>
-						))}
-						<button
-							type="submit"
-							className={styles.submitBtn}
-							disabled={loading}
-						>
-							{loading ? "Creating..." : "Create"}
-						</button>
-					</form>
+					<UrlTopicItemModal
+						show={true}
+						onClose={handleBack}
+						topicId={topicId}
+					/>
 				)}
-
 				{step === "file" && (
-					<form
-						className={styles.form}
-						onSubmit={handleCreateFile}
-					>
-						<div className={styles.modalHeader}>
-							<button
-								type="button"
-								className={styles.backBtn}
-								onClick={handleBack}
-							>
-								<i className="bi bi-arrow-left" /> Back
-							</button>
-							<h4>Create File Topic Item</h4>
-						</div>
-						<input
-							type="text"
-							placeholder="Title"
-							value={fileTitle}
-							onChange={(e) => setFileTitle(e.target.value)}
-							required
-							className={styles.input}
-						/>
-						<input
-							type="file"
-							onChange={(e) => setFile(e.target.files[0])}
-							required
-							className={styles.input}
-						/>
-						{errors.map((err, i) => (
-							<div
-								key={i}
-								className={styles.error}
-							>
-								{err}
-							</div>
-						))}
-						<button
-							type="submit"
-							className={styles.submitBtn}
-							disabled={loading}
-						>
-							{loading ? "Creating..." : "Create"}
-						</button>
-					</form>
+					<FileTopicItemModal
+						show={true}
+						onClose={handleBack}
+						topicId={topicId}
+					/>
 				)}
-
 				{step === "folder" && (
-					<form
-						className={styles.form}
-						onSubmit={handleCreateFolder}
-					>
-						<div className={styles.modalHeader}>
-							<button
-								type="button"
-								className={styles.backBtn}
-								onClick={handleBack}
-							>
-								<i className="bi bi-arrow-left" /> Back
-							</button>
-							<h4>Create Folder Topic Item</h4>
-						</div>
-						<input
-							type="text"
-							placeholder="Title"
-							value={folderTitle}
-							onChange={(e) => setFolderTitle(e.target.value)}
-							required
-							className={styles.input}
-						/>
-						<input
-							type="file"
-							accept=".zip"
-							onChange={(e) => setFolder(e.target.files[0])}
-							required
-							className={styles.input}
-						/>
-						{errors.map((err, i) => (
-							<div
-								key={i}
-								className={styles.error}
-							>
-								{err}
-							</div>
-						))}
-						<button
-							type="submit"
-							className={styles.submitBtn}
-							disabled={loading}
-						>
-							{loading ? "Creating..." : "Create"}
-						</button>
-					</form>
+					<FolderTopicItemModal
+						show={true}
+						onClose={handleBack}
+						topicId={topicId}
+					/>
 				)}
 			</div>
 		</div>

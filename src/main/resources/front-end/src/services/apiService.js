@@ -169,14 +169,25 @@ const api = {
 	updateTopicItem: (id, title, url) =>
 		api.put(`/api/topic-item/${id}`, null, { params: { title, url } }),
 
-	replaceTopicItemFile: (id, file) => {
+	replaceTopicItemFile: (id, title, file) => {
 		const formData = new FormData();
+		formData.append("title", title);
 		formData.append("file", file);
 		return api.put(`/api/topic-item/${id}/file`, formData);
 	},
 	getTopicItemDownloadUrl: (id) => api.get(`/api/topic-item/${id}/download`),
 
 	deleteTopicItem: (id) => api.delete(`/api/topic-item/${id}`),
+
+	// COURSE ANNOUNCEMENT
+	createCourseAnnouncement: (courseCode, announcement) =>
+		api.post(`/api/announcement/course/${courseCode}`, announcement),
+
+	updateCourseAnnouncement: (announcementId, announcement) =>
+		api.put(`/api/announcement/${announcementId}`, announcement),
+
+	deleteCourseAnnouncement: (announcementId) =>
+		api.delete(`/api/announcement/${announcementId}`),
 };
 
 export { API_BASE_URL };

@@ -1,6 +1,5 @@
 package fit.se2.hanulms.model;
 
-import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -24,8 +23,8 @@ public class Course {
     private List<Student> students;
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Topic> topics = new ArrayList<>();
-    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
-    private List<Announcement> announcements;
+    @OneToOne(mappedBy = "course", cascade = CascadeType.REMOVE)
+    private Announcement announcement;
 
     public String getCourseImage() {
         return courseImage;
@@ -99,12 +98,12 @@ public class Course {
         this.topics = topics;
     }
 
-    public List<Announcement> getAnnouncements() {
-        return announcements;
+    public Announcement getAnnouncement() {
+        return announcement;
     }
 
-    public void setAnnouncements(List<Announcement> announcements) {
-        this.announcements = announcements;
+    public void setAnnouncement(Announcement announcement) {
+        this.announcement = announcement;
     }
 }
 

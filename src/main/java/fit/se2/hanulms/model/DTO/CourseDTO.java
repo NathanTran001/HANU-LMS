@@ -1,5 +1,6 @@
 package fit.se2.hanulms.model.DTO;
 
+import fit.se2.hanulms.model.Announcement;
 import fit.se2.hanulms.model.Course;
 import fit.se2.hanulms.model.Topic;
 
@@ -17,6 +18,8 @@ public class CourseDTO {
     private List<StudentDTO> students;
     private List<LecturerDTO> lecturers;
     private List<TopicDTO> topics;
+
+    private Announcement announcement;
 
     public CourseDTO() {
     }
@@ -44,6 +47,7 @@ public class CourseDTO {
         this.topics = course.getTopics().stream()
                 .map(TopicDTO::new)
                 .collect(Collectors.toList());
+        this.announcement = course.getAnnouncement();
     }
 
     public String getCode() {
@@ -116,5 +120,13 @@ public class CourseDTO {
 
     public void setTopics(List<TopicDTO> topics) {
         this.topics = topics;
+    }
+
+    public Announcement getAnnouncement() {
+        return announcement;
+    }
+
+    public void setAnnouncement(Announcement announcement) {
+        this.announcement = announcement;
     }
 }

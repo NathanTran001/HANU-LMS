@@ -3,27 +3,25 @@ import api from "../services/apiService";
 import getErrorMessages from "../utils/error";
 import styles from "./styles/CreateTopicItemModal.module.css";
 
-const UrlTopicItemModal = ({
+const FolderTopicItemModal = ({
 	show,
 	onClose,
 	topicId, // optional, if present: create mode
 	item, // optional, if present: edit mode
 }) => {
 	const [title, setTitle] = useState(item?.title || "");
-	const [url, setUrl] = useState(item?.url || "");
+	const [folder, setFolder] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState([]);
 	const modalRef = useRef();
 
-	// Reset form when opening/closing or switching item
 	useEffect(() => {
 		setTitle(item?.title || "");
-		setUrl(item?.url || "");
+		setFolder(null);
 		setErrors([]);
 		setLoading(false);
 	}, [show, item]);
 
-	// Close modal on outside click
 	useEffect(() => {
 		if (!show) return;
 		const handleClick = (e) => {
@@ -43,11 +41,14 @@ const UrlTopicItemModal = ({
 		setErrors([]);
 		try {
 			if (item) {
-				// Edit mode
-				await api.updateTopicItem(item.id, title, url);
+				// Edit mode: update title and optionally replace folder (zip)
+				await api.updateTopicItem(item.id, title);
+				if (folder) {
+					await api.replaceTopicItemFile(item.id, title, folder);
+				}
 			} else {
 				// Create mode
-				await api.createUrlTopicItem(title, url, topicId);
+				await api.createFolderTopicItem(title, folder, topicId);
 			}
 			onClose();
 		} catch (err) {
@@ -64,7 +65,7 @@ const UrlTopicItemModal = ({
 				ref={modalRef}
 			>
 				<div className={styles.modalHeader}>
-					<h4>{item ? "Edit" : "Create"} URL Topic Item</h4>
+					<h4>{item ? "Edit" : "Create"} Folder Topic Item</h4>
 				</div>
 				<form
 					className={styles.form}
@@ -79,13 +80,17 @@ const UrlTopicItemModal = ({
 						className={styles.input}
 					/>
 					<input
-						type="url"
-						placeholder="URL"
-						value={url}
-						onChange={(e) => setUrl(e.target.value)}
-						required
+						type="file"
+						accept=".zip"
+						onChange={(e) => setFolder(e.target.files[0])}
 						className={styles.input}
+						{...(item ? {} : { required: true })}
 					/>
+					{item && (
+						<div className={styles.info}>
+							Current ZIP: <b>{item.originalFilename}</b>
+						</div>
+					)}
 					{errors.map((err, i) => (
 						<div
 							key={i}
@@ -123,4 +128,4 @@ const UrlTopicItemModal = ({
 	);
 };
 
-export default UrlTopicItemModal;
+export default FolderTopicItemModal;

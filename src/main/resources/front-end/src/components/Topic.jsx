@@ -111,6 +111,7 @@ const Topic = ({ topic, canEdit, onEdit, onDelete, fetchCourse }) => {
 							item={item}
 							canEdit={canEdit}
 							onDelete={() => setDeleteItemId(item.id)}
+							onUpdated={fetchCourse}
 						/>
 					))
 				) : (
@@ -126,8 +127,10 @@ const Topic = ({ topic, canEdit, onEdit, onDelete, fetchCourse }) => {
 			<CreateTopicItemModal
 				topicId={topic.id}
 				show={showModal}
-				onClose={() => setShowModal(false)}
-				onCreated={fetchCourse}
+				onClose={() => {
+					setShowModal(false);
+					fetchCourse();
+				}}
 			/>
 			<ConfirmModal
 				isOpen={!!deleteItemId}

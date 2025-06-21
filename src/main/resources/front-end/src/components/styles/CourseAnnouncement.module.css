@@ -1,0 +1,82 @@
+@import "../../index.css";
+
+.announcementContainer {
+	border: 1px solid var(--primary50);
+	padding: 1.5rem;
+	border-radius: 8px;
+	background: #fafbfc;
+	margin-bottom: 1.5rem;
+	max-width: 600px;
+}
+
+.sectionTitle {
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: var(--primary800);
+	margin-bottom: 1rem;
+	letter-spacing: 0.5px;
+}
+
+.title {
+	font-size: 1.1rem;
+	font-weight: bold;
+	margin-bottom: 0.5rem;
+	color: var(--primary500);
+}
+
+.description {
+	margin-bottom: 1rem;
+	color: #333;
+}
+
+.buttonGroup {
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.input {
+	padding: 0.5rem;
+	font-size: 1rem;
+	border: 1px solid var(--primary50);
+	border-radius: 4px;
+}
+
+.textarea {
+	padding: 0.5rem;
+	font-size: 1rem;
+	min-height: 80px;
+	resize: vertical;
+	border: 1px solid var(--primary50);
+	border-radius: 4px;
+}
+
+.noAnnouncement {
+	color: #757575;
+	font-style: italic;
+	text-align: center;
+	margin-block: 2rem;
+}
+
+.deleteBtn {
+	color: white;
+	background-color: var(--danger);
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	transition: background-color 0.3s ease;
+}
+
+.deleteBtn:hover {
+	background-color: var(--danger-hover);
+	color: white;
+}

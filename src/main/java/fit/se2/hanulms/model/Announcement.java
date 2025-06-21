@@ -1,5 +1,6 @@
 package fit.se2.hanulms.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Length;
@@ -7,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 @Entity
 public class Announcement {
     @Id
-    @GeneratedValue( strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotEmpty(message = "Please enter the title of announcement")
@@ -18,10 +19,9 @@ public class Announcement {
     @Length(max = 40, message = "The description should be less than 40")
     private String description;
 
-    @ManyToOne
+    @OneToOne
+    @JsonIgnore
     private Course course;
-
-    private String attachment;
 
     public Course getCourse() {
         return course;
@@ -53,14 +53,6 @@ public class Announcement {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getAttachment() {
-        return attachment;
-    }
-
-    public void setAttachment(String attachment) {
-        this.attachment = attachment;
     }
 
 

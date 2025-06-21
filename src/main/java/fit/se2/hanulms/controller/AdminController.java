@@ -150,7 +150,7 @@ public class AdminController {
                     .body(Map.of("error", "Student not found"));
         }
 
-        return ResponseEntity.ok(existing.get());
+        return ResponseEntity.ok(new StudentDTO(existing.get()));
     }
 
     @PostMapping("/students")

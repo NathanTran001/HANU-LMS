@@ -1,6 +1,7 @@
 package fit.se2.hanulms.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -10,9 +11,9 @@ import org.hibernate.validator.constraints.Length;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class FacultyAnnouncement{
+public class FacultyAnnouncement {
     @Id
-    @GeneratedValue( strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotEmpty(message = "Please enter the title of announcement")
@@ -23,6 +24,7 @@ public class FacultyAnnouncement{
     @Length(max = 255, message = "The description should be less than 255 characters")
     private String description;
     @ManyToOne
+    @JsonIgnore
     private Faculty faculty;
 
     public Long getId() {

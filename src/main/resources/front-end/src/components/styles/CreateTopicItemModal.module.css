@@ -55,7 +55,6 @@
 }
 
 .cancelBtn {
-	margin-top: 1.5rem;
 	background: #eee;
 	border: none;
 	padding: 0.6rem 1.5rem;
@@ -79,9 +78,9 @@
 
 .submitBtn {
 	background: var(--primary500, #1976d2);
-	color: #fff;
+	color: var(--accent-yellow);
 	border: none;
-	padding: 0.7rem 1.5rem;
+	padding: 0.6rem 1.5rem;
 	border-radius: 6px;
 	font-size: 1rem;
 	cursor: pointer;

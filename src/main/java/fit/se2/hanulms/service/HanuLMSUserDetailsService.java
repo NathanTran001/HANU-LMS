@@ -38,10 +38,6 @@ public class HanuLMSUserDetailsService implements UserDetailsService {
             return new LMSUserDetails(studentOptional.get());
         }
 
-        // Handle other user types (lecturer, student) similarly
-        // Here, you might retrieve user details from a database or another source
-        // For simplicity, let's assume no other users exist initially
         throw new UsernameNotFoundException("User not found with username: " + username);
-//        }
     }
 }
