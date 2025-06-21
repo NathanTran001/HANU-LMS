@@ -3,16 +3,16 @@ import Footer from "./Footer";
 import styles from "./styles/Layout.module.css";
 import { getUserRole } from "../utils/auth";
 import NavBarAdmin from "./NavBarAdmin";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import { LOGIN_PAGE } from "../constants/paths";
 import { ADMIN, LECTURER, STUDENT } from "../constants/roles";
 import { useAuth } from "../contexts/AuthContext";
 
 const Layout = () => {
-	const { user } = useAuth();
+	const { user, loading } = useAuth();
 
-	if (!user) {
+	if (loading) {
 		return (
 			<div
 				style={{
@@ -51,8 +51,14 @@ const Layout = () => {
 				<Footer />
 			</div>
 		);
+	} else {
+		return (
+			<Navigate
+				to={LOGIN_PAGE}
+				replace
+			/>
+		);
 	}
-	// else navigate(LOGIN_PAGE);
 };
 
 export default Layout;

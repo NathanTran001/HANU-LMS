@@ -18,7 +18,7 @@ const RoleBasedRedirect = () => {
 		} else if (user?.role?.toLowerCase() === "admin") {
 			navigate(FACULTY_LIST_PAGE, { replace: true });
 		} else if (
-			user?.role?.toLowerCase() === "academicUser" ||
+			user?.role?.toLowerCase() === "lecturer" ||
 			user?.role?.toLowerCase() === "student"
 		) {
 			navigate(MY_COURSES_PAGE, { replace: true });

@@ -21,14 +21,7 @@ const MyCoursesPage = () => {
 
 	const fetchCourses = async () => {
 		try {
-			// Replace this with your actual API call
-			// const response = await fetch('/api/courses');
-			// const coursesData = await response.json();
-
-			// Placeholder data for demonstration
 			const coursesData = await api.getCourses();
-			console.log("Courses fetched: " + coursesData.content);
-
 			setCourses(coursesData.content);
 		} catch (error) {
 			console.error("Error fetching courses:", error);

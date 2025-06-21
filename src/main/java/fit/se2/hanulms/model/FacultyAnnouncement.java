@@ -8,9 +8,6 @@ import jakarta.validation.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Length;
 
 @Entity
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 public class FacultyAnnouncement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

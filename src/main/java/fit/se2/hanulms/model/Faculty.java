@@ -6,24 +6,22 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "code")
 public class Faculty {
     @Id
     private String code;
     private String name;
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
-    private List<Lecturer> lecturers;
+    private List<Lecturer> lecturers = new ArrayList<>();
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
-    private List<Student> students;
+    private List<Student> students = new ArrayList<>();
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
-    private List<Course> courses;
+    private List<Course> courses = new ArrayList<>();
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.REMOVE)
-    private List<FacultyAnnouncement> facultyAnnouncements;
+    private List<FacultyAnnouncement> facultyAnnouncements = new ArrayList<>();
 
     public String getCode() {
         return code;

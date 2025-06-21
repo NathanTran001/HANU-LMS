@@ -6,15 +6,6 @@ import { Navigate } from "react-router-dom";
 function ProtectedRoute({ children }) {
 	const { isAuthenticated, loading } = useAuth();
 
-	if (!isAuthenticated) {
-		return (
-			<Navigate
-				to={LOGIN_PAGE}
-				replace
-			/>
-		);
-	}
-
 	if (loading) {
 		return (
 			<div
@@ -29,6 +20,15 @@ function ProtectedRoute({ children }) {
 			>
 				Loading...
 			</div>
+		);
+	}
+
+	if (!isAuthenticated) {
+		return (
+			<Navigate
+				to={LOGIN_PAGE}
+				replace
+			/>
 		);
 	}
 

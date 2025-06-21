@@ -243,20 +243,6 @@ public class AdminController {
     public ResponseEntity<Page<FacultyDTO>> listFaculty(Pageable pageable) {
         Page<Faculty> facultyPage = facultyRepository.findAll(pageable);
         return ResponseEntity.ok(facultyPage.map(FacultyDTO::new));
-//        Page<FacultyDTO> facultyDTOPage = facultyService.getFacultiesWithCounts(pageable);
-//        return ResponseEntity.ok(facultyDTOPage);
-
-    }
-
-    @GetMapping("/faculties/{code}")
-    public ResponseEntity<?> getFaculty(@PathVariable String code) {
-        Optional<Faculty> existing = facultyRepository.findById(code);
-        if (existing.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Faculty not found"));
-        }
-
-        return ResponseEntity.ok((new FacultyDTO(existing.get())));
     }
 
     @PostMapping("/faculties")

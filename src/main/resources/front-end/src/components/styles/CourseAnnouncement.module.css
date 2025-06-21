@@ -65,7 +65,7 @@
 }
 
 .deleteBtn {
-	color: white;
+	color: var(--accent-yellow);
 	background-color: var(--danger);
 	border: none;
 	padding: 8px 16px;
@@ -78,5 +78,5 @@
 
 .deleteBtn:hover {
 	background-color: var(--danger-hover);
-	color: white;
+	color: var(--accent-yellow);
 }

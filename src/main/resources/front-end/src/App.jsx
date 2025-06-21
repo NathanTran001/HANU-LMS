@@ -29,6 +29,7 @@ import {
 	STUDENT_LIST_PAGE,
 	EDIT_COURSE_PAGE,
 	COURSE_DETAIL_PAGE,
+	FACULTY_ANNOUNCEMENT_PAGE,
 } from "./constants/paths.js";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
@@ -44,6 +45,7 @@ import CreateCoursePage from "./pages/CreateCoursePage.jsx";
 import SearchCoursePage from "./pages/SearchCoursePage.jsx";
 import EditCoursePage from "./pages/EditCoursePage.jsx";
 import CourseDetailPage from "./pages/CourseDetailPage.jsx";
+import FacultyAnnouncementPage from "./pages/FacultyAnnouncementPage.jsx";
 
 const router = createBrowserRouter([
 	{
@@ -111,6 +113,10 @@ const router = createBrowserRouter([
 				path: COURSE_DETAIL_PAGE,
 				element: <CourseDetailPage />,
 			},
+			{
+				path: FACULTY_ANNOUNCEMENT_PAGE,
+				element: <FacultyAnnouncementPage />,
+			},
 			// LECTURER PAGES
 			{
 				path: CREATE_COURSE_PAGE,
@@ -120,18 +126,8 @@ const router = createBrowserRouter([
 				path: EDIT_COURSE_PAGE,
 				element: <EditCoursePage />,
 			},
-			// STUDENT PAGES
 		],
 	},
-	// {
-	// 	path: "/",
-	// 	element: (
-	// 		<Navigate
-	// 			to={LOGIN_PAGE}
-	// 			replace
-	// 		/>
-	// 	),
-	// },
 	{
 		path: "*",
 		element: <div>404 Not Found</div>,

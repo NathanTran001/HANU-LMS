@@ -2,7 +2,6 @@ package fit.se2.hanulms.controller;
 
 import fit.se2.hanulms.repository.*;
 import fit.se2.hanulms.model.*;
-import fit.se2.hanulms.model.DTO.FacultyDTO;
 import fit.se2.hanulms.model.DTO.LecturerDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +26,6 @@ public class LecturerController {
     TopicRepository topicRepository;
     @Autowired
     AnnouncementRepository announcementRepository;
-    @Autowired
-    AssignmentRepository assignmentRepository;
 
     // ============== LECTURER ENDPOINTS ==============
     @GetMapping("/lecturers/all")
@@ -45,58 +42,5 @@ public class LecturerController {
         }
         return ResponseEntity.ok(Collections.emptyList());
     }
-
-    @GetMapping("/faculties/all")
-    public ResponseEntity<List<FacultyDTO>> listFacultyAll() {
-        return ResponseEntity.ok(facultyRepository.findAll().stream().map(
-                FacultyDTO::new
-        ).collect(Collectors.toList()));
-    }
-
-    // ============== ENROLLMENT ENDPOINT ==============
-
-//    @PostMapping("/courses/{courseCode}/enroll")
-//    public ResponseEntity<?> enrollStudent(@PathVariable String courseCode,
-//                                           @RequestBody Map<String, Object> request) {
-//        try {
-//            Long studentId = Long.valueOf(request.get("studentId").toString());
-//            String enrolmentKey = (String) request.get("enrolmentKey");
-//
-//            Optional<Course> optionalCourse = courseRepository.findById(courseCode);
-//            if (!optionalCourse.isPresent()) {
-//                return ResponseEntity.notFound().build();
-//            }
-//
-//            Optional<Student> optionalStudent = studentRepository.findById(studentId);
-//            if (!optionalStudent.isPresent()) {
-//                return ResponseEntity.badRequest()
-//                        .body(Map.of("error", "Student not found"));
-//            }
-//
-//            Course course = optionalCourse.get();
-//            Student student = optionalStudent.get();
-//
-//            if (!course.getEnrolmentKey().equals(enrolmentKey)) {
-//                return ResponseEntity.badRequest()
-//                        .body(Map.of("error", "Invalid enrollment key"));
-//            }
-//
-//            if (course.getLecturers().contains(student)) {
-//                return ResponseEntity.badRequest()
-//                        .body(Map.of("error", "Student already enrolled"));
-//            }
-//
-//            student.getCourses().add(course);
-//            course.getStudents().add(student);
-//
-//            studentRepository.save(student);
-//            courseRepository.save(course);
-//
-//            return ResponseEntity.ok(Map.of("message", "Successfully enrolled"));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(Map.of("error", "Failed to enroll student"));
-//        }
-//    }
 
 }

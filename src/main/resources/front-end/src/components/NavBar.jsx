@@ -4,7 +4,7 @@ import { useNavBar } from "../hooks/useNavBar";
 import { useSearch } from "../hooks/useSearch";
 import styles from "./styles/NavBar.module.css";
 import logo from "../assets/HANU.png";
-import { MY_COURSES_PAGE } from "../constants/paths";
+import { FACULTY_ANNOUNCEMENT_PAGE, MY_COURSES_PAGE } from "../constants/paths";
 
 const NavBar = () => {
 	const {
@@ -25,9 +25,8 @@ const NavBar = () => {
 	} = useSearch();
 
 	const userNavItems = [
-		{ path: "/", label: "Home" },
 		{ path: MY_COURSES_PAGE, label: "My Courses" },
-		{ path: "/facultyAnnouncement", label: "Faculty Announcements" },
+		{ path: FACULTY_ANNOUNCEMENT_PAGE, label: "Faculty Announcements" },
 	];
 
 	return (

@@ -64,23 +64,13 @@ const LoginPage = () => {
 		}
 	};
 
-	const handleCancel = () => {
-		navigate("/");
-	};
-
-	const handleSignupRedirect = () => {
-		navigate("/signup");
-	};
-
 	const handleRedirect = async () => {
 		const role = await getUserRole();
 		checkAuthStatus();
 		if (!role) return;
-		console.log(`Role: ${role}`);
 		if (isAuthenticated) {
 			if (role.includes(ADMIN)) {
 				navigate(LECTURER_LIST_PAGE);
-				console.log(role);
 			} else if (role.includes(LECTURER) || role.includes(STUDENT))
 				navigate(MY_COURSES_PAGE);
 		}
@@ -92,7 +82,7 @@ const LoginPage = () => {
 				className={styles.form}
 				onSubmit={handleLogin}
 			>
-				<h3 className={styles.title}>Login</h3>
+				<h3 className={styles.title}>HANU LMS</h3>
 
 				<label
 					htmlFor="username"
@@ -140,26 +130,7 @@ const LoginPage = () => {
 					</div>
 				)}
 
-				<a
-					href="#"
-					className={styles.link}
-					onClick={(e) => {
-						e.preventDefault();
-						handleSignupRedirect();
-					}}
-				>
-					Don't have an ADMIN account? Signup
-				</a>
-
 				<div className={styles.buttons}>
-					<button
-						type="button"
-						className={`${styles.button} ${styles.transparentButton}`}
-						onClick={handleCancel}
-						disabled={isLoading}
-					>
-						Cancel
-					</button>
 					<button
 						type="submit"
 						className={`${styles.button} ${styles.redButton}`}

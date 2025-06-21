@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -31,12 +32,6 @@ public class CourseController {
     LecturerRepository lecturerRepository;
     @Autowired
     StudentRepository studentRepository;
-    @Autowired
-    TopicRepository topicRepository;
-    @Autowired
-    AnnouncementRepository announcementRepository;
-    @Autowired
-    AssignmentRepository assignmentRepository;
 
     // ============== COURSE ENDPOINTS ==============
 
@@ -51,7 +46,6 @@ public class CourseController {
         if (studentOpt.isPresent()) {
             Page<Course> courses = courseRepository.findAllByStudentsContaining(studentOpt.get(), pageable);
             Page<CourseDTO> courseDTOs = courses.map(CourseDTO::new);
-            System.out.println("Courses: " + courseDTOs);
             return ResponseEntity.ok(courseDTOs);
         }
 
@@ -59,9 +53,7 @@ public class CourseController {
         Optional<Lecturer> lecturerOpt = lecturerRepository.findByUsername(username);
         if (lecturerOpt.isPresent()) {
             Page<Course> courses = courseRepository.findAllByLecturersContaining(lecturerOpt.get(), pageable);
-            System.out.println("Original courses: " + courses.getTotalElements());
             Page<CourseDTO> courseDTOs = courses.map(CourseDTO::new);
-            System.out.println("Courses: " + courseDTOs);
             return ResponseEntity.ok(courseDTOs);
         }
 
@@ -79,10 +71,7 @@ public class CourseController {
             // Check if user is a student
             Optional<Student> studentOpt = studentRepository.findByUsername(username);
             if (studentOpt.isPresent()) {
-                // Check if student is enrolled in the course
-                if (courseOpt.get().getStudents().contains(studentOpt.get())) {
-                    return ResponseEntity.ok(new CourseDTO(courseOpt.get()));
-                }
+                return ResponseEntity.ok(new CourseDTO(courseOpt.get()));
             }
             // Check if user is a lecturer
             Optional<Lecturer> lecturerOpt = lecturerRepository.findByUsername(username);
@@ -93,7 +82,6 @@ public class CourseController {
                 }
             }
 
-            // No student or lecturer associated with the course
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(null);
 
@@ -286,7 +274,6 @@ public class CourseController {
             course.getLecturers().clear();
             course.getStudents().clear();
 
-            // Now delete the course (topics and announcements will be deleted due to CascadeType.REMOVE in @OneToMany)
             courseRepository.delete(course);
 
             return ResponseEntity.ok(Map.of("message", "Course deleted successfully"));
@@ -296,35 +283,83 @@ public class CourseController {
         }
     }
 
-//    @GetMapping("/courses/faculty/{facultyId}")
-//    public ResponseEntity<List<Course>> getCoursesByFaculty(@PathVariable String facultyId) {
-//        try {
-//            Optional<Faculty> faculty = facultyRepository.findById(facultyId);
-//            if (!faculty.isPresent()) {
-//                return ResponseEntity.notFound().build();
-//            }
-//
-//            List<Course> courses = courseRepository.findAll().stream()
-//                    .filter(c -> c.getFaculty() != null && c.getFaculty().getCode().equals(facultyId))
-//                    .collect(Collectors.toList());
-//
-//            return ResponseEntity.ok(courses);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
+    @PostMapping("/courses/{code}/enrolment")
+    @PreAuthorize("hasRole('STUDENT')")
+    @Transactional
+    public ResponseEntity<?> enroll(@PathVariable String code,
+                                    @RequestParam String enrolmentKey,
+                                    HttpServletRequest request) {
+        String username = jwtUtil.extractUsername(jwtUtil.extractTokenFromCookie(request));
+        if (username == null) {
+            return ResponseEntity.badRequest()
+                    .body(List.of("Unable to extract username from request"));
+        }
+        Optional<Student> stuOpt = studentRepository.findByUsername(username);
+        if (stuOpt.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(List.of("User not found with username: " + username));
+        }
+
+        Optional<Course> courseOpt = courseRepository.findById(code);
+        if (courseOpt.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(List.of("Course not found with course code: " + code));
+        }
+
+        Course course = courseOpt.get();
+        Student student = stuOpt.get();
+
+        if (student.getCourses().contains(course)) {
+            return ResponseEntity.badRequest()
+                    .body(List.of("Student is already enrolled in this course"));
+        }
+
+        if (!course.getEnrolmentKey().equals(enrolmentKey)) {
+            return ResponseEntity.badRequest()
+                    .body(List.of("Invalid enrolment key!"));
+        }
+
+        course.getStudents().add(student);
+        student.getCourses().add(course);
+
+        studentRepository.save(student);
+        courseRepository.save(course);
+        return ResponseEntity.ok(new CourseDTO(course));
+    }
 
     // Search coruse
     @GetMapping("/courses/search")
-    public ResponseEntity<Page<CourseDTO>> searchCourses(@RequestParam String searchPhrase, Pageable pageable) {
-        try {
-            Page<Course> courses = courseRepository.findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase(
-                    searchPhrase, searchPhrase, pageable);
-            return ResponseEntity.ok(courses.map(CourseDTO::new));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
+    public ResponseEntity<?> searchCourses(@RequestParam String searchPhrase,
+                                           Pageable pageable,
+                                           HttpServletRequest request) {
+        String username = jwtUtil.extractUsername(jwtUtil.extractTokenFromCookie(request));
+        if (username == null) {
+            return ResponseEntity.badRequest()
+                    .body(List.of("Unable to extract username from request"));
         }
+
+        Optional<Student> stuOpt = studentRepository.findByUsername(username);
+        Optional<Lecturer> lectOpt = lecturerRepository.findByUsername(username);
+
+        // Check if user exists as either student or lecturer
+        if (stuOpt.isEmpty() && lectOpt.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(List.of("User not found with username: " + username));
+        }
+
+        // Get the faculty ID from either student or lecturer
+        String facultyCode;
+        if (stuOpt.isPresent()) {
+            facultyCode = stuOpt.get().getFaculty().getCode();
+        } else {
+            facultyCode = lectOpt.get().getFaculty().getCode();
+        }
+
+        // Search courses by name/code AND filter by faculty
+        Page<Course> courses = courseRepository.searchCoursesByFaculty(
+                searchPhrase, facultyCode, pageable);
+
+        return ResponseEntity.ok(courses.map(CourseDTO::new));
     }
     // ============== HELPER METHODS ==============
 

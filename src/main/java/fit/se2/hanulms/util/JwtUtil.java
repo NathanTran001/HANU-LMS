@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
     private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final int jwtExpiration = 86400000; // 24 hours (though not used in createToken)
+    private final int jwtExpiration = 86400000;
 
     // Method for single role (backward compatibility)
     public String generateToken(String username, String role) {
@@ -25,7 +25,7 @@ public class JwtUtil {
         return createToken(claims, username);
     }
 
-    // Method for multiple roles (new functionality)
+    // Method for multiple roles
     public String generateToken(String username, Set<Role> roles) {
         Map<String, Object> claims = new HashMap<>();
 
@@ -78,7 +78,7 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
-                .signWith(key, SignatureAlgorithm.HS256) // Use consistent algorithm
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 

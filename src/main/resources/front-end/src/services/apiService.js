@@ -112,7 +112,7 @@ const api = {
 			params: { page, size },
 		}),
 	getAllFaculties: () => api.get("/api/faculties/all"),
-	getFaculty: (code) => api.get(`/api/admin/faculties/${code}`),
+	getFaculty: (code) => api.get(`/api/faculties/${code}`),
 	createFaculty: (faculty) => api.post("/api/admin/faculties", faculty),
 	updateFaculty: (code, faculty) =>
 		api.put(`/api/admin/faculties/${code}`, faculty),
@@ -135,6 +135,10 @@ const api = {
 	deleteCourse: (code) => api.delete(`/api/courses/${code}`),
 	getCoursesByFaculty: (facultyId) =>
 		api.get(`/api/courses/faculty/${facultyId}`),
+	enroll: (code, enrolmentKey) =>
+		api.post(`/api/courses/${code}/enrolment`, null, {
+			params: { enrolmentKey },
+		}),
 	searchCourse: (searchPhrase, page = 0, size = 10) =>
 		api.get("/api/courses/search", {
 			params: { searchPhrase, page, size },
@@ -188,6 +192,18 @@ const api = {
 
 	deleteCourseAnnouncement: (announcementId) =>
 		api.delete(`/api/announcement/${announcementId}`),
+
+	// FACULTY ANNOUNCEMENT
+	getFacultyAnnouncements: () => api.get(`/api/faculty-announcements`),
+
+	createFacultyAnnouncement: (announcement) =>
+		api.post(`/api/faculty-announcements`, announcement),
+
+	updateFacultyAnnouncement: (announcementId, announcement) =>
+		api.put(`/api/faculty-announcements/${announcementId}`, announcement),
+
+	deleteFacultyAnnouncement: (announcementId) =>
+		api.delete(`/api/faculty-announcements/${announcementId}`),
 };
 
 export { API_BASE_URL };

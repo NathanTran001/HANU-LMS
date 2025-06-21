@@ -4,9 +4,10 @@ import api from "../services/apiService";
 import { useParams } from "react-router-dom";
 import Topic from "../components/Topic";
 import { useAuth } from "../contexts/AuthContext";
-import { LECTURER } from "../constants/roles";
+import { LECTURER, STUDENT } from "../constants/roles";
 import getErrorMessages from "../utils/error";
 import CourseAnnouncement from "../components/CourseAnnouncement";
+import TextField from "../components/TextField";
 
 const CourseDetailPage = () => {
 	const [course, setCourse] = useState(null);
@@ -18,6 +19,7 @@ const CourseDetailPage = () => {
 	const { user } = useAuth();
 	const createRef = useRef(null);
 	const [errors, setErrors] = useState([]);
+	const [enrolmentKey, setEnrolmentKey] = useState("");
 
 	useEffect(() => {
 		fetchCourse();
@@ -87,7 +89,62 @@ const CourseDetailPage = () => {
 		}
 	};
 
+	const handleEnroll = async () => {
+		try {
+			const courseResponse = await api.enroll(courseCode, enrolmentKey);
+			setCourse(courseResponse);
+			setErrors([]);
+		} catch (error) {
+			setErrors(getErrorMessages(error));
+		}
+	};
+
 	if (!course) return <div>Loading...</div>;
+	if (user.role === STUDENT) {
+		const enrolled = course?.students?.some(
+			(student) => student.username === user.username
+		);
+		if (!enrolled) {
+			return (
+				<div className={styles.courseDetailPage}>
+					<h3 className={styles.pageTitle}>
+						{course.code} - {course.name}
+					</h3>
+					<span>{course.description}</span>
+					{errors &&
+						errors.map(
+							(err, i) =>
+								err && (
+									<div
+										key={i}
+										className={styles.error}
+									>
+										{err}
+									</div>
+								)
+						)}
+					<div className={styles.enrolmentForm}>
+						<TextField
+							label={"Enrolment Key"}
+							required
+							icon={"key"}
+							value={enrolmentKey}
+							onChange={(value) => setEnrolmentKey(value)}
+							placeholder="Enter Enrolment Key to enroll yourself in this course"
+						/>
+						<div className={styles.enrolBtnWrapper}>
+							<button
+								className={styles.baseButton}
+								onClick={handleEnroll}
+							>
+								Enroll
+							</button>
+						</div>
+					</div>
+				</div>
+			);
+		}
+	}
 
 	return (
 		<div className={styles.courseDetailPage}>

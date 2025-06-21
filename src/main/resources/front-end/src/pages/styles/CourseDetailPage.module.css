@@ -112,3 +112,11 @@
 .deleteBtn:hover {
 	color: var(--danger-hover);
 }
+
+.enrolmentForm {
+	margin-block: 2rem;
+}
+
+.enrolBtnWrapper {
+	margin-block: 1rem;
+}
